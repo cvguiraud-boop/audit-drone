@@ -11,7 +11,7 @@ export default function ContactPage() {
 
       <div className="flex flex-wrap justify-center gap-4 mb-6">
         <a
-          href="mailto:contact@glocal-defense.com"
+          href="mailto:info@glocal-defense.com"
           className="flex items-center gap-2 bg-[#e63030] hover:bg-red-700 text-white px-8 py-3 rounded-full font-bold text-base transition-colors"
         >
           <Mail size={18} />
