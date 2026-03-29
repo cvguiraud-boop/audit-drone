@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Audit Conformité Drones de Loisirs – Glocal Defense</title>
+  <style>
+    :root {
+      --primary: #1a2a4a;
+      --accent: #e63030;
+      --light: #f4f6fa;
+      --text: #222;
+      --muted: #555;
+      --border: #d0d6e2;
+      --green: #1a7a3a;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; color: var(--text); background: #fff; line-height: 1.6; }
+
+    /* HEADER */
+    header {
+      background: var(--primary);
+      color: #fff;
+      padding: 24px 40px;
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      flex-wrap: wrap;
+    }
+    header img { height: 64px; }
+    header .brand h1 { font-size: 1.5rem; font-weight: 700; letter-spacing: 1px; }
+    header .brand p { font-size: 0.9rem; opacity: 0.8; margin-top: 2px; }
+
+    /* HERO */
+    .hero {
+      background: linear-gradient(135deg, #1a2a4a 60%, #2d4a7a);
+      color: #fff;
+      padding: 64px 40px;
+      text-align: center;
+    }
+    .hero h2 { font-size: 2.2rem; font-weight: 800; max-width: 800px; margin: 0 auto 16px; }
+    .hero p { font-size: 1.15rem; opacity: 0.9; max-width: 680px; margin: 0 auto 32px; }
+    .hero .badges { display: flex; justify-content: center; gap: 16px; flex-wrap: wrap; }
+    .badge {
+      background: rgba(255,255,255,0.15);
+      border: 1px solid rgba(255,255,255,0.3);
+      padding: 8px 20px;
+      border-radius: 24px;
+      font-size: 0.95rem;
+      font-weight: 600;
+    }
+    .badge.danger { background: rgba(230,48,48,0.7); border-color: #e63030; }
+
+    /* SECTIONS */
+    section { padding: 60px 40px; max-width: 1100px; margin: 0 auto; }
+    h2.section-title {
+      font-size: 1.7rem;
+      font-weight: 800;
+      color: var(--primary);
+      border-left: 5px solid var(--accent);
+      padding-left: 16px;
+      margin-bottom: 28px;
+    }
+    .section-intro { color: var(--muted); font-size: 1.05rem; margin-bottom: 32px; max-width: 800px; }
+
+    /* CONTEXT CARDS */
+    .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; margin-bottom: 32px; }
+    .card {
+      background: var(--light);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 24px;
+    }
+    .card .icon { font-size: 2rem; margin-bottom: 10px; }
+    .card h3 { font-size: 1rem; font-weight: 700; color: var(--primary); margin-bottom: 6px; }
+    .card p { font-size: 0.9rem; color: var(--muted); }
+
+    /* ALERT */
+    .alert {
+      background: #fff5f5;
+      border-left: 4px solid var(--accent);
+      border-radius: 8px;
+      padding: 18px 24px;
+      margin-bottom: 32px;
+      font-size: 0.97rem;
+      color: #7a1a1a;
+    }
+    .alert strong { color: var(--accent); }
+
+    /* TABLES */
+    .table-wrap { overflow-x: auto; margin-bottom: 32px; border-radius: 10px; border: 1px solid var(--border); }
+    table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+    thead { background: var(--primary); color: #fff; }
+    thead th { padding: 12px 14px; text-align: left; font-weight: 600; white-space: nowrap; }
+    tbody tr:nth-child(odd) { background: var(--light); }
+    tbody tr:nth-child(even) { background: #fff; }
+    tbody td { padding: 11px 14px; border-bottom: 1px solid var(--border); vertical-align: top; }
+    .oui { color: var(--green); font-weight: 700; }
+    .non { color: #aaa; }
+    .oui-part { color: #c08000; font-weight: 600; }
+
+    /* PRICING */
+    .pricing-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; margin-bottom: 32px; }
+    .pricing-card {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      transition: box-shadow 0.2s;
+    }
+    .pricing-card:hover { box-shadow: 0 6px 24px rgba(26,42,74,0.12); }
+    .pricing-card.featured { border-color: var(--primary); border-width: 2px; }
+    .pricing-card .pc-header {
+      background: var(--primary);
+      color: #fff;
+      padding: 18px 20px;
+    }
+    .pricing-card.featured .pc-header { background: var(--accent); }
+    .pc-header h3 { font-size: 1.05rem; font-weight: 700; }
+    .pc-header .tag { font-size: 0.78rem; opacity: 0.8; margin-top: 2px; }
+    .pc-body { padding: 20px; }
+    .pc-price { font-size: 2rem; font-weight: 800; color: var(--primary); }
+    .pc-price span { font-size: 1rem; font-weight: 400; color: var(--muted); }
+    .pc-duration { font-size: 0.85rem; color: var(--muted); margin-bottom: 14px; }
+    .pc-body ul { list-style: none; padding: 0; }
+    .pc-body ul li { padding: 5px 0; font-size: 0.9rem; border-bottom: 1px solid var(--light); }
+    .pc-body ul li:before { content: "✓ "; color: var(--green); font-weight: 700; }
+    .pc-body ul li:last-child { border-bottom: none; }
+    .pc-cta {
+      display: block;
+      margin-top: 16px;
+      text-align: center;
+      background: var(--primary);
+      color: #fff;
+      padding: 10px;
+      border-radius: 6px;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.92rem;
+      transition: background 0.2s;
+    }
+    .pc-cta:hover { background: var(--accent); }
+
+    /* OPTIONS */
+    .options-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; margin-bottom: 32px; }
+    .option-card {
+      background: var(--light);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 18px;
+    }
+    .option-card h4 { font-size: 0.95rem; font-weight: 700; color: var(--primary); margin-bottom: 6px; }
+    .option-card p { font-size: 0.87rem; color: var(--muted); margin-bottom: 10px; }
+    .option-card .price { font-weight: 700; color: var(--accent); }
+
+    /* FINES */
+    .fines-table thead { background: #7a1a1a; }
+    .fine-low { color: #c08000; font-weight: 600; }
+    .fine-mid { color: #d06000; font-weight: 700; }
+    .fine-high { color: var(--accent); font-weight: 700; }
+    .fine-extreme { color: #7a0000; font-weight: 800; }
+
+    /* STEPS */
+    .steps { counter-reset: step; display: flex; flex-direction: column; gap: 16px; margin-bottom: 32px; }
+    .step {
+      display: flex;
+      gap: 20px;
+      align-items: flex-start;
+      background: var(--light);
+      border-radius: 10px;
+      padding: 20px 24px;
+      border: 1px solid var(--border);
+    }
+    .step-num {
+      background: var(--primary);
+      color: #fff;
+      border-radius: 50%;
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 1rem;
+      flex-shrink: 0;
+    }
+    .step h4 { font-weight: 700; color: var(--primary); margin-bottom: 4px; }
+    .step p { font-size: 0.9rem; color: var(--muted); }
+
+    /* PROMO BAND */
+    .promo-band {
+      background: linear-gradient(90deg, var(--accent), #b02020);
+      color: #fff;
+      text-align: center;
+      padding: 20px 40px;
+      font-size: 1.1rem;
+      font-weight: 600;
+    }
+    .promo-band strong { font-size: 1.3rem; }
+
+    /* CONTACT */
+    .contact-section {
+      background: var(--primary);
+      color: #fff;
+      padding: 60px 40px;
+      text-align: center;
+    }
+    .contact-section h2 { font-size: 1.8rem; font-weight: 800; margin-bottom: 12px; }
+    .contact-section p { opacity: 0.85; margin-bottom: 28px; font-size: 1.05rem; max-width: 600px; margin-left: auto; margin-right: auto; }
+    .contact-btn {
+      display: inline-block;
+      background: var(--accent);
+      color: #fff;
+      padding: 14px 36px;
+      border-radius: 30px;
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 1.05rem;
+      transition: background 0.2s;
+    }
+    .contact-btn:hover { background: #c02020; }
+    .diag-free { margin-top: 16px; opacity: 0.8; font-size: 0.9rem; }
+
+    /* FOOTER */
+    footer {
+      background: #111;
+      color: #aaa;
+      text-align: center;
+      padding: 20px 40px;
+      font-size: 0.85rem;
+    }
+
+    /* DIVIDER */
+    .section-divider { border: none; border-top: 1px solid var(--border); margin: 0; }
+
+    @media (max-width: 600px) {
+      header, section, .contact-section { padding-left: 20px; padding-right: 20px; }
+      .hero { padding: 40px 20px; }
+      .hero h2 { font-size: 1.5rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <img src="GLOCAL__26_recadré-fond transparent.png" alt="Glocal Defense" />
+  <div class="brand">
+    <h1>GLOCAL DEFENSE</h1>
+    <p>Audit de conformité – Drones de loisirs</p>
+  </div>
+</header>
+
+<!-- HERO -->
+<div class="hero">
+  <h2>Pilotez en toute légalité.<br>Évitez les amendes.</h2>
+  <p>La réglementation européenne EASA est pleinement applicable en France. La majorité des pilotes de loisirs est en infraction <strong>sans le savoir</strong>. Nous vous accompagnons pour mettre votre drone en conformité.</p>
+  <div class="badges">
+    <div class="badge">Diagnostic personnalisé</div>
+    <div class="badge">Accompagnement pas-à-pas</div>
+    <div class="badge">Kit de documentation fourni</div>
+    <div class="badge danger">Amendes : 135€ à 750€</div>
+  </div>
+</div>
+
+<!-- CONTEXT -->
+<section>
+  <h2 class="section-title">Contexte &amp; Objectif</h2>
+  <p class="section-intro">La grande majorité des pilotes de loisirs se retrouve de bonne foi en infraction, par méconnaissance de leurs obligations réglementaires.</p>
+  <div class="cards">
+    <div class="card">
+      <div class="icon">🎓</div>
+      <h3>Formation</h3>
+      <p>Absence du certificat A1/A3 ou du BAPD A2 selon la classe du drone.</p>
+    </div>
+    <div class="card">
+      <div class="icon">📋</div>
+      <h3>Enregistrement</h3>
+      <p>Défaut d'immatriculation sur la plateforme AlphaTango (DGAC).</p>
+    </div>
+    <div class="card">
+      <div class="icon">🏷</div>
+      <h3>Marquage</h3>
+      <p>Absence du numéro d'exploitant FRA-XXXXX sur l'appareil.</p>
+    </div>
+    <div class="card">
+      <div class="icon">🎮</div>
+      <h3>Spécificités FPV</h3>
+      <p>Vol en immersion sans observateur — infraction systématique.</p>
+    </div>
+  </div>
+  <div class="alert">
+    <strong>Bon à savoir :</strong> Notre offre d'audit vous accompagne pas-à-pas pour mettre en conformité votre pratique, éviter les amendes (135€ à 750€) et piloter en toute sérénité.
+  </div>
+</section>
+<hr class="section-divider" />
+
+<!-- DIAGNOSTIC TABLE -->
+<section>
+  <h2 class="section-title">Diagnostic différencié selon votre drone</h2>
+  <p class="section-intro">Avant toute démarche, nous identifions précisément votre drone et ses obligations.</p>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Obligation</th>
+          <th>C0 sans caméra</th>
+          <th>C0 avec caméra</th>
+          <th>Classe C1</th>
+          <th>Classe C2</th>
+          <th>FPV (selon classe)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Poids</strong></td>
+          <td>&lt; 250g</td>
+          <td>&lt; 250g</td>
+          <td>250g – 900g</td>
+          <td>900g – 4kg</td>
+          <td>Variable (C0 à C2)</td>
+        </tr>
+        <tr>
+          <td><strong>Sous-catégorie</strong></td>
+          <td>A1</td>
+          <td>A1</td>
+          <td>A1</td>
+          <td>A2</td>
+          <td>Selon classe</td>
+        </tr>
+        <tr>
+          <td><strong>Formation obligatoire</strong></td>
+          <td class="non">Non</td>
+          <td class="non">Non</td>
+          <td class="oui">Oui : A1/A3</td>
+          <td class="oui">Oui : A1/A3 + A2</td>
+          <td class="oui-part">Selon classe</td>
+        </tr>
+        <tr>
+          <td><strong>Enregistrement exploitant</strong></td>
+          <td class="non">Non</td>
+          <td class="oui">Oui</td>
+          <td class="oui">Oui</td>
+          <td class="oui">Oui</td>
+          <td class="oui">Oui si caméra</td>
+        </tr>
+        <tr>
+          <td><strong>Enregistrement drone (UAS)</strong></td>
+          <td class="non">Non</td>
+          <td class="non">Non</td>
+          <td class="non">Non (&lt;800g)</td>
+          <td class="oui">Oui</td>
+          <td class="oui-part">Oui si &gt;800g</td>
+        </tr>
+        <tr>
+          <td><strong>Marquage FRA sur drone</strong></td>
+          <td class="non">Non</td>
+          <td class="oui">Oui</td>
+          <td class="oui">Oui</td>
+          <td class="oui">Oui</td>
+          <td class="oui">Oui si caméra</td>
+        </tr>
+        <tr>
+          <td><strong>Identification électronique</strong></td>
+          <td class="non">Non</td>
+          <td class="non">Non</td>
+          <td class="oui">Oui (intégrée)</td>
+          <td class="oui">Oui (intégrée)</td>
+          <td class="oui-part">Selon classe</td>
+        </tr>
+        <tr>
+          <td><strong>Balise signalement électronique</strong></td>
+          <td class="non">Non</td>
+          <td class="non">Non</td>
+          <td class="non">Non</td>
+          <td class="oui">Oui si &gt;800g</td>
+          <td class="oui-part">Oui si &gt;800g</td>
+        </tr>
+        <tr>
+          <td><strong>Observateur FPV</strong></td>
+          <td class="non">Non</td>
+          <td class="non">Non</td>
+          <td class="non">Non</td>
+          <td class="non">Non</td>
+          <td class="oui">Obligatoire</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+<hr class="section-divider" />
+
+<!-- PROCESS -->
+<section>
+  <h2 class="section-title">Notre démarche d'audit – 4 étapes</h2>
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">1</div>
+      <div>
+        <h4>Diagnostic et identification</h4>
+        <p>Vérification de la classe CE (C0, C1, C2 ou DIY), du poids réel, de la présence d'une caméra, de l'usage (loisirs, FPV, zone peuplée) et de l'assurance responsabilité civile.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div>
+        <h4>Mise en conformité administrative</h4>
+        <p>Création du compte AlphaTango, enregistrement exploitant (numéro FRA-XXXXX), enregistrement UAS, apposition du marquage, déclaration de la balise.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div>
+        <h4>Formation et certifications</h4>
+        <p>Accompagnement A1/A3 (gratuit), préparation BAPD A2, formation à l'observateur pour les pilotes FPV, orientation vers le CATS pour les vols professionnels.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">4</div>
+      <div>
+        <h4>Formation opérationnelle &amp; kit de documentation</h4>
+        <p>Géoportail Drones, distances de sécurité, protocoles FPV. Remise d'un dossier complet : attestations, certificats, étiquettes FRA, fiches mémo personnalisées.</p>
+      </div>
+    </div>
+  </div>
+</section>
+<hr class="section-divider" />
+
+<!-- PRICING -->
+<section>
+  <h2 class="section-title">Tarifs</h2>
+  <p class="section-intro">Des tarifs accessibles, positionnés entre le gratuit officiel et les formations professionnelles (600€+).</p>
+  <div class="pricing-grid">
+    <div class="pricing-card">
+      <div class="pc-header">
+        <h3>C0 avec caméra</h3>
+        <div class="tag">DJI Mini, Hubsan Zino Mini…</div>
+      </div>
+      <div class="pc-body">
+        <div class="pc-price">48 € <span>TTC</span></div>
+        <div class="pc-duration">30 min · à domicile ou en visio</div>
+        <ul>
+          <li>Diagnostic matériel</li>
+          <li>Enregistrement AlphaTango</li>
+          <li>Étiquette marquage FRA fournie</li>
+          <li>Vérification assurance</li>
+          <li>Kit documentation complet</li>
+        </ul>
+        <a href="#contact" class="pc-cta">Prendre rendez-vous</a>
+      </div>
+    </div>
+    <div class="pricing-card featured">
+      <div class="pc-header">
+        <h3>Classe C1</h3>
+        <div class="tag">DJI Air, Mavic, 250g–900g</div>
+      </div>
+      <div class="pc-body">
+        <div class="pc-price">96 € <span>TTC</span></div>
+        <div class="pc-duration">1h · à domicile ou en visio</div>
+        <ul>
+          <li>Diagnostic complet</li>
+          <li>Enregistrement exploitant</li>
+          <li>Accompagnement formation A1/A3</li>
+          <li>Paramétrage e-ID</li>
+          <li>Kit documentation complet</li>
+        </ul>
+        <a href="#contact" class="pc-cta">Prendre rendez-vous</a>
+      </div>
+    </div>
+    <div class="pricing-card">
+      <div class="pc-header">
+        <h3>Classe C2</h3>
+        <div class="tag">900g – 4kg</div>
+      </div>
+      <div class="pc-body">
+        <div class="pc-price">144 € <span>TTC</span></div>
+        <div class="pc-duration">1h30 · à domicile ou en visio</div>
+        <ul>
+          <li>Diagnostic complet</li>
+          <li>Enregistrements exploitant + UAS</li>
+          <li>Préparation BAPD A2</li>
+          <li>Paramétrage mode basse vitesse</li>
+          <li>Balise de signalement (&gt;800g)</li>
+        </ul>
+        <a href="#contact" class="pc-cta">Prendre rendez-vous</a>
+      </div>
+    </div>
+    <div class="pricing-card">
+      <div class="pc-header">
+        <h3>Drone FPV</h3>
+        <div class="tag">Selon classe</div>
+      </div>
+      <div class="pc-body">
+        <div class="pc-price">156 € <span>TTC</span></div>
+        <div class="pc-duration">1h30 · à domicile ou en visio</div>
+        <ul>
+          <li>Diagnostic selon classe</li>
+          <li>Enregistrements adaptés</li>
+          <li>Formation observateur FPV</li>
+          <li>Briefing pilote / observateur</li>
+          <li>Gestion failsafe et urgences</li>
+        </ul>
+        <a href="#contact" class="pc-cta">Prendre rendez-vous</a>
+      </div>
+    </div>
+    <div class="pricing-card">
+      <div class="pc-header">
+        <h3>Pack famille / multi-drones</h3>
+        <div class="tag">Jusqu'à 3 appareils</div>
+      </div>
+      <div class="pc-body">
+        <div class="pc-price">180 € <span>TTC</span></div>
+        <div class="pc-duration">2h · à domicile</div>
+        <ul>
+          <li>2 à 3 drones couverts</li>
+          <li>Enregistrements multiples</li>
+          <li>Kits de documentation x famille</li>
+        </ul>
+        <a href="#contact" class="pc-cta">Prendre rendez-vous</a>
+      </div>
+    </div>
+    <div class="pricing-card">
+      <div class="pc-header">
+        <h3>Drone DIY sans classe</h3>
+        <div class="tag">Montage maison, absence CE</div>
+      </div>
+      <div class="pc-body">
+        <div class="pc-price">108 € <span>TTC</span></div>
+        <div class="pc-duration">1h · à domicile ou en visio</div>
+        <ul>
+          <li>Audit + conseil</li>
+          <li>Orientation catégorie spécifique</li>
+          <li>Démarches adaptées</li>
+        </ul>
+        <a href="#contact" class="pc-cta">Prendre rendez-vous</a>
+      </div>
+    </div>
+  </div>
+
+  <h3 style="color:var(--primary); font-size:1.15rem; margin-bottom:16px;">Options complémentaires</h3>
+  <div class="options-grid">
+    <div class="option-card">
+      <h4>Déclaration préfectorale (zone peuplée)</h4>
+      <p>Rédaction et soumission du dossier STS-01 sur AlphaTango</p>
+      <div class="price">96 € TTC</div>
+    </div>
+    <div class="option-card">
+      <h4>Installation balise de signalement</h4>
+      <p>Déplacement, installation physique + déclaration (hors coût balise)</p>
+      <div class="price">60 € TTC</div>
+    </div>
+    <div class="option-card">
+      <h4>Formation terrain</h4>
+      <p>Session pratique avec mise en situation réelle (1h)</p>
+      <div class="price">72 € TTC</div>
+    </div>
+    <div class="option-card">
+      <h4>Forfait "Presta continue"</h4>
+      <p>Accompagnement annuel : mises à jour réglementaires, conseils, rappels</p>
+      <div class="price">144 € TTC / an</div>
+    </div>
+  </div>
+</section>
+
+<!-- PROMO BAND -->
+<div class="promo-band">
+  🎯 Offre de lancement : <strong>–20%</strong> sur le premier audit &nbsp;|&nbsp; Parrainage : <strong>–10%</strong> pour le parrain et le filleul
+</div>
+
+<!-- FINES -->
+<section>
+  <h2 class="section-title">Amendes pour infractions à la réglementation drone</h2>
+  <p class="section-intro">Ces montants sont issus du décret n° 2019-1253 du 28 novembre 2019 et restent applicables en 2026.</p>
+  <div class="table-wrap">
+    <table class="fines-table">
+      <thead>
+        <tr>
+          <th>Infraction</th>
+          <th>Amende forfaitaire</th>
+          <th>Montant maximum</th>
+          <th>Public concerné</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Justificatif non présentable immédiatement</td>
+          <td class="fine-low">38 €</td>
+          <td class="fine-low">38 €</td>
+          <td>Tous les pilotes (C0 à C4, FPV)</td>
+        </tr>
+        <tr>
+          <td>Défaut d'enregistrement exploitant (absence numéro FRA)</td>
+          <td class="fine-mid">135 €</td>
+          <td class="fine-high">750 €</td>
+          <td>C0 avec caméra, C1, C2, C3, C4, FPV avec caméra</td>
+        </tr>
+        <tr>
+          <td>Défaut d'enregistrement UAS (drone non immatriculé)</td>
+          <td class="fine-mid">135 €</td>
+          <td class="fine-high">750 €</td>
+          <td>Drones &gt; 800g (C2, C3, C4)</td>
+        </tr>
+        <tr>
+          <td>Défaut de marquage FRA (numéro absent ou illisible)</td>
+          <td class="fine-mid">135 €</td>
+          <td class="fine-high">750 €</td>
+          <td>C0 avec caméra, C1, C2, C3, C4, FPV avec caméra</td>
+        </tr>
+        <tr>
+          <td>Défaut de signalement électronique (balise absente &gt;800g)</td>
+          <td class="fine-mid">135 €</td>
+          <td class="fine-high">750 €</td>
+          <td>Drones &gt; 800g (C2, C3, C4, FPV &gt;800g)</td>
+        </tr>
+        <tr>
+          <td>Vol sans attestation A1/A3</td>
+          <td class="fine-high">450 €</td>
+          <td class="fine-high">450 €</td>
+          <td>C1, C2, C3, C4, FPV C1/C2</td>
+        </tr>
+        <tr>
+          <td>Vol à moins de 30m des personnes sans BAPD A2</td>
+          <td class="fine-high">450 €</td>
+          <td class="fine-high">450 €</td>
+          <td>C2 (loisirs), FPV C2</td>
+        </tr>
+        <tr>
+          <td>Vol sans observateur FPV (immersion sans observateur)</td>
+          <td class="fine-high">450 €</td>
+          <td class="fine-high">750 €</td>
+          <td>Tous les pilotes FPV en immersion</td>
+        </tr>
+        <tr>
+          <td>Vol en zone interdite (aéroport, site sensible)</td>
+          <td class="fine-extreme">15 000 € + 6 mois prison</td>
+          <td class="fine-extreme">75 000 €</td>
+          <td>Tous les pilotes</td>
+        </tr>
+        <tr>
+          <td>Non-respect de la hauteur max (120m) / Vol de nuit / Perte de vue VLOS</td>
+          <td class="fine-extreme">15 000 € + 6 mois prison</td>
+          <td class="fine-extreme">75 000 €</td>
+          <td>Tous les pilotes</td>
+        </tr>
+        <tr>
+          <td>Survol de foules / rassemblements</td>
+          <td class="fine-extreme">15 000 € + 6 mois prison</td>
+          <td class="fine-extreme">75 000 €</td>
+          <td>Tous les pilotes</td>
+        </tr>
+        <tr>
+          <td>Violation de la vie privée (captation sans consentement)</td>
+          <td class="fine-extreme">45 000 € + 1 an prison</td>
+          <td class="fine-extreme">45 000 €</td>
+          <td>Tous les pilotes</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<div class="contact-section" id="contact">
+  <h2>Organisez votre audit</h2>
+  <p>Diagnostic gratuit de 15 minutes par téléphone pour qualifier votre besoin. Puis rendez-vous à domicile ou en visio.</p>
+  <a href="mailto:contact@glocal-defense.com" class="contact-btn">Nous contacter</a>
+  <p class="diag-free">Premier diagnostic téléphonique gratuit (15 min)</p>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <p>&copy; 2026 Glocal Defense – Audit de conformité drones de loisirs – Réglementation EASA / DGAC</p>
+</footer>
+
+</body>
+</html>
