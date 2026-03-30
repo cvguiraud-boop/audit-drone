@@ -1,0 +1,1681 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Audit Drone — Conformité réglementaire</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700&family=Mulish:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0C0E14;
+  --bg2: #12151E;
+  --bg3: #181C28;
+  --border: rgba(255,255,255,0.07);
+  --border-h: rgba(255,255,255,0.14);
+  --text: #EEF0FF;
+  --muted: rgba(238,240,255,0.5);
+  --hint: rgba(238,240,255,0.28);
+
+  /* C0 — vert émeraude */
+  --c0: #00D4A0;
+  --c0-soft: rgba(0,212,160,0.1);
+  --c0-mid: rgba(0,212,160,0.22);
+  --c0-border: rgba(0,212,160,0.35);
+
+  /* C1 — bleu électrique */
+  --c1: #4F9FFF;
+  --c1-soft: rgba(79,159,255,0.1);
+  --c1-mid: rgba(79,159,255,0.22);
+  --c1-border: rgba(79,159,255,0.35);
+
+  /* C2 — ambre */
+  --c2: #FFB830;
+  --c2-soft: rgba(255,184,48,0.1);
+  --c2-mid: rgba(255,184,48,0.22);
+  --c2-border: rgba(255,184,48,0.35);
+
+  /* A3 — violet / legacy */
+  --a3: #C084FC;
+  --a3-soft: rgba(192,132,252,0.1);
+  --a3-mid: rgba(192,132,252,0.22);
+  --a3-border: rgba(192,132,252,0.35);
+
+  --red: #FF5C5C;
+  --red-soft: rgba(255,92,92,0.1);
+  --green: #34D399;
+
+  --font-h: 'Syne', sans-serif;
+  --font-b: 'Mulish', sans-serif;
+}
+
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:var(--font-b);
+  font-size:15px;
+  line-height:1.65;
+  min-height:100vh;
+}
+
+/* ── GRID NOISE ── */
+body::before{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background-image:
+    radial-gradient(ellipse 60% 40% at 10% 0%, rgba(0,212,160,0.06) 0%, transparent 70%),
+    radial-gradient(ellipse 50% 35% at 90% 100%, rgba(79,159,255,0.07) 0%, transparent 70%),
+    radial-gradient(ellipse 40% 30% at 50% 50%, rgba(255,184,48,0.04) 0%, transparent 70%);
+}
+
+/* ── NAV ── */
+nav{
+  position:sticky;top:0;z-index:200;
+  background:rgba(12,14,20,0.9);
+  backdrop-filter:blur(16px);
+  border-bottom:1px solid var(--border);
+  height:54px;display:flex;align-items:center;gap:0;
+  padding:0 1.5rem;
+}
+
+.nav-logo{
+  font-family:var(--font-h);font-size:16px;font-weight:700;
+  color:var(--text);text-decoration:none;
+  display:flex;align-items:center;gap:10px;flex-shrink:0;margin-right:1.5rem;
+}
+
+.logo-badge{
+  width:30px;height:30px;border-radius:8px;
+  background:linear-gradient(135deg,var(--c0) 0%,var(--c1) 50%,var(--c2) 100%);
+  display:flex;align-items:center;justify-content:center;font-size:14px;
+}
+
+.nav-tabs{display:flex;gap:2px;overflow-x:auto;}
+
+.nav-tab{
+  height:54px;display:flex;align-items:center;gap:7px;
+  padding:0 14px;font-size:13px;font-family:var(--font-b);font-weight:500;
+  color:var(--muted);text-decoration:none;cursor:pointer;
+  border:none;background:none;white-space:nowrap;
+  border-bottom:2px solid transparent;
+  transition:color .15s,border-color .15s;
+  position:relative;top:1px;
+}
+
+.nav-tab:hover{color:var(--text);}
+.nav-tab.active{color:var(--text);border-bottom-color:currentColor;}
+.nav-tab.t-c0.active{color:var(--c0);}
+.nav-tab.t-c1.active{color:var(--c1);}
+.nav-tab.t-c2.active{color:var(--c2);}
+.nav-tab.t-a3.active{color:var(--a3);}
+
+.nav-pip{
+  width:7px;height:7px;border-radius:50%;flex-shrink:0;
+}
+
+/* ── PAGES ── */
+.page{display:none;position:relative;z-index:1;}
+.page.active{display:block;}
+
+/* ══════════════════════════════════════════
+   HOME PAGE
+══════════════════════════════════════════ */
+.home-hero{
+  max-width:900px;margin:0 auto;
+  padding:4rem 2rem 2rem;text-align:center;
+}
+
+.eyebrow{
+  display:inline-flex;align-items:center;gap:8px;
+  background:rgba(255,255,255,0.05);border:1px solid var(--border-h);
+  border-radius:20px;padding:5px 14px;
+  font-size:12px;font-weight:600;letter-spacing:.07em;
+  color:var(--muted);margin-bottom:1.5rem;text-transform:uppercase;
+}
+
+h1{
+  font-family:var(--font-h);font-size:clamp(2.2rem,5vw,3.6rem);
+  font-weight:700;line-height:1.1;margin-bottom:1rem;
+}
+
+.home-sub{
+  font-size:16px;color:var(--muted);max-width:520px;margin:0 auto 3rem;line-height:1.7;
+}
+
+/* DRONE CARDS */
+.drone-grid{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:1.25rem;
+  max-width:1100px;margin:0 auto;padding:0 2rem 3rem;
+}
+
+@media(max-width:900px){
+  .drone-grid{grid-template-columns:repeat(2,1fr);}
+}
+@media(max-width:500px){
+  .drone-grid{grid-template-columns:1fr;}
+}
+
+.drone-card{
+  border-radius:16px;border:1px solid var(--border);
+  background:var(--bg2);
+  padding:2rem 1.5rem 1.5rem;
+  display:flex;flex-direction:column;gap:1rem;
+  cursor:pointer;text-decoration:none;
+  transition:border-color .2s,transform .2s,box-shadow .2s;
+  position:relative;overflow:hidden;
+}
+
+.drone-card::after{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(180deg,rgba(255,255,255,0.03) 0%,transparent 100%);
+  opacity:0;transition:opacity .2s;
+}
+
+.drone-card:hover{transform:translateY(-4px);box-shadow:0 20px 60px rgba(0,0,0,.5);}
+.drone-card:hover::after{opacity:1;}
+
+.dc-c0{border-top:3px solid var(--c0);}
+.dc-c0:hover{border-color:var(--c0);box-shadow:0 20px 60px rgba(0,0,0,.4),0 0 40px rgba(0,212,160,.08);}
+
+.dc-c1{border-top:3px solid var(--c1);}
+.dc-c1:hover{border-color:var(--c1);box-shadow:0 20px 60px rgba(0,0,0,.4),0 0 40px rgba(79,159,255,.08);}
+
+.dc-c2{border-top:3px solid var(--c2);}
+.dc-c2:hover{border-color:var(--c2);box-shadow:0 20px 60px rgba(0,0,0,.4),0 0 40px rgba(255,184,48,.08);}
+
+.dc-a3{border-top:3px solid var(--a3);}
+.dc-a3:hover{border-color:var(--a3);box-shadow:0 20px 60px rgba(0,0,0,.4),0 0 40px rgba(192,132,252,.08);}
+
+.dc-icon{
+  width:52px;height:52px;border-radius:12px;
+  display:flex;align-items:center;justify-content:center;font-size:22px;
+}
+
+.dc-class{
+  font-family:var(--font-h);font-size:2rem;font-weight:700;
+  letter-spacing:-.01em;
+}
+
+.dc-weight{
+  font-size:12px;font-weight:600;letter-spacing:.05em;
+  text-transform:uppercase;color:var(--muted);
+  margin-top:-8px;
+}
+
+.dc-cat{
+  display:inline-flex;align-items:center;gap:6px;
+  border-radius:6px;padding:3px 10px;
+  font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;
+  border:1px solid;
+}
+
+.dc-desc{font-size:13px;color:var(--muted);line-height:1.6;flex:1;}
+
+.dc-obligations{list-style:none;display:flex;flex-direction:column;gap:5px;}
+
+.dc-obl-item{
+  display:flex;align-items:center;gap:8px;
+  font-size:12px;color:var(--muted);
+}
+
+.obl-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;}
+
+.dc-cta{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-top:.5rem;padding-top:1rem;
+  border-top:1px solid var(--border);
+  font-size:13px;font-weight:600;
+}
+
+/* COMPARISON TABLE */
+.comp-section{
+  max-width:960px;margin:0 auto;padding:0 2rem 4rem;
+}
+
+.comp-title{
+  font-family:var(--font-h);font-size:1rem;font-weight:600;
+  color:var(--muted);letter-spacing:.08em;text-transform:uppercase;
+  margin-bottom:1.25rem;
+}
+
+.comp-table{
+  width:100%;border-collapse:collapse;font-size:13px;
+}
+
+.comp-table th{
+  padding:10px 16px;text-align:left;font-weight:600;
+  font-size:11px;letter-spacing:.06em;text-transform:uppercase;
+  color:var(--muted);background:var(--bg2);
+  border-bottom:1px solid var(--border);
+}
+
+.comp-table th:first-child{border-radius:8px 0 0 0;}
+.comp-table th:last-child{border-radius:0 8px 0 0;}
+
+.comp-table td{
+  padding:10px 16px;border-bottom:1px solid rgba(255,255,255,0.04);
+  color:var(--text);vertical-align:top;
+}
+
+.comp-table tr:last-child td{border-bottom:none;}
+.comp-table tr:hover td{background:rgba(255,255,255,.02);}
+
+.comp-table .label{
+  font-weight:600;color:var(--muted);font-size:12px;white-space:nowrap;
+}
+
+.pill{
+  display:inline-block;border-radius:4px;padding:2px 8px;
+  font-size:11px;font-weight:700;letter-spacing:.03em;border:1px solid;
+}
+
+.pill-yes{background:rgba(52,211,153,.12);color:#34D399;border-color:rgba(52,211,153,.3);}
+.pill-no {background:rgba(255,92,92,.1); color:#FF7070;border-color:rgba(255,92,92,.25);}
+.pill-cond{background:rgba(255,184,48,.1);color:#FFB830;border-color:rgba(255,184,48,.25);}
+
+/* ══════════════════════════════════════════
+   FICHE PAGES — SHARED
+══════════════════════════════════════════ */
+.fiche-wrap{max-width:880px;margin:0 auto;padding:2.5rem 2rem 5rem;}
+
+.fiche-hero{
+  display:flex;align-items:flex-start;gap:1.5rem;
+  padding-bottom:2rem;margin-bottom:2rem;
+  border-bottom:1px solid var(--border);
+}
+
+.fiche-icon{
+  width:60px;height:60px;border-radius:14px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:26px;flex-shrink:0;
+}
+
+.fiche-eyebrow{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px;}
+
+h2{font-family:var(--font-h);font-size:2rem;font-weight:700;line-height:1.15;margin-bottom:.4rem;}
+
+.fiche-sub{font-size:14px;color:var(--muted);line-height:1.65;}
+
+.alert-band{
+  display:flex;align-items:flex-start;gap:12px;
+  border-radius:10px;padding:.9rem 1.1rem;
+  font-size:13px;line-height:1.6;margin-bottom:1.5rem;
+  border:1px solid;
+}
+
+.alert-icon{font-size:16px;flex-shrink:0;margin-top:1px;}
+
+/* SECTION CARD */
+.scard{
+  background:var(--bg2);border:1px solid var(--border);
+  border-radius:14px;padding:1.5rem;margin-bottom:1.1rem;
+  transition:border-color .2s;
+}
+.scard:hover{border-color:var(--border-h);}
+
+.scard-head{
+  display:flex;align-items:center;gap:10px;
+  padding-bottom:1rem;margin-bottom:1.1rem;
+  border-bottom:1px solid var(--border);
+}
+
+.scard-num{
+  width:30px;height:30px;border-radius:8px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:12px;font-weight:700;flex-shrink:0;
+  font-family:var(--font-h);
+}
+
+.scard-label{
+  font-size:12px;font-weight:700;letter-spacing:.07em;
+  text-transform:uppercase;color:var(--muted);
+}
+
+/* CHECKLIST */
+.cl{list-style:none;}
+
+.cl-item{
+  display:flex;align-items:flex-start;gap:10px;
+  padding:8px 4px;
+  border-bottom:1px solid rgba(255,255,255,.04);
+  cursor:pointer;user-select:none;
+  border-radius:6px;
+  transition:background .1s;
+}
+.cl-item:last-child{border-bottom:none;}
+.cl-item:hover{background:rgba(255,255,255,.025);}
+.cl-item.done .cl-text{color:var(--hint);text-decoration:line-through;}
+
+.cl-box{
+  width:17px;height:17px;border-radius:5px;
+  border:1.5px solid rgba(255,255,255,.2);
+  flex-shrink:0;margin-top:3px;
+  display:flex;align-items:center;justify-content:center;
+  transition:all .15s;
+}
+
+.cl-item.done .cl-box{border-color:currentColor;}
+.cl-item.done .cl-box::after{
+  content:'';width:8px;height:4.5px;
+  border-left:1.5px solid currentColor;border-bottom:1.5px solid currentColor;
+  transform:rotate(-45deg) translate(1px,-1px);
+  display:block;
+}
+
+.cl-text{flex:1;font-size:14px;color:var(--text);line-height:1.5;}
+
+.tag{
+  display:inline-block;font-size:10px;font-weight:700;
+  padding:2px 7px;border-radius:20px;margin-left:6px;vertical-align:middle;
+  letter-spacing:.04em;text-transform:uppercase;border:1px solid;
+}
+
+.t-obl{background:rgba(255,92,92,.12);color:#FF7070;border-color:rgba(255,92,92,.3);}
+.t-imp{background:rgba(255,184,48,.12);color:#FFB830;border-color:rgba(255,184,48,.3);}
+.t-ok {background:rgba(52,211,153,.1); color:#34D399;border-color:rgba(52,211,153,.3);}
+.t-cons{background:rgba(255,255,255,.07);color:var(--muted);border-color:rgba(255,255,255,.15);}
+
+.note-line{
+  border-radius:0 8px 8px 0;padding:.7rem 1rem;
+  font-size:13px;color:var(--muted);font-style:italic;
+  margin-top:.9rem;line-height:1.6;border-left:2.5px solid;
+}
+
+/* SERVICES GRID */
+.srv-grid{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+  gap:.9rem;margin-top:.5rem;
+}
+
+.srv-card{
+  background:var(--bg3);border:1px solid var(--border);
+  border-radius:12px;padding:1rem 1.1rem;
+  display:flex;flex-direction:column;gap:7px;
+  cursor:pointer;transition:border-color .2s,transform .2s,box-shadow .2s;
+  position:relative;overflow:hidden;
+}
+
+.srv-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  opacity:0;transition:opacity .2s;
+}
+
+.srv-card:hover{transform:translateY(-2px);}
+.srv-card:hover::before{opacity:1;}
+
+.srv-ico{
+  width:34px;height:34px;border-radius:8px;
+  display:flex;align-items:center;justify-content:center;font-size:16px;
+}
+
+.srv-name{font-size:13px;font-weight:600;color:var(--text);line-height:1.3;}
+.srv-desc{font-size:11px;color:var(--hint);line-height:1.45;}
+.srv-arrow{font-size:11px;color:var(--hint);margin-top:auto;transition:color .15s;}
+.srv-card:hover .srv-arrow{color:var(--muted);}
+
+/* RISKS */
+.risk-item{
+  display:flex;gap:12px;padding:10px 0;
+  border-bottom:1px solid rgba(255,255,255,.04);
+}
+.risk-item:last-child{border-bottom:none;}
+
+.risk-ico{
+  width:28px;height:28px;border-radius:6px;
+  background:var(--red-soft);display:flex;align-items:center;justify-content:center;
+  font-size:13px;flex-shrink:0;margin-top:1px;
+}
+
+.risk-txt{font-size:13.5px;color:var(--text);line-height:1.55;}
+
+/* CLOSING */
+.close-grid{display:grid;grid-template-columns:1fr 1fr;gap:.9rem;}
+@media(max-width:500px){.close-grid{grid-template-columns:1fr;}}
+
+.close-item{
+  display:flex;align-items:flex-start;gap:10px;
+  background:var(--bg3);border:1px solid var(--border);
+  border-radius:10px;padding:.9rem 1rem;
+}
+
+.close-num{
+  width:24px;height:24px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:11px;font-weight:700;flex-shrink:0;
+}
+
+.close-txt{font-size:13px;color:var(--muted);line-height:1.5;}
+
+/* ══════════════════════════════════════════
+   DETAIL PAGES
+══════════════════════════════════════════ */
+.detail-wrap{max-width:800px;margin:0 auto;padding:2.5rem 2rem 5rem;}
+
+.back-btn{
+  display:inline-flex;align-items:center;gap:6px;
+  color:var(--muted);font-size:13px;margin-bottom:1.75rem;
+  background:none;border:none;cursor:pointer;
+  font-family:var(--font-b);transition:color .15s;
+}
+.back-btn:hover{color:var(--text);}
+
+.detail-head{
+  display:flex;align-items:flex-start;gap:1.25rem;
+  padding-bottom:1.75rem;margin-bottom:1.75rem;
+  border-bottom:1px solid var(--border);
+}
+
+.detail-ico{
+  width:52px;height:52px;border-radius:12px;
+  display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;
+}
+
+.detail-num{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin-bottom:5px;}
+
+h3{font-family:var(--font-h);font-size:1.75rem;font-weight:700;line-height:1.2;margin-bottom:.4rem;}
+
+.detail-intro{font-size:15px;color:var(--muted);line-height:1.7;margin-bottom:2rem;}
+
+.dsec-title{
+  font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--hint);margin-bottom:.9rem;display:flex;align-items:center;gap:8px;
+}
+.dsec-title::after{content:'';flex:1;height:1px;background:var(--border);}
+
+.step-list{list-style:none;}
+
+.step-item{display:flex;gap:14px;padding:1rem 0;border-bottom:1px solid rgba(255,255,255,.04);}
+.step-item:last-child{border-bottom:none;}
+
+.step-n{
+  width:24px;height:24px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:11px;font-weight:700;flex-shrink:0;margin-top:1px;
+}
+
+.step-body h4{font-size:14px;font-weight:600;color:var(--text);margin-bottom:4px;}
+.step-body p{font-size:13px;color:var(--muted);line-height:1.65;}
+
+.info-card{
+  background:var(--bg2);border:1px solid var(--border);
+  border-radius:10px;padding:.9rem 1.1rem;margin-bottom:.7rem;
+}
+.info-card h4{font-size:14px;font-weight:600;color:var(--text);margin-bottom:5px;}
+.info-card p,.info-card ul{font-size:13px;color:var(--muted);line-height:1.65;}
+.info-card ul{list-style:none;padding:0;}
+.info-card ul li{padding:2px 0;display:flex;gap:8px;}
+.info-card ul li::before{content:'→';color:var(--hint);flex-shrink:0;}
+
+.deliver-box{
+  border-radius:10px;padding:1rem 1.25rem;margin-top:1.5rem;
+  border:1px solid;
+}
+
+.deliver-title{
+  font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;
+  margin-bottom:.7rem;
+}
+
+.deliver-list{list-style:none;}
+.deliver-list li{font-size:13px;color:var(--muted);padding:3px 0;display:flex;gap:8px;align-items:flex-start;}
+.deliver-list li::before{font-size:12px;flex-shrink:0;margin-top:1px;}
+
+/* ══ RESPONSIVE ══ */
+@media(max-width:600px){
+  .fiche-hero{flex-direction:column;}
+  .srv-grid{grid-template-columns:1fr;}
+  nav{padding:0 1rem;}
+  .fiche-wrap,.detail-wrap{padding-left:1rem;padding-right:1rem;}
+  .drone-grid{padding-left:1rem;padding-right:1rem;}
+  .comp-section{padding-left:1rem;padding-right:1rem;}
+  h1{font-size:2rem;}
+  h2{font-size:1.6rem;}
+}
+</style>
+</head>
+<body>
+
+<!-- ════════════════ NAV ════════════════ -->
+<nav>
+  <a class="nav-logo" href="#" onclick="goHome()">
+    <div class="logo-badge">✈</div>
+    AuditDrone
+  </a>
+  <div class="nav-tabs">
+    <button class="nav-tab active" id="nt-home" onclick="goHome()">Accueil</button>
+    <button class="nav-tab t-c0" id="nt-c0" onclick="showFiche('c0')">
+      <span class="nav-pip" style="background:var(--c0)"></span>Classe C0
+    </button>
+    <button class="nav-tab t-c1" id="nt-c1" onclick="showFiche('c1')">
+      <span class="nav-pip" style="background:var(--c1)"></span>Classe C1
+    </button>
+    <button class="nav-tab t-c2" id="nt-c2" onclick="showFiche('c2')">
+      <span class="nav-pip" style="background:var(--c2)"></span>Classe C2
+    </button>
+    <button class="nav-tab t-a3" id="nt-a3" onclick="showFiche('a3')">
+      <span class="nav-pip" style="background:var(--a3)"></span>C3 / C4 / Legacy / FPV
+    </button>
+  </div>
+</nav>
+
+<!-- ════════════════════════════════════════
+     HOME PAGE
+════════════════════════════════════════ -->
+<div class="page active" id="page-home">
+  <div class="home-hero">
+    <div class="eyebrow">Réglementation EU 2019/947 — France 2025</div>
+    <h1>Audit de conformité<br>drone — Fiche contact</h1>
+    <p class="home-sub">Sélectionnez la classe de drone du client pour accéder à la fiche de prise de contact adaptée à ses obligations réglementaires.</p>
+  </div>
+
+  <div class="drone-grid">
+
+    <!-- C0 -->
+    <div class="drone-card dc-c0" onclick="showFiche('c0')">
+      <div class="dc-icon" style="background:var(--c0-soft);">🪶</div>
+      <div class="dc-class" style="color:var(--c0);">Classe C0</div>
+      <div class="dc-weight">Moins de 250 g</div>
+      <div class="dc-cat" style="color:var(--c0);border-color:var(--c0-border);background:var(--c0-soft);">Sous-cat. A1</div>
+      <p class="dc-desc">Mini-drones, jouets caméra, nano-drones. Obligations légères mais réelles dès qu'une caméra est embarquée.</p>
+      <ul class="dc-obligations">
+        <li class="dc-obl-item"><span class="obl-dot" style="background:var(--c0)"></span>Enregistrement exploitant si caméra</li>
+        <li class="dc-obl-item"><span class="obl-dot" style="background:rgba(255,255,255,0.2)"></span>Pas d'examen obligatoire (conseillé)</li>
+        <li class="dc-obl-item"><span class="obl-dot" style="background:rgba(255,255,255,0.2)"></span>Pas de Remote ID obligatoire</li>
+        <li class="dc-obl-item"><span class="obl-dot" style="background:var(--c0)"></span>Assurance RC conseillée</li>
+      </ul>
+      <div class="dc-cta">
+        <span style="color:var(--c0)">Voir la fiche C0</span>
+        <span style="color:var(--c0)">→</span>
+      </div>
+    </div>
+
+    <!-- C1 -->
+    <div class="drone-card dc-c1" onclick="showFiche('c1')">
+      <div class="dc-icon" style="background:var(--c1-soft);">🚁</div>
+      <div class="dc-class" style="color:var(--c1);">Classe C1</div>
+      <div class="dc-weight">250 g à 900 g</div>
+      <div class="dc-cat" style="color:var(--c1);border-color:var(--c1-border);background:var(--c1-soft);">Sous-cat. A1</div>
+      <p class="dc-desc">DJI Mini 3, Mini 4 Pro… Obligations complètes. La catégorie la plus répandue, et la plus souvent non conforme.</p>
+      <ul class="dc-obligations">
+        <li class="dc-obl-item"><span class="obl-dot" style="background:var(--c1)"></span>Enregistrement drone + exploitant</li>
+        <li class="dc-obl-item"><span class="obl-dot" style="background:var(--c1)"></span>Examen OPEN A1/A3 obligatoire</li>
+        <li class="dc-obl-item"><span class="obl-dot" style="background:var(--c1)"></span>Remote ID obligatoire</li>
+        <li class="dc-obl-item"><span class="obl-dot" style="background:var(--c1)"></span>Assurance RC obligatoire</li>
+      </ul>
+      <div class="dc-cta">
+        <span style="color:var(--c1)">Voir la fiche C1</span>
+        <span style="color:var(--c1)">→</span>
+      </div>
+    </div>
+
+    <!-- C2 -->
+    <div class="drone-card dc-c2" onclick="showFiche('c2')">
+      <div class="dc-icon" style="background:var(--c2-soft);">✈</div>
+      <div class="dc-class" style="color:var(--c2);">Classe C2</div>
+      <div class="dc-weight">900 g à 4 kg</div>
+      <div class="dc-cat" style="color:var(--c2);border-color:var(--c2-border);background:var(--c2-soft);">Sous-cat. A2</div>
+      <p class="dc-desc">DJI Mavic 3, Autel EVO… Le niveau d'exigence le plus élevé de la catégorie ouverte. Double qualification requise.</p>
+      <ul class="dc-obligations">
+        <li class="dc-obl-item"><span class="obl-dot" style="background:var(--c2)"></span>Enregistrement drone + exploitant</li>
+        <li class="dc-obl-item"><span class="obl-dot" style="background:var(--c2)"></span>Examen A1/A3 + BAPD (A2)</li>
+        <li class="dc-obl-item"><span class="obl-dot" style="background:var(--c2)"></span>Autoformation pratique A3</li>
+        <li class="dc-obl-item"><span class="obl-dot" style="background:var(--c2)"></span>Remote ID + assurance RC</li>
+      </ul>
+      <div class="dc-cta">
+        <span style="color:var(--c2)">Voir la fiche C2</span>
+        <span style="color:var(--c2)">→</span>
+      </div>
+    </div>
+
+    <!-- A3 : C3 / C4 / Legacy / FPV -->
+    <div class="drone-card dc-a3" onclick="showFiche('a3')">
+      <div class="dc-icon" style="background:var(--a3-soft);">🎮</div>
+      <div class="dc-class" style="color:var(--a3);">Sous-cat. A3</div>
+      <div class="dc-weight">C3 · C4 · Legacy · FPV artisanal</div>
+      <div class="dc-cat" style="color:var(--a3);border-color:var(--a3-border);background:var(--a3-soft);">A3 — Loin des zones habitées</div>
+      <p class="dc-desc">Drones C3/C4 avec marquage CE, anciens drones legacy sans classe CE, FPV racing et freestyle artisanal. La population la plus méconnue réglementairement.</p>
+      <ul class="dc-obligations">
+        <li class="dc-obl-item"><span class="obl-dot" style="background:var(--a3)"></span>C3/C4 : enregistrement aéronef + exploitant</li>
+        <li class="dc-obl-item"><span class="obl-dot" style="background:var(--a3)"></span>Legacy/FPV : enregistrement exploitant si caméra</li>
+        <li class="dc-obl-item"><span class="obl-dot" style="background:var(--a3)"></span>Examen OPEN A1/A3 obligatoire (tous)</li>
+        <li class="dc-obl-item"><span class="obl-dot" style="background:var(--a3)"></span>150 m mini des zones habitées</li>
+      </ul>
+      <div class="dc-cta">
+        <span style="color:var(--a3)">Voir la fiche A3</span>
+        <span style="color:var(--a3)">→</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- COMPARISON TABLE -->
+  <div class="comp-section">
+    <div class="comp-title">Comparatif des obligations par classe</div>
+    <table class="comp-table">
+      <thead>
+        <tr>
+          <th>Obligation</th>
+          <th style="color:var(--c0)">C0 &lt;250g</th>
+          <th style="color:var(--c1)">C1 250–900g</th>
+          <th style="color:var(--c2)">C2 900g–4kg</th>
+          <th style="color:var(--a3)">A3 — C3/C4/Legacy/FPV</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="label">Enregistrement exploitant (Alphatango)</td>
+          <td><span class="pill pill-cond">Si caméra</span></td>
+          <td><span class="pill pill-yes">Obligatoire</span></td>
+          <td><span class="pill pill-yes">Obligatoire</span></td>
+          <td><span class="pill pill-yes">C3/C4 : obligatoire</span><br><span class="pill pill-cond" style="margin-top:3px;display:inline-block">Legacy/FPV : si caméra</span></td>
+        </tr>
+        <tr>
+          <td class="label">Enregistrement de l'aéronef</td>
+          <td><span class="pill pill-no">Non requis</span></td>
+          <td><span class="pill pill-yes">Obligatoire</span></td>
+          <td><span class="pill pill-yes">Obligatoire</span></td>
+          <td><span class="pill pill-yes">C3/C4 : obligatoire (>800g)</span><br><span class="pill pill-no" style="margin-top:3px;display:inline-block">Legacy/FPV : non requis</span></td>
+        </tr>
+        <tr>
+          <td class="label">Examen OPEN A1/A3</td>
+          <td><span class="pill pill-cond">Conseillé</span></td>
+          <td><span class="pill pill-yes">Obligatoire</span></td>
+          <td><span class="pill pill-yes">Obligatoire</span></td>
+          <td><span class="pill pill-yes">Obligatoire (tous)</span></td>
+        </tr>
+        <tr>
+          <td class="label">BAPD — examen complémentaire A2</td>
+          <td><span class="pill pill-no">Non requis</span></td>
+          <td><span class="pill pill-no">Non requis</span></td>
+          <td><span class="pill pill-yes">Obligatoire</span></td>
+          <td><span class="pill pill-no">Non requis</span></td>
+        </tr>
+        <tr>
+          <td class="label">Autoformation pratique (A3)</td>
+          <td><span class="pill pill-no">Non requis</span></td>
+          <td><span class="pill pill-no">Non requis</span></td>
+          <td><span class="pill pill-yes">Obligatoire</span></td>
+          <td><span class="pill pill-no">Non requis</span></td>
+        </tr>
+        <tr>
+          <td class="label">Remote ID (signalement électronique)</td>
+          <td><span class="pill pill-no">Non requis</span></td>
+          <td><span class="pill pill-yes">Obligatoire</span></td>
+          <td><span class="pill pill-yes">Obligatoire</span></td>
+          <td><span class="pill pill-yes">C3 : obligatoire</span><br><span class="pill pill-no" style="margin-top:3px;display:inline-block">C4/Legacy/FPV : non requis</span></td>
+        </tr>
+        <tr>
+          <td class="label">Marquage physique (numéro exploitant)</td>
+          <td><span class="pill pill-cond">Si enregistré</span></td>
+          <td><span class="pill pill-yes">Obligatoire</span></td>
+          <td><span class="pill pill-yes">Obligatoire</span></td>
+          <td><span class="pill pill-cond">Si enregistré</span></td>
+        </tr>
+        <tr>
+          <td class="label">Assurance RC aérienne</td>
+          <td><span class="pill pill-cond">Conseillée</span></td>
+          <td><span class="pill pill-yes">Obligatoire</span></td>
+          <td><span class="pill pill-yes">Obligatoire</span></td>
+          <td><span class="pill pill-yes">Obligatoire (tous)</span></td>
+        </tr>
+        <tr>
+          <td class="label">Distance sécurité / personnes</td>
+          <td>Vol près des personnes toléré (pas de foule)</td>
+          <td>Vol près des personnes isolées, pas de foule</td>
+          <td>30 m mini (5 m mode basse vitesse)</td>
+          <td>150 m mini des zones habitées</td>
+        </tr>
+        <tr>
+          <td class="label">Zones de vol autorisées</td>
+          <td>A1 (zones ouvertes + peuplées)</td>
+          <td>A1 (zones ouvertes + peuplées)</td>
+          <td>A2 (proximité personnes avec BAPD)</td>
+          <td style="color:var(--a3);font-weight:600;">A3 uniquement — loin des zones habitées</td>
+        </tr>
+        <tr>
+          <td class="label">Observateur requis (vol FPV lunettes)</td>
+          <td><span class="pill pill-no">Non concerné</span></td>
+          <td><span class="pill pill-no">Non concerné</span></td>
+          <td><span class="pill pill-no">Non concerné</span></td>
+          <td><span class="pill pill-yes">Obligatoire si lunettes</span></td>
+        </tr>
+        <tr>
+          <td class="label">Altitude maximale</td>
+          <td colspan="4" style="color:var(--muted)">120 m (toutes classes)</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════════════
+     FICHE C0
+════════════════════════════════════════ -->
+<div class="page" id="page-c0">
+<div class="fiche-wrap">
+
+  <div class="fiche-hero">
+    <div class="fiche-icon" style="background:var(--c0-soft);">🪶</div>
+    <div>
+      <div class="fiche-eyebrow" style="color:var(--c0)">Classe C0 — Moins de 250 g — Sous-catégorie A1</div>
+      <h2>Fiche de prise de contact <span style="color:var(--c0)">C0</span></h2>
+      <p class="fiche-sub">Client propriétaire d'un nano ou mini-drone n'ayant effectué aucune démarche. Profil souvent méconnaissant des règles, car la classe C0 est perçue à tort comme totalement libre de droit.</p>
+    </div>
+  </div>
+
+  <div class="alert-band" style="background:var(--c0-soft);border-color:var(--c0-border);color:var(--c0);">
+    <span class="alert-icon">💡</span>
+    <div><strong>Ton recommandé :</strong> Rassurant et pédagogue. Les obligations C0 sont légères, mais réelles dès qu'une caméra est présente. L'objectif est d'informer, pas d'alarmer — et de proposer quand même un accompagnement à valeur ajoutée.</div>
+  </div>
+
+  <!-- S1 : Identification -->
+  <div class="scard">
+    <div class="scard-head">
+      <div class="scard-num" style="background:var(--c0-soft);color:var(--c0);">01</div>
+      <span class="scard-label">Identification & contexte</span>
+    </div>
+    <ul class="cl" id="cl-c0-1">
+      <li class="cl-item c0-check" onclick="toggleCheck(this)"><div class="cl-box" style="--chk:var(--c0)"></div><span class="cl-text">Nom, prénom et coordonnées</span></li>
+      <li class="cl-item c0-check" onclick="toggleCheck(this)"><div class="cl-box" style="--chk:var(--c0)"></div><span class="cl-text">Marque et modèle du drone (ex : DJI Mini, Ryze Tello…)</span></li>
+      <li class="cl-item c0-check" onclick="toggleCheck(this)"><div class="cl-box" style="--chk:var(--c0)"></div><span class="cl-text">Confirmation du poids — bien sous 250 g ? <span class="tag t-imp">important</span></span></li>
+      <li class="cl-item c0-check" onclick="toggleCheck(this)"><div class="cl-box" style="--chk:var(--c0)"></div><span class="cl-text">Le drone est-il équipé d'une caméra ? <span class="tag t-imp">déclencheur d'obligations</span></span></li>
+      <li class="cl-item c0-check" onclick="toggleCheck(this)"><div class="cl-box" style="--chk:var(--c0)"></div><span class="cl-text">Usage : loisir familial, photographie, racing ?</span></li>
+      <li class="cl-item c0-check" onclick="toggleCheck(this)"><div class="cl-box" style="--chk:var(--c0)"></div><span class="cl-text">Lieu(x) de vol habituel(s)</span></li>
+    </ul>
+  </div>
+
+  <!-- S2 : Conformité -->
+  <div class="scard">
+    <div class="scard-head">
+      <div class="scard-num" style="background:var(--c0-soft);color:var(--c0);">02</div>
+      <span class="scard-label">État de conformité actuel</span>
+    </div>
+    <ul class="cl">
+      <li class="cl-item" onclick="toggleCheck(this)"><div class="cl-box" style="--chk:var(--c0)"></div><span class="cl-text">Enregistrement en tant qu'exploitant sur Alphatango <span class="tag t-obl">si caméra</span></span></li>
+      <li class="cl-item" onclick="toggleCheck(this)"><div class="cl-box" style="--chk:var(--c0)"></div><span class="cl-text">Numéro d'exploitant (FRA + 13 caractères) apposé sur le drone <span class="tag t-obl">si enregistré</span></span></li>
+      <li class="cl-item" onclick="toggleCheck(this)"><div class="cl-box" style="--chk:var(--c0)"></div><span class="cl-text">Connaissance des règles de vol sous-catégorie A1</span></li>
+      <li class="cl-item" onclick="toggleCheck(this)"><div class="cl-box" style="--chk:var(--c0)"></div><span class="cl-text">Assurance RC aérienne souscrite ? <span class="tag t-cons">conseillée</span></span></li>
+      <li class="cl-item" onclick="toggleCheck(this)"><div class="cl-box" style="--chk:var(--c0)"></div><span class="cl-text">Formation OPEN A1/A3 suivie ? <span class="tag t-cons">non obligatoire mais recommandée</span></span></li>
+    </ul>
+    <div class="note-line" style="border-color:var(--c0);background:var(--c0-soft);">
+      💬 "Votre drone fait moins de 250 g, donc les obligations sont allégées. Mais si vous avez une caméra, vous devez tout de même vous enregistrer sur Alphatango — c'est souvent méconnu."
+    </div>
+  </div>
+
+  <!-- S3 : Pratiques de vol -->
+  <div class="scard">
+    <div class="scard-head">
+      <div class="scard-num" style="background:var(--c0-soft);color:var(--c0);">03</div>
+      <span class="scard-label">Pratiques de vol</span>
+    </div>
+    <ul class="cl">
+      <li class="cl-item" onclick="toggleCheck(this)"><div class="cl-box" style="--chk:var(--c0)"></div><span class="cl-text">Vol en zone urbaine / rurale / mixte ?</span></li>
+      <li class="cl-item" onclick="toggleCheck(this)"><div class="cl-box" style="--chk:var(--c0)"></div><span class="cl-text">Survol de rassemblements de personnes ? <span class="tag t-obl">interdit même en C0</span></span></li>
+      <li class="cl-item" onclick="toggleCheck(this)"><div class="cl-box" style="--chk:var(--c0)"></div><span class="cl-text">Respect de l'altitude maximale 120 m ?</span></li>
+      <li class="cl-item" onclick="toggleCheck(this)"><div class="cl-box" style="--chk:var(--c0)"></div><span class="cl-text">Vol en vue directe (VLOS) respecté ?</span></li>
+      <li class="cl-item" onclick="toggleCheck(this)"><div class="cl-box" style="--chk:var(--c0)"></div><span class="cl-text">Respect de la vie privée lors des prises de vue ?</span></li>
+      <li class="cl-item" onclick="toggleCheck(this)"><div class="cl-box" style="--chk:var(--c0)"></div><span class="cl-text">Connaissance des zones interdites via Géoportail ?</span></li>
+    </ul>
+  </div>
+
+  <!-- S4 : Mes services -->
+  <div class="scard">
+    <div class="scard-head">
+      <div class="scard-num" style="background:var(--c0-soft);color:var(--c0);">04</div>
+      <span class="scard-label">Ce que je propose — audit & services C0</span>
+    </div>
+    <div class="note-line" style="border-color:var(--c0);background:var(--c0-soft);margin-top:0;margin-bottom:1rem;">
+      💬 "Même si vos obligations sont légères, je vous propose un audit rapide pour vérifier que vous êtes bien en règle, notamment sur l'enregistrement si vous avez une caméra, et je vous donne les bonnes pratiques pour voler sereinement."
+    </div>
+    <div class="srv-grid">
+      <div class="srv-card" onclick="showDetail('c0','s1')" style="--a:var(--c0)">
+        <div style="position:absolute;top:0;left:0;right:0;height:2px;background:var(--c0);opacity:0;transition:.2s" class="srv-bar"></div>
+        <div class="srv-ico" style="background:var(--c0-soft);">📋</div>
+        <div class="srv-name">Enregistrement exploitant</div>
+        <div class="srv-desc">Alphatango si drone caméra</div>
+        <div class="srv-arrow">Voir le détail →</div>
+      </div>
+      <div class="srv-card" onclick="showDetail('c0','s2')">
+        <div class="srv-ico" style="background:var(--c0-soft);">📐</div>
+        <div class="srv-name">Vérification des règles A1</div>
+        <div class="srv-desc">Survolé de personnes, altitude, vie privée</div>
+        <div class="srv-arrow">Voir le détail →</div>
+      </div>
+      <div class="srv-card" onclick="showDetail('c0','s3')">
+        <div class="srv-ico" style="background:var(--c0-soft);">🛡</div>
+        <div class="srv-name">Conseil assurance RC</div>
+        <div class="srv-desc">Couverture adaptée au profil C0</div>
+        <div class="srv-arrow">Voir le détail →</div>
+      </div>
+      <div class="srv-card" onclick="showDetail('c0','s4')">
+        <div class="srv-ico" style="background:var(--c0-soft);">🗺</div>
+        <div class="srv-name">Guide zones de vol</div>
+        <div class="srv-desc">Géoportail, zones interdites, vie privée</div>
+        <div class="srv-arrow">Voir le détail →</div>
+      </div>
+      <div class="srv-card" onclick="showDetail('c0','s5')">
+        <div class="srv-ico" style="background:var(--c0-soft);">🎓</div>
+        <div class="srv-name">Formation A1/A3 (optionnelle)</div>
+        <div class="srv-desc">Non obligatoire mais fortement conseillée</div>
+        <div class="srv-arrow">Voir le détail →</div>
+      </div>
+      <div class="srv-card" onclick="showDetail('c0','s6')">
+        <div class="srv-ico" style="background:var(--c0-soft);">🔄</div>
+        <div class="srv-name">Suivi post-audit</div>
+        <div class="srv-desc">Veille réglementaire et évolutions futures</div>
+        <div class="srv-arrow">Voir le détail →</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- S5 : Risques -->
+  <div class="scard">
+    <div class="scard-head">
+      <div class="scard-num" style="background:var(--red-soft);color:var(--red);">05</div>
+      <span class="scard-label">Risques à communiquer (ton pédagogue)</span>
+    </div>
+    <div class="risk-item"><div class="risk-ico">⚖</div><div class="risk-txt">Absence d'enregistrement exploitant malgré une caméra : <strong style="color:var(--red)">amende jusqu'à 750 €</strong></div></div>
+    <div class="risk-item"><div class="risk-ico">🚫</div><div class="risk-txt">Survol de rassemblement de personnes : <strong style="color:var(--red)">interdit même en C0</strong>, amendes pénales possibles</div></div>
+    <div class="risk-item"><div class="risk-ico">📷</div><div class="risk-txt">Prise de vue sans consentement : <strong style="color:var(--red)">violation CNIL</strong> et droit à l'image — risque de plainte</div></div>
+    <div class="risk-item"><div class="risk-ico">💸</div><div class="risk-txt">Sans assurance RC : responsabilité financière personnelle en cas d'accident ou de dommage à un tiers</div></div>
+    <div class="note-line" style="border-color:var(--red);background:var(--red-soft);">Le C0 est la classe la plus souple — mais "souple" ne signifie pas "sans règle". L'objectif est d'expliquer, pas d'effrayer.</div>
+  </div>
+
+  <!-- S6 : Conclusion -->
+  <div class="scard">
+    <div class="scard-head">
+      <div class="scard-num" style="background:var(--c0-soft);color:var(--c0);">06</div>
+      <span class="scard-label">Conclusion de l'appel</span>
+    </div>
+    <div class="close-grid">
+      <div class="close-item"><div class="close-num" style="background:var(--c0-soft);color:var(--c0);">1</div><div class="close-txt">Proposer un audit rapide (1h) — souvent suffisant pour un C0</div></div>
+      <div class="close-item"><div class="close-num" style="background:var(--c0-soft);color:var(--c0);">2</div><div class="close-txt">Envoyer un email récap avec les points évoqués</div></div>
+      <div class="close-item"><div class="close-num" style="background:var(--c0-soft);color:var(--c0);">3</div><div class="close-txt">Préciser le tarif adapté à la faible complexité C0</div></div>
+      <div class="close-item"><div class="close-num" style="background:var(--c0-soft);color:var(--c0);">4</div><div class="close-txt">Laisser ses coordonnées et disponibilités</div></div>
+    </div>
+  </div>
+
+</div>
+</div><!-- /page-c0 -->
+
+
+<!-- ════════════════════════════════════════
+     FICHE C1
+════════════════════════════════════════ -->
+<div class="page" id="page-c1">
+<div class="fiche-wrap">
+
+  <div class="fiche-hero">
+    <div class="fiche-icon" style="background:var(--c1-soft);">🚁</div>
+    <div>
+      <div class="fiche-eyebrow" style="color:var(--c1)">Classe C1 — 250 g à 900 g — Sous-catégorie A1</div>
+      <h2>Fiche de prise de contact <span style="color:var(--c1)">C1</span></h2>
+      <p class="fiche-sub">Client n'ayant effectué aucune démarche. Profil le plus courant — obligations complètes, souvent méconnues. Ton bienveillant et pédagogue.</p>
+    </div>
+  </div>
+
+  <div class="alert-band" style="background:var(--c1-soft);border-color:var(--c1-border);color:var(--c1);">
+    <span class="alert-icon">⚠</span>
+    <div><strong>Ton recommandé :</strong> Bienveillant et pédagogue. La plupart sont non-conformes par méconnaissance. La régularisation est simple une fois accompagnée.</div>
+  </div>
+
+  <div class="scard">
+    <div class="scard-head"><div class="scard-num" style="background:var(--c1-soft);color:var(--c1);">01</div><span class="scard-label">Identification & contexte</span></div>
+    <ul class="cl">
+      <li class="cl-item" onclick="toggleCheck(this)"><div class="cl-box" style="--chk:var(--c1)"></div><span class="cl-text">Nom, prénom et coordonnées du propriétaire <span class="tag t-obl">obligatoire</span></span></li>
+      <li class="cl-item" onclick="toggleCheck(this)"><div class="cl-box" style="--chk:var(--c1)"></div><span class="cl-text">Marque, modèle et numéro de série du drone</span></li>
+      <li class="cl-item" onclick="toggleCheck(this)"><div class="cl-box" style="--chk:var(--c1)"></div><span class="cl-text">Poids du drone — confirmer classe C1 (250 g à 900 g) <span class="tag t-imp">important</span></span></li>
+      <li class="cl-item" onclick="toggleCheck(this)"><div class="cl-box" style="--chk:var(--c1)"></div><span class="cl-text">Usage : loisir, professionnel, associatif ?</span></li>
+      <li class="cl-item" onclick="toggleCheck(this)"><div class="cl-box" style="--chk:var(--c1)"></div><span class="cl-text">Date d'achat approximative</span></li>
+      <li class="cl-item" onclick="toggleCheck(this)"><div class="cl-box" style="--chk:var(--c1)"></div><span class="cl-text">Lieu(x) de vol habituel(s)</span></li>
+    </ul>
+  </div>
+
+  <div class="scard">
+    <div class="scard-head"><div class="scard-num" style="background:var(--c1-soft);color:var(--c1);">02</div><span class="scard-label">État de conformité actuel</span></div>
+    <ul class="cl">
+      <li class="cl-item" onclick="toggleCheck(this)"><div class="cl-box" style="--chk:var(--c1)"></div><span class="cl-text">Enregistrement de l'aéronef sur Alphatango ? <span class="tag t-obl">obligatoire</span></span></li>
+      <li class="cl-item" onclick="toggleCheck(this)"><div class="cl-box" style="--chk:var(--c1)"></div><span class="cl-text">Enregistrement du télépilote (exploitant) sur Alphatango ? <span class="tag t-obl">obligatoire</span></span></li>
+      <li class="cl-item" onclick="toggleCheck(this)"><div class="cl-box" style="--chk:var(--c1)"></div><span class="cl-text">Examen OPEN A1/A3 réussi (40 QCM, 75 %, gratuit) ? <span class="tag t-obl">obligatoire</span></span></li>
+      <li class="cl-item" onclick="toggleCheck(this)"><div class="cl-box" style="--chk:var(--c1)"></div><span class="cl-text">Assurance RC aérienne souscrite ? <span class="tag t-obl">obligatoire</span></span></li>
+      <li class="cl-item" onclick="toggleCheck(this)"><div class="cl-box" style="--chk:var(--c1)"></div><span class="cl-text">Direct Remote ID opérationnel et configuré ? <span class="tag t-imp">important</span></span></li>
+      <li class="cl-item" onclick="toggleCheck(this)"><div class="cl-box" style="--chk:var(--c1)"></div><span class="cl-text">Marquage physique du drone (numéro d'enregistrement visible) ?</span></li>
+    </ul>
+    <div class="note-line" style="border-color:var(--c1);background:var(--c1-soft);">💬 "Avez-vous déjà entendu parler d'Alphatango ?" — permet de jauger le niveau de connaissance sans mettre le client en difficulté.</div>
+  </div>
+
+  <div class="scard">
+    <div class="scard-head"><div class="scard-num" style="background:var(--c1-soft);color:var(--c1);">03</div><span class="scard-label">Pratiques de vol</span></div>
+    <ul class="cl">
+      <li class="cl-item" onclick="toggleCheck(this)"><div class="cl-box" style="--chk:var(--c1)"></div><span class="cl-text">Vol en zone urbaine / rurale / mixte ?</span></li>
+      <li class="cl-item" onclick="toggleCheck(this)"><div class="cl-box" style="--chk:var(--c1)"></div><span class="cl-text">Survol de personnes ou rassemblements ? <span class="tag t-imp">important</span></span></li>
+      <li class="cl-item" onclick="toggleCheck(this)"><div class="cl-box" style="--chk:var(--c1)"></div><span class="cl-text">Respect de la limite d'altitude (120 m) ?</span></li>
+      <li class="cl-item" onclick="toggleCheck(this)"><div class="cl-box" style="--chk:var(--c1)"></div><span class="cl-text">Vols de nuit ou par mauvaise visibilité ?</span></li>
+      <li class="cl-item" onclick="toggleCheck(this)"><div class="cl-box" style="--chk:var(--c1)"></div><span class="cl-text">Connaissance des zones réglementées (Géoportail, apps) ?</span></li>
+    </ul>
+  </div>
+
+  <div class="scard">
+    <div class="scard-head"><div class="scard-num" style="background:var(--c1-soft);color:var(--c1);">04</div><span class="scard-label">Ce que je propose — audit & services C1</span></div>
+    <div class="note-line" style="border-color:var(--c1);background:var(--c1-soft);margin-top:0;margin-bottom:1rem;">
+      💬 "Je propose un audit complet de votre situation réglementaire. On fait le point sur ce qui est en ordre, ce qui manque, et je vous accompagne pour régulariser dans les règles — simplement et rapidement."
+    </div>
+    <div class="srv-grid">
+      <div class="srv-card" onclick="showDetail('c1','s1')"><div class="srv-ico" style="background:var(--c1-soft);">📋</div><div class="srv-name">Enregistrement Alphatango</div><div class="srv-desc">Drone + télépilote, pas à pas</div><div class="srv-arrow">Voir le détail →</div></div>
+      <div class="srv-card" onclick="showDetail('c1','s2')"><div class="srv-ico" style="background:var(--c1-soft);">🎓</div><div class="srv-name">Formation OPEN A1/A3</div><div class="srv-desc">Préparation & passage du QCM</div><div class="srv-arrow">Voir le détail →</div></div>
+      <div class="srv-card" onclick="showDetail('c1','s3')"><div class="srv-ico" style="background:var(--c1-soft);">🛡</div><div class="srv-name">Assurance RC aérienne</div><div class="srv-desc">Conseil et orientation assurance</div><div class="srv-arrow">Voir le détail →</div></div>
+      <div class="srv-card" onclick="showDetail('c1','s4')"><div class="srv-ico" style="background:var(--c1-soft);">📡</div><div class="srv-name">Remote ID & marquage</div><div class="srv-desc">Vérification et conformité technique</div><div class="srv-arrow">Voir le détail →</div></div>
+      <div class="srv-card" onclick="showDetail('c1','s5')"><div class="srv-ico" style="background:var(--c1-soft);">🗺</div><div class="srv-name">Zones de vol</div><div class="srv-desc">Guide espaces autorisés & interdits</div><div class="srv-arrow">Voir le détail →</div></div>
+      <div class="srv-card" onclick="showDetail('c1','s6')"><div class="srv-ico" style="background:var(--c1-soft);">🔄</div><div class="srv-name">Suivi post-audit</div><div class="srv-desc">Veille réglementaire continue</div><div class="srv-arrow">Voir le détail →</div></div>
+    </div>
+  </div>
+
+  <div class="scard">
+    <div class="scard-head"><div class="scard-num" style="background:var(--red-soft);color:var(--red);">05</div><span class="scard-label">Risques à communiquer (pédagogique)</span></div>
+    <div class="risk-item"><div class="risk-ico">⚖</div><div class="risk-txt">Amende jusqu'à <strong style="color:var(--red)">75 000 €</strong> et 1 an d'emprisonnement en cas d'infraction grave</div></div>
+    <div class="risk-item"><div class="risk-ico">💸</div><div class="risk-txt">Responsabilité civile non couverte sans assurance → <strong style="color:var(--red)">risque financier personnel illimité</strong></div></div>
+    <div class="risk-item"><div class="risk-ico">🚁</div><div class="risk-txt"><strong style="color:var(--red)">Saisie de l'appareil</strong> possible lors d'un contrôle DGAC ou gendarmerie</div></div>
+    <div class="note-line" style="border-color:var(--red);background:var(--red-soft);">Insister sur le fait que la régularisation est simple une fois accompagnée. Motiver, pas effrayer.</div>
+  </div>
+
+  <div class="scard">
+    <div class="scard-head"><div class="scard-num" style="background:var(--c1-soft);color:var(--c1);">06</div><span class="scard-label">Conclusion de l'appel</span></div>
+    <div class="close-grid">
+      <div class="close-item"><div class="close-num" style="background:var(--c1-soft);color:var(--c1);">1</div><div class="close-txt">Proposer un RDV audit (présentiel ou visio)</div></div>
+      <div class="close-item"><div class="close-num" style="background:var(--c1-soft);color:var(--c1);">2</div><div class="close-txt">Envoyer un email récap avec les points évoqués</div></div>
+      <div class="close-item"><div class="close-num" style="background:var(--c1-soft);color:var(--c1);">3</div><div class="close-txt">Préciser le tarif et la durée estimée de l'audit</div></div>
+      <div class="close-item"><div class="close-num" style="background:var(--c1-soft);color:var(--c1);">4</div><div class="close-txt">Laisser ses coordonnées et disponibilités</div></div>
+    </div>
+  </div>
+
+</div>
+</div><!-- /page-c1 -->
+
+
+<!-- ════════════════════════════════════════
+     FICHE C2
+════════════════════════════════════════ -->
+<div class="page" id="page-c2">
+<div class="fiche-wrap">
+
+  <div class="fiche-hero">
+    <div class="fiche-icon" style="background:var(--c2-soft);">✈</div>
+    <div>
+      <div class="fiche-eyebrow" style="color:var(--c2)">Classe C2 — 900 g à 4 kg — Sous-catégorie A2</div>
+      <h2>Fiche de prise de contact <span style="color:var(--c2)">C2</span></h2>
+      <p class="fiche-sub">Client possédant un drone lourd (DJI Mavic 3, Autel EVO…) sans aucune démarche réglementaire. Niveau d'exigence le plus élevé de la catégorie ouverte — double qualification requise.</p>
+    </div>
+  </div>
+
+  <div class="alert-band" style="background:var(--c2-soft);border-color:var(--c2-border);color:var(--c2);">
+    <span class="alert-icon">⚠</span>
+    <div><strong>Ton recommandé :</strong> Professionnel et structuré. Le C2 implique le plus d'étapes (A1/A3 + autoformation pratique + BAPD). Rassurer sur la faisabilité, valoriser l'accompagnement comme un vrai gain de temps.</div>
+  </div>
+
+  <div class="scard">
+    <div class="scard-head"><div class="scard-num" style="background:var(--c2-soft);color:var(--c2);">01</div><span class="scard-label">Identification & contexte</span></div>
+    <ul class="cl">
+      <li class="cl-item" onclick="toggleCheck(this)"><div class="cl-box" style="--chk:var(--c2)"></div><span class="cl-text">Nom, prénom et coordonnées du propriétaire <span class="tag t-obl">obligatoire</span></span></li>
+      <li class="cl-item" onclick="toggleCheck(this)"><div class="cl-box" style="--chk:var(--c2)"></div><span class="cl-text">Marque, modèle et numéro de série du drone</span></li>
+      <li class="cl-item" onclick="toggleCheck(this)"><div class="cl-box" style="--chk:var(--c2)"></div><span class="cl-text">Poids — confirmer classe C2 (900 g à 4 kg) <span class="tag t-imp">important</span></span></li>
+      <li class="cl-item" onclick="toggleCheck(this)"><div class="cl-box" style="--chk:var(--c2)"></div><span class="cl-text">Usage : loisir, photographie professionnelle, inspection, agriculture ?</span></li>
+      <li class="cl-item" onclick="toggleCheck(this)"><div class="cl-box" style="--chk:var(--c2)"></div><span class="cl-text">Date d'achat — le drone a-t-il bien un marquage de classe C2 ?</span></li>
+      <li class="cl-item" onclick="toggleCheck(this)"><div class="cl-box" style="--chk:var(--c2)"></div><span class="cl-text">Lieu(x) et contexte de vol habituel(s) (proximité de personnes ?)</span></li>
+    </ul>
+  </div>
+
+  <div class="scard">
+    <div class="scard-head"><div class="scard-num" style="background:var(--c2-soft);color:var(--c2);">02</div><span class="scard-label">État de conformité actuel</span></div>
+    <ul class="cl">
+      <li class="cl-item" onclick="toggleCheck(this)"><div class="cl-box" style="--chk:var(--c2)"></div><span class="cl-text">Enregistrement du drone sur Alphatango (aéronef > 800 g) ? <span class="tag t-obl">obligatoire</span></span></li>
+      <li class="cl-item" onclick="toggleCheck(this)"><div class="cl-box" style="--chk:var(--c2)"></div><span class="cl-text">Enregistrement exploitant (télépilote) sur Alphatango ? <span class="tag t-obl">obligatoire</span></span></li>
+      <li class="cl-item" onclick="toggleCheck(this)"><div class="cl-box" style="--chk:var(--c2)"></div><span class="cl-text">Attestation OPEN A1/A3 obtenue (40 QCM gratuits) ? <span class="tag t-obl">obligatoire — prérequis BAPD</span></span></li>
+      <li class="cl-item" onclick="toggleCheck(this)"><div class="cl-box" style="--chk:var(--c2)"></div><span class="cl-text">BAPD obtenu (examen OPEN A2 — 30 QCM, 30€, en centre ou en ligne) ? <span class="tag t-obl">obligatoire pour vol A2</span></span></li>
+      <li class="cl-item" onclick="toggleCheck(this)"><div class="cl-box" style="--chk:var(--c2)"></div><span class="cl-text">Autoformation pratique réalisée (vols en conditions A3, déclarée) ? <span class="tag t-obl">obligatoire</span></span></li>
+      <li class="cl-item" onclick="toggleCheck(this)"><div class="cl-box" style="--chk:var(--c2)"></div><span class="cl-text">Assurance RC aérienne souscrite ? <span class="tag t-obl">obligatoire</span></span></li>
+      <li class="cl-item" onclick="toggleCheck(this)"><div class="cl-box" style="--chk:var(--c2)"></div><span class="cl-text">Direct Remote ID opérationnel (obligatoire C2) ? <span class="tag t-imp">important</span></span></li>
+      <li class="cl-item" onclick="toggleCheck(this)"><div class="cl-box" style="--chk:var(--c2)"></div><span class="cl-text">Marquage physique du drone (numéro d'enregistrement) ?</span></li>
+    </ul>
+    <div class="note-line" style="border-color:var(--c2);background:var(--c2-soft);">💬 "Pour un C2, il y a deux niveaux de formation à obtenir dans l'ordre : d'abord l'examen A1/A3 gratuit, puis le BAPD. Je vous explique les étapes." Présenter comme un parcours logique, pas une montagne.</div>
+  </div>
+
+  <div class="scard">
+    <div class="scard-head"><div class="scard-num" style="background:var(--c2-soft);color:var(--c2);">03</div><span class="scard-label">Pratiques de vol — spécificités C2</span></div>
+    <ul class="cl">
+      <li class="cl-item" onclick="toggleCheck(this)"><div class="cl-box" style="--chk:var(--c2)"></div><span class="cl-text">Respect de la distance minimale de 30 m des personnes ? <span class="tag t-obl">obligatoire A2</span></span></li>
+      <li class="cl-item" onclick="toggleCheck(this)"><div class="cl-box" style="--chk:var(--c2)"></div><span class="cl-text">Mode basse vitesse activé si approche à 5 m des personnes ? <span class="tag t-imp">important</span></span></li>
+      <li class="cl-item" onclick="toggleCheck(this)"><div class="cl-box" style="--chk:var(--c2)"></div><span class="cl-text">Vol en zone urbaine / zone peuplée / espaces naturels ?</span></li>
+      <li class="cl-item" onclick="toggleCheck(this)"><div class="cl-box" style="--chk:var(--c2)"></div><span class="cl-text">Respect altitude maximale 120 m ?</span></li>
+      <li class="cl-item" onclick="toggleCheck(this)"><div class="cl-box" style="--chk:var(--c2)"></div><span class="cl-text">Connaissance et utilisation des outils de consultation zones (Géoportail) ?</span></li>
+      <li class="cl-item" onclick="toggleCheck(this)"><div class="cl-box" style="--chk:var(--c2)"></div><span class="cl-text">Vols nocturnes ou hors vue directe (BVLOS) envisagés ? <span class="tag t-imp">catégorie spécifique requise</span></span></li>
+    </ul>
+  </div>
+
+  <div class="scard">
+    <div class="scard-head"><div class="scard-num" style="background:var(--c2-soft);color:var(--c2);">04</div><span class="scard-label">Ce que je propose — audit & services C2</span></div>
+    <div class="note-line" style="border-color:var(--c2);background:var(--c2-soft);margin-top:0;margin-bottom:1rem;">
+      💬 "Votre drone C2 est le niveau le plus exigeant de la catégorie ouverte. Il y a plusieurs étapes à franchir dans le bon ordre. Je m'occupe de tout structurer pour vous et de vous accompagner à chaque étape."
+    </div>
+    <div class="srv-grid">
+      <div class="srv-card" onclick="showDetail('c2','s1')"><div class="srv-ico" style="background:var(--c2-soft);">📋</div><div class="srv-name">Enregistrement Alphatango</div><div class="srv-desc">Aéronef (>800g) + exploitant</div><div class="srv-arrow">Voir le détail →</div></div>
+      <div class="srv-card" onclick="showDetail('c2','s2')"><div class="srv-ico" style="background:var(--c2-soft);">🎓</div><div class="srv-name">Formation A1/A3 + BAPD</div><div class="srv-desc">Double qualification en deux étapes</div><div class="srv-arrow">Voir le détail →</div></div>
+      <div class="srv-card" onclick="showDetail('c2','s3')"><div class="srv-ico" style="background:var(--c2-soft);">🏋</div><div class="srv-name">Autoformation pratique A3</div><div class="srv-desc">Vols d'entraînement et déclaration</div><div class="srv-arrow">Voir le détail →</div></div>
+      <div class="srv-card" onclick="showDetail('c2','s4')"><div class="srv-ico" style="background:var(--c2-soft);">🛡</div><div class="srv-name">Assurance RC aérienne C2</div><div class="srv-desc">Couverture adaptée aux drones lourds</div><div class="srv-arrow">Voir le détail →</div></div>
+      <div class="srv-card" onclick="showDetail('c2','s5')"><div class="srv-ico" style="background:var(--c2-soft);">📡</div><div class="srv-name">Remote ID & marquage</div><div class="srv-desc">Configuration et conformité technique</div><div class="srv-arrow">Voir le détail →</div></div>
+      <div class="srv-card" onclick="showDetail('c2','s6')"><div class="srv-ico" style="background:var(--c2-soft);">🔄</div><div class="srv-name">Suivi post-audit</div><div class="srv-desc">Veille et accompagnement long terme</div><div class="srv-arrow">Voir le détail →</div></div>
+    </div>
+  </div>
+
+  <div class="scard">
+    <div class="scard-head"><div class="scard-num" style="background:var(--red-soft);color:var(--red);">05</div><span class="scard-label">Risques à communiquer</span></div>
+    <div class="risk-item"><div class="risk-ico">⚖</div><div class="risk-txt">Amende jusqu'à <strong style="color:var(--red)">75 000 € et 1 an d'emprisonnement</strong> pour infraction grave (survol interdit, absence d'enregistrement…)</div></div>
+    <div class="risk-item"><div class="risk-ico">📏</div><div class="risk-txt">Non-respect de la distance de 30 m des personnes : <strong style="color:var(--red)">infraction directe au règlement européen</strong>, risque d'accident grave avec un appareil de cette masse</div></div>
+    <div class="risk-item"><div class="risk-ico">💸</div><div class="risk-txt">Sans BAPD : interdiction totale de voler en A2 — le client est contraint à la sous-catégorie A3 (loin des zones habitées) sans le BAPD</div></div>
+    <div class="risk-item"><div class="risk-ico">🚁</div><div class="risk-txt"><strong style="color:var(--red)">Saisie de l'appareil</strong> et responsabilité civile personnelle illimitée sans assurance RC</div></div>
+    <div class="note-line" style="border-color:var(--red);background:var(--red-soft);">Pour un C2, l'enjeu est double : les obligations sont plus nombreuses, mais le drone est aussi plus dangereux en cas d'accident. L'audit est un investissement de sécurité, pas juste une conformité administrative.</div>
+  </div>
+
+  <div class="scard">
+    <div class="scard-head"><div class="scard-num" style="background:var(--c2-soft);color:var(--c2);">06</div><span class="scard-label">Conclusion de l'appel</span></div>
+    <div class="close-grid">
+      <div class="close-item"><div class="close-num" style="background:var(--c2-soft);color:var(--c2);">1</div><div class="close-txt">Proposer un audit structuré en plusieurs phases (plus complet que C0/C1)</div></div>
+      <div class="close-item"><div class="close-num" style="background:var(--c2-soft);color:var(--c2);">2</div><div class="close-txt">Expliquer le parcours : A1/A3 → autoformation → BAPD</div></div>
+      <div class="close-item"><div class="close-num" style="background:var(--c2-soft);color:var(--c2);">3</div><div class="close-txt">Envoyer email récap + calendrier estimatif de régularisation</div></div>
+      <div class="close-item"><div class="close-num" style="background:var(--c2-soft);color:var(--c2);">4</div><div class="close-txt">Préciser le tarif (adapter la valorisation à la complexité C2)</div></div>
+    </div>
+  </div>
+
+</div>
+</div><!-- /page-c2 -->
+
+
+<!-- ════════════════════════════════════════
+     FICHE A3 — C3 / C4 / LEGACY / FPV
+════════════════════════════════════════ -->
+<div class="page" id="page-a3">
+<div class="fiche-wrap">
+
+  <div class="fiche-hero">
+    <div class="fiche-icon" style="background:var(--a3-soft);">🎮</div>
+    <div>
+      <div class="fiche-eyebrow" style="color:var(--a3)">Sous-catégorie A3 — Classes C3 · C4 · Drones Legacy · FPV artisanal</div>
+      <h2>Fiche de prise de contact <span style="color:var(--a3)">A3</span></h2>
+      <p class="fiche-sub">Cette fiche couvre 4 profils distincts qui partagent la même sous-catégorie de vol A3 : les drones avec marquage CE classe C3 ou C4, les drones anciens sans marquage CE (legacy), et les FPV artisanaux (racing, freestyle, Betaflight…). Les obligations administratives diffèrent selon le profil.</p>
+    </div>
+  </div>
+
+  <!-- Encart de distinction des profils -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:.9rem;margin-bottom:1.5rem;">
+    <div style="background:var(--bg2);border:1px solid var(--a3-border);border-radius:12px;padding:1rem 1.1rem;">
+      <div style="font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--a3);margin-bottom:.6rem;">Avec marquage CE</div>
+      <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:4px;">Classe C3</div>
+      <div style="font-size:12px;color:var(--muted);">Moins de 25 kg, envergure &lt; 3 m. Remote ID + géovigilance obligatoires. Enregistrement aéronef requis.</div>
+      <div style="font-size:13px;font-weight:600;color:var(--text);margin:.6rem 0 4px;">Classe C4</div>
+      <div style="font-size:12px;color:var(--muted);">Moins de 25 kg, sans système de vol automatique. Aéromodèles industriels. Pas de Remote ID obligatoire.</div>
+    </div>
+    <div style="background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:1rem 1.1rem;">
+      <div style="font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin-bottom:.6rem;">Sans marquage CE</div>
+      <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:4px;">Drones Legacy</div>
+      <div style="font-size:12px;color:var(--muted);">Anciens modèles mis sur le marché avant le 1er janvier 2024 (DJI Phantom 3, Parrot Bebop…). Pas d'enregistrement aéronef.</div>
+      <div style="font-size:13px;font-weight:600;color:var(--text);margin:.6rem 0 4px;">FPV artisanal / Racing</div>
+      <div style="font-size:12px;color:var(--muted);">Frames customs, Betaflight, iFlight, Geprc… Construits à titre privé. Pas d'enregistrement aéronef. Observateur obligatoire si lunettes.</div>
+    </div>
+  </div>
+
+  <div class="alert-band" style="background:var(--a3-soft);border-color:var(--a3-border);color:var(--a3);">
+    <span class="alert-icon">🚨</span>
+    <div><strong>Point commun à tous ces profils :</strong> Ils ne peuvent voler <strong>qu'en sous-catégorie A3</strong> — uniquement à plus de 150 m des zones résidentielles, commerciales, industrielles et récréatives. C'est une contrainte majeure que quasi aucun propriétaire ne connaît. Examen OPEN A1/A3 obligatoire pour tous.</div>
+  </div>
+
+  <!-- S1 : Identification -->
+  <div class="scard">
+    <div class="scard-head">
+      <div class="scard-num" style="background:var(--a3-soft);color:var(--a3);">01</div>
+      <span class="scard-label">Identification & qualification du profil</span>
+    </div>
+    <ul class="cl">
+      <li class="cl-item" onclick="toggleCheck(this)"><div class="cl-box" style="--chk:var(--a3)"></div><span class="cl-text">Nom, prénom et coordonnées <span class="tag t-obl">obligatoire</span></span></li>
+      <li class="cl-item" onclick="toggleCheck(this)"><div class="cl-box" style="--chk:var(--a3)"></div><span class="cl-text">Le drone a-t-il un <strong>marquage de classe CE</strong> (C3 ou C4 visible sur l'appareil ou la boîte) ? <span class="tag t-imp">détermine les obligations</span></span></li>
+      <li class="cl-item" onclick="toggleCheck(this)"><div class="cl-box" style="--chk:var(--a3)"></div><span class="cl-text">Si C3/C4 : marque, modèle, masse maximale au décollage, numéro de série</span></li>
+      <li class="cl-item" onclick="toggleCheck(this)"><div class="cl-box" style="--chk:var(--a3)"></div><span class="cl-text">Si Legacy : ancien modèle acheté avant 2024 ? Date d'achat approximative (DJI Phantom 3/4, Parrot Bebop, Yuneec…)</span></li>
+      <li class="cl-item" onclick="toggleCheck(this)"><div class="cl-box" style="--chk:var(--a3)"></div><span class="cl-text">Si FPV artisanal : frame custom, kit, ou drone FPV prêt-à-voler (BNF) ? Marque de la frame (iFlight, Geprc, Emax…) ?</span></li>
+      <li class="cl-item" onclick="toggleCheck(this)"><div class="cl-box" style="--chk:var(--a3)"></div><span class="cl-text">Poids approximatif du drone</span></li>
+      <li class="cl-item" onclick="toggleCheck(this)"><div class="cl-box" style="--chk:var(--a3)"></div><span class="cl-text">Le drone est-il équipé d'une caméra ? <span class="tag t-imp">déclencheur d'enregistrement</span></span></li>
+      <li class="cl-item" onclick="toggleCheck(this)"><div class="cl-box" style="--chk:var(--a3)"></div><span class="cl-text">Usage : loisir, aéromodélisme, FPV racing compétition, freestyle, photographie, agriculture ?</span></li>
+      <li class="cl-item" onclick="toggleCheck(this)"><div class="cl-box" style="--chk:var(--a3)"></div><span class="cl-text">Lieu(x) de vol habituel(s) — zones urbaines, campagne, terrains privés, club homologué ?</span></li>
+      <li class="cl-item" onclick="toggleCheck(this)"><div class="cl-box" style="--chk:var(--a3)"></div><span class="cl-text">Utilise-t-il des lunettes FPV pour piloter ? <span class="tag t-imp">implique obligation d'observateur</span></span></li>
+    </ul>
+    <div class="note-line" style="border-color:var(--a3);background:var(--a3-soft);">💬 "Regardez sur votre drone ou sa boîte : y a-t-il une étiquette avec C3 ou C4 ? Si non, votre drone est soit legacy (acheté avant 2024), soit artisanal — dans tous les cas, il est limité à la sous-catégorie A3."</div>
+  </div>
+
+  <!-- S2 : Conformité -->
+  <div class="scard">
+    <div class="scard-head">
+      <div class="scard-num" style="background:var(--a3-soft);color:var(--a3);">02</div>
+      <span class="scard-label">État de conformité — obligations selon le profil</span>
+    </div>
+
+    <div style="font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--a3);margin-bottom:.6rem;padding:.5rem .4rem 0;">▶ Commun à tous les profils A3</div>
+    <ul class="cl">
+      <li class="cl-item" onclick="toggleCheck(this)"><div class="cl-box" style="--chk:var(--a3)"></div><span class="cl-text">Attestation OPEN A1/A3 obtenue (40 QCM gratuits sur Alphatango) ? <span class="tag t-obl">obligatoire — tous profils</span></span></li>
+      <li class="cl-item" onclick="toggleCheck(this)"><div class="cl-box" style="--chk:var(--a3)"></div><span class="cl-text">Assurance RC aérienne souscrite ? <span class="tag t-obl">obligatoire — tous profils</span></span></li>
+      <li class="cl-item" onclick="toggleCheck(this)"><div class="cl-box" style="--chk:var(--a3)"></div><span class="cl-text">Connaissance de la restriction A3 (150 m des zones habitées) ? <span class="tag t-imp">souvent totalement méconnue</span></span></li>
+      <li class="cl-item" onclick="toggleCheck(this)"><div class="cl-box" style="--chk:var(--a3)"></div><span class="cl-text">Si lunettes FPV : présence d'un observateur lors des vols ? <span class="tag t-obl">obligatoire</span></span></li>
+    </ul>
+
+    <div style="font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--c2);margin:.9rem 0 .6rem;padding:0 .4rem;">▶ Spécifique C3 / C4 (avec marquage CE)</div>
+    <ul class="cl">
+      <li class="cl-item" onclick="toggleCheck(this)"><div class="cl-box" style="--chk:var(--c2)"></div><span class="cl-text">Enregistrement de l'aéronef sur Alphatango (obligatoire si > 800 g ou Remote ID) ? <span class="tag t-obl">obligatoire C3/C4</span></span></li>
+      <li class="cl-item" onclick="toggleCheck(this)"><div class="cl-box" style="--chk:var(--c2)"></div><span class="cl-text">Enregistrement de l'exploitant sur Alphatango ? <span class="tag t-obl">obligatoire C3/C4</span></span></li>
+      <li class="cl-item" onclick="toggleCheck(this)"><div class="cl-box" style="--chk:var(--c2)"></div><span class="cl-text">C3 : Remote ID (identification directe à distance) opérationnel et configuré ? <span class="tag t-obl">obligatoire C3</span></span></li>
+      <li class="cl-item" onclick="toggleCheck(this)"><div class="cl-box" style="--chk:var(--c2)"></div><span class="cl-text">C3 : Géovigilance (geofencing) activée sur le drone ? <span class="tag t-obl">obligatoire C3</span></span></li>
+      <li class="cl-item" onclick="toggleCheck(this)"><div class="cl-box" style="--chk:var(--c2)"></div><span class="cl-text">Marquage physique (numéro d'exploitant + numéro aéronef apposés) ?</span></li>
+    </ul>
+
+    <div style="font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin:.9rem 0 .6rem;padding:0 .4rem;">▶ Spécifique Legacy / FPV artisanal (sans marquage CE)</div>
+    <ul class="cl">
+      <li class="cl-item" onclick="toggleCheck(this)"><div class="cl-box" style="--chk:var(--a3)"></div><span class="cl-text">Enregistrement de l'exploitant sur Alphatango (si caméra ou drone > 250 g) ? <span class="tag t-obl">obligatoire si applicable</span></span></li>
+      <li class="cl-item" onclick="toggleCheck(this)"><div class="cl-box" style="--chk:var(--a3)"></div><span class="cl-text">Numéro d'exploitant apposé sur le ou les drones (si enregistré) ?</span></li>
+      <li class="cl-item" onclick="toggleCheck(this)"><div class="cl-box" style="--chk:var(--a3)"></div><span class="cl-text">Firmware à jour et failsafe configuré correctement ?</span></li>
+    </ul>
+    <div class="note-line" style="border-color:var(--a3);background:var(--a3-soft);">💬 "Avez-vous déjà entendu parler de la sous-catégorie A3 ?" — La quasi-totalité des pilotes n'a aucune idée de cette restriction. C'est le point de départ de la conversation, quel que soit le profil.</div>
+  </div>
+
+  <!-- S3 : Pratiques de vol -->
+  <div class="scard">
+    <div class="scard-head">
+      <div class="scard-num" style="background:var(--a3-soft);color:var(--a3);">03</div>
+      <span class="scard-label">Pratiques de vol — spécificités A3 / FPV</span>
+    </div>
+    <ul class="cl">
+      <li class="cl-item" onclick="toggleCheck(this)"><div class="cl-box" style="--chk:var(--a3)"></div><span class="cl-text">Vol à moins de 150 m des zones résidentielles, commerciales, industrielles ou récréatives ? <span class="tag t-obl">interdit en A3</span></span></li>
+      <li class="cl-item" onclick="toggleCheck(this)"><div class="cl-box" style="--chk:var(--a3)"></div><span class="cl-text">Vol en zones urbaines, parcs, bâtiments abandonnés ? <span class="tag t-obl">interdit en A3</span></span></li>
+      <li class="cl-item" onclick="toggleCheck(this)"><div class="cl-box" style="--chk:var(--a3)"></div><span class="cl-text">Altitude maximale de 120 m respectée ?</span></li>
+      <li class="cl-item" onclick="toggleCheck(this)"><div class="cl-box" style="--chk:var(--a3)"></div><span class="cl-text">Vol en vue directe (VLOS) — ou FPV avec lunettes seules ? <span class="tag t-imp">observateur requis si lunettes</span></span></li>
+      <li class="cl-item" onclick="toggleCheck(this)"><div class="cl-box" style="--chk:var(--a3)"></div><span class="cl-text">Vols de nuit ? <span class="tag t-obl">interdits sans autorisation spécifique</span></span></li>
+      <li class="cl-item" onclick="toggleCheck(this)"><div class="cl-box" style="--chk:var(--a3)"></div><span class="cl-text">Participation à des compétitions de racing ? <span class="tag t-imp">clubs et dérogations possibles</span></span></li>
+      <li class="cl-item" onclick="toggleCheck(this)"><div class="cl-box" style="--chk:var(--a3)"></div><span class="cl-text">Connaissance des zones interdites via Géoportail avant chaque vol ?</span></li>
+    </ul>
+  </div>
+
+  <!-- S4 : Services -->
+  <div class="scard">
+    <div class="scard-head">
+      <div class="scard-num" style="background:var(--a3-soft);color:var(--a3);">04</div>
+      <span class="scard-label">Ce que je propose — audit & services A3</span>
+    </div>
+    <div class="note-line" style="border-color:var(--a3);background:var(--a3-soft);margin-top:0;margin-bottom:1rem;">
+      💬 "Votre situation est spécifique — quel que soit votre profil (C3, C4, legacy ou FPV), votre drone est limité à la sous-catégorie A3. Je vous aide à identifier précisément vos obligations, à régulariser votre situation, et à trouver des zones de vol conformes."
+    </div>
+    <div class="srv-grid">
+      <div class="srv-card" onclick="showDetail('a3','s1')"><div class="srv-ico" style="background:var(--a3-soft);">📋</div><div class="srv-name">Enregistrement Alphatango</div><div class="srv-desc">C3/C4 : aéronef + exploitant — Legacy/FPV : exploitant si caméra</div><div class="srv-arrow">Voir le détail →</div></div>
+      <div class="srv-card" onclick="showDetail('a3','s2')"><div class="srv-ico" style="background:var(--a3-soft);">🎓</div><div class="srv-name">Formation OPEN A1/A3</div><div class="srv-desc">Examen gratuit — 40 QCM — obligatoire tous profils</div><div class="srv-arrow">Voir le détail →</div></div>
+      <div class="srv-card" onclick="showDetail('a3','s3')"><div class="srv-ico" style="background:var(--a3-soft);">🛡</div><div class="srv-name">Assurance RC aérienne</div><div class="srv-desc">Couverture adaptée C3/C4, legacy ou FPV artisanal</div><div class="srv-arrow">Voir le détail →</div></div>
+      <div class="srv-card" onclick="showDetail('a3','s4')"><div class="srv-ico" style="background:var(--a3-soft);">🗺</div><div class="srv-name">Zones A3 conformes</div><div class="srv-desc">Trouver des spots légaux — clubs FFAM — terrains homologués</div><div class="srv-arrow">Voir le détail →</div></div>
+      <div class="srv-card" onclick="showDetail('a3','s5')"><div class="srv-ico" style="background:var(--a3-soft);">📡</div><div class="srv-name">Remote ID & géovigilance C3</div><div class="srv-desc">Spécifique C3 — config, test, conformité technique</div><div class="srv-arrow">Voir le détail →</div></div>
+      <div class="srv-card" onclick="showDetail('a3','s6')"><div class="srv-ico" style="background:var(--a3-soft);">🔄</div><div class="srv-name">Suivi post-audit</div><div class="srv-desc">Veille réglementaire & évolutions pour tous profils</div><div class="srv-arrow">Voir le détail →</div></div>
+    </div>
+  </div>
+
+  <!-- S5 : Risques -->
+  <div class="scard">
+    <div class="scard-head">
+      <div class="scard-num" style="background:var(--red-soft);color:var(--red);">05</div>
+      <span class="scard-label">Risques à communiquer</span>
+    </div>
+    <div class="risk-item"><div class="risk-ico">⚖</div><div class="risk-txt">Vol en zone habitée avec un legacy : <strong style="color:var(--red)">infraction directe au règlement EU 2019/947</strong> — amende jusqu'à 75 000 € et 1 an d'emprisonnement</div></div>
+    <div class="risk-item"><div class="risk-ico">🎮</div><div class="risk-txt">Vol FPV avec lunettes sans observateur : <strong style="color:var(--red)">vol hors vue directe non autorisé</strong> en catégorie ouverte — infraction immédiate</div></div>
+    <div class="risk-item"><div class="risk-ico">💸</div><div class="risk-txt">Sans assurance RC : responsabilité civile personnelle illimitée — un drone FPV artisanal peut causer des dommages graves à des tiers</div></div>
+    <div class="risk-item"><div class="risk-ico">🚁</div><div class="risk-txt"><strong style="color:var(--red)">Saisie de l'appareil</strong> lors d'un contrôle — très fréquent sur les spots FPV urbains en raison des nuisances signalées</div></div>
+    <div class="risk-item"><div class="risk-ico">🏁</div><div class="risk-txt">Compétition de racing sans cadre fédéral : <strong style="color:var(--red)">événement illégal</strong> sans déclaration préfectorale et sans dérogation au survol de personnes</div></div>
+    <div class="note-line" style="border-color:var(--red);background:var(--red-soft);">La communauté FPV est très soudée mais quasi totalement non-informée. L'approche doit être non-culpabilisante — beaucoup de ces pilotes sont très techniques mais n'ont simplement jamais eu accès à l'information réglementaire.</div>
+  </div>
+
+  <!-- S6 : Conclusion -->
+  <div class="scard">
+    <div class="scard-head">
+      <div class="scard-num" style="background:var(--a3-soft);color:var(--a3);">06</div>
+      <span class="scard-label">Conclusion de l'appel</span>
+    </div>
+    <div class="close-grid">
+      <div class="close-item"><div class="close-num" style="background:var(--a3-soft);color:var(--a3);">1</div><div class="close-txt">Proposer un audit adapté au profil FPV / legacy (format différent du C1/C2)</div></div>
+      <div class="close-item"><div class="close-num" style="background:var(--a3-soft);color:var(--a3);">2</div><div class="close-txt">Envoyer email récap + carte des zones A3 conformes à proximité</div></div>
+      <div class="close-item"><div class="close-num" style="background:var(--a3-soft);color:var(--a3);">3</div><div class="close-txt">Mentionner la possibilité d'adhérer à un club homologué (dérogations possibles)</div></div>
+      <div class="close-item"><div class="close-num" style="background:var(--a3-soft);color:var(--a3);">4</div><div class="close-txt">Préciser le tarif et disponibilités pour la session d'audit</div></div>
+    </div>
+  </div>
+
+</div>
+</div><!-- /page-a3 -->
+
+
+<div class="page" id="page-detail">
+<div class="detail-wrap">
+  <button class="back-btn" id="detail-back" onclick="closeDetail()">← Retour à la fiche</button>
+  <div id="detail-content"></div>
+</div>
+</div>
+
+
+<!-- ════════════════════════════════════════
+     JAVASCRIPT
+════════════════════════════════════════ -->
+<script>
+// ─── NAVIGATION ───
+let currentFiche = null;
+
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function setNavActive(tab) {
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('nt-' + tab).classList.add('active');
+}
+
+function goHome() {
+  showPage('home');
+  setNavActive('home');
+  currentFiche = null;
+  return false;
+}
+
+function showFiche(cls) {
+  showPage(cls);
+  setNavActive(cls);
+  currentFiche = cls;
+  return false;
+}
+
+// ─── CHECKLIST ───
+function toggleCheck(item) {
+  item.classList.toggle('done');
+}
+
+// ─── DETAIL CONTENT ───
+const details = {
+
+  /* ─── C0 ─── */
+  'c0-s1': {
+    color:'var(--c0)', bg:'var(--c0-soft)', icon:'📋',
+    num:'Service C0 · 01', title:'Enregistrement exploitant sur Alphatango',
+    intro:`Pour un C0 avec caméra, l'enregistrement de l'exploitant (et non de l'aéronef) est obligatoire. Sans caméra, aucun enregistrement n'est requis. Cette distinction est souvent mal comprise.`,
+    steps:[
+      {t:'Vérifier si l\'enregistrement est nécessaire', p:'La première étape est de déterminer si le C0 est équipé d\'une caméra (ou de tout capteur collectant des données visuelles). Si oui : enregistrement obligatoire. Si non : aucune démarche Alphatango nécessaire.'},
+      {t:'Création du compte exploitant', p:'Sur alphatango.aviation-civile.gouv.fr, création d\'un compte personnel (via FranceConnect ou identifiants DGAC). Je guide le client étape par étape pour éviter les erreurs courantes.'},
+      {t:'Obtention du numéro d\'exploitant', p:'Une fois enregistré, le client reçoit un numéro au format FRA + 13 caractères. Ce numéro doit être apposé lisiblement sur le drone, visible depuis le sol.'},
+      {t:'Apposition sur le drone', p:'Je conseille sur le bon emplacement (châssis, bras…), le type d\'étiquette (résistante aux UV et à l\'eau), et la taille minimale des caractères pour être conforme.'},
+      {t:'Vérification finale', p:'Connexion au compte Alphatango pour vérifier que l\'enregistrement est bien actif et que toutes les informations sont correctes.'},
+    ],
+    delivers:['Compte exploitant Alphatango actif','Numéro exploitant (FRA + 13 caractères)','Étiquette apposée sur le drone','Justificatif d\'enregistrement PDF']
+  },
+  'c0-s2': {
+    color:'var(--c0)', bg:'var(--c0-soft)', icon:'📐',
+    num:'Service C0 · 02', title:'Vérification des règles de vol A1',
+    intro:`La sous-catégorie A1 s'applique aux C0. Ses règles sont légères mais ignorées par la plupart des propriétaires. Je passe en revue chaque point avec le client pour m'assurer qu'il vole en conformité.`,
+    steps:[
+      {t:'Règle du survol de personnes', p:'Le survol de personnes isolées est toléré en C0, mais doit être évité autant que possible. Le survol de rassemblement de personnes est strictement interdit, même pour un drone de moins de 250 g.'},
+      {t:'Limite d\'altitude', p:'120 m au-dessus du sol, en toutes circonstances. Je m\'assure que le client le sait et que l\'altitude max est correctement configurée dans l\'application de pilotage.'},
+      {t:'Vol en vue directe (VLOS)', p:'Le pilote doit maintenir son drone en vue directe à l\'œil nu à tout moment. L\'utilisation des lunettes FPV seules ne constitue pas un vol VLOS valide.'},
+      {t:'Respect de la vie privée', p:'Les prises de vue de personnes identifiables dans leur propriété privée nécessitent leur consentement (RGPD / CNIL). Je sensibilise le client aux bonnes pratiques.'},
+      {t:'Zones de vol', p:'Même un C0 ne peut pas voler partout. Je vérifie avec le client ses lieux de vol habituels sur Géoportail et identifie les éventuelles restrictions.'},
+    ],
+    delivers:['Checklist des règles A1 vérifiée','Configuration altitude max dans l\'app','Fiche récap des bonnes pratiques C0','Points de vigilance personnalisés']
+  },
+  'c0-s3': {
+    color:'var(--c0)', bg:'var(--c0-soft)', icon:'🛡',
+    num:'Service C0 · 03', title:'Conseil assurance RC aérienne',
+    intro:`L'assurance RC n'est pas légalement obligatoire pour un C0 sans caméra en usage strictement privé, mais elle est fortement conseillée. Pour les C0 avec caméra ou en usage semi-professionnel, elle devient quasi-indispensable.`,
+    steps:[
+      {t:'Analyse du profil C0', p:'Je détermine le niveau de risque réel : type de lieux de vol, fréquence, usage (famille, enfants, jardins de voisins…). Pour un usage purement loisir en espace ouvert, l\'assurance habitation peut suffire.'},
+      {t:'Vérification de l\'assurance habitation', p:'Beaucoup de contrats multirisques habitation couvrent les drones de moins de 250 g. Je vérifie avec le client les conditions de son contrat actuel (montant, exclusions, conditions d\'usage).'},
+      {t:'Quand souscrire une assurance spécifique', p:'Si l\'assurance habitation est insuffisante, absente, ou si le client vole régulièrement dans des zones exposées, je recommande une assurance RC aéronautique spécifique. Tarifs très accessibles pour le C0.'},
+      {t:'Aide à la souscription', p:'Je guide le client vers les offres adaptées au profil C0 : contrats annuels low-cost (moins de 30€/an), offres via associations de modélistes (FFAM). Vérification que la couverture est effective.'},
+    ],
+    delivers:['Analyse de couverture existante','Recommandation assurance personnalisée','Attestation RC à conserver lors des vols (si souscrite)']
+  },
+  'c0-s4': {
+    color:'var(--c0)', bg:'var(--c0-soft)', icon:'🗺',
+    num:'Service C0 · 04', title:'Guide des zones de vol',
+    intro:`Même en C0, certaines zones sont totalement interdites : espaces aériens contrôlés, zones militaires, parcs nationaux, proximité des aéroports. La méconnaissance de ces zones est la source principale d'infraction involontaire.`,
+    steps:[
+      {t:'Prise en main de Géoportail aviation', p:'Formation à l\'utilisation du site officiel géoportail.aviation-civile.gouv.fr pour vérifier les zones avant chaque vol. Je montre comment lire les couleurs, symboles, et NOTAM en vigueur.'},
+      {t:'Analyse des lieux de vol du client', p:'Vérification de chaque lieu habituel de vol. Pour chaque lieu, je confirme si le vol est autorisé, à quelle altitude, et dans quelles conditions.'},
+      {t:'Présentation des apps mobiles', p:'Démonstration d\'apps adaptées aux C0 : Drone Assist (DSNA), Parrot App. Je souligne les différences avec les données officielles.'},
+      {t:'Règle de vie privée et prise de vue', p:'Explication des obligations CNIL/RGPD pour les prises de vue. Zones sensibles à éviter (cours privées, fenêtres, lieux de culte…).'},
+    ],
+    delivers:['Maîtrise de Géoportail','Fiche des zones de vol habituelles','Checklist pré-vol simplifiée C0','Mémo règles vie privée et prises de vue']
+  },
+  'c0-s5': {
+    color:'var(--c0)', bg:'var(--c0-soft)', icon:'🎓',
+    num:'Service C0 · 05', title:'Formation OPEN A1/A3 (optionnelle)',
+    intro:`L'examen OPEN A1/A3 n'est pas obligatoire pour un C0, mais il est fortement recommandé par la DGAC. C'est un test de 40 questions gratuit, sans limite de tentatives, qui donne une attestation valable 5 ans reconnue dans toute l'UE. Pour un client curieux ou souhaitant évoluer, c'est un investissement minimal.`,
+    steps:[
+      {t:'Présentation de la formation', p:'Explication du contenu : réglementation aérienne, espace aérien, météo, performances drone, procédures d\'urgence. Formation entièrement en ligne et gratuite sur Alphatango.'},
+      {t:'Valorisation de la démarche', p:'Même si non obligatoire, l\'attestation A1/A3 permet de comprendre les règles, d\'anticiper si le client change de drone pour un C1 ou C2, et de voler avec plus de sérénité.'},
+      {t:'Accompagnement pour passer le QCM', p:'Si le client souhaite passer le test, je l\'accompagne dans la préparation : ressources disponibles, conseils de révision, aide à la navigation sur la plateforme Alphatango.'},
+    ],
+    delivers:['Attestation OPEN A1/A3 (si passée, valable 5 ans)','Meilleure compréhension des règles','Prérequis déjà rempli pour une future évolution vers C1 ou C2']
+  },
+  'c0-s6': {
+    color:'var(--c0)', bg:'var(--c0-soft)', icon:'🔄',
+    num:'Service C0 · 06', title:'Suivi post-audit',
+    intro:`Le suivi post-audit pour un C0 est allégé par rapport aux C1/C2, mais reste pertinent : la réglementation évolue, et le client pourra un jour vouloir acheter un drone plus lourd.`,
+    steps:[
+      {t:'Remise du rapport d\'audit', p:'Document synthétique indiquant l\'état de conformité, les actions réalisées, et les éventuels points à surveiller.'},
+      {t:'Rappel pour le renouvellement Alphatango', p:'Si le client est enregistré, mise en place d\'un rappel annuel pour le renouvellement de l\'enregistrement exploitant.'},
+      {t:'Veille réglementaire allégée', p:'Information en cas de changement réglementaire impactant les C0 (nouvelles zones, nouvelles obligations caméra…).'},
+      {t:'Anticipation d\'une évolution de classe', p:'Si le client envisage d\'acheter un C1 ou C2, je l\'informe à l\'avance des nouvelles obligations et des démarches à anticiper.'},
+    ],
+    delivers:['Rapport d\'audit C0','Rappel renouvellement annuel si enregistré','Veille réglementaire légère','Conseil proactif en cas d\'évolution du parc']
+  },
+
+  /* ─── C1 ─── */
+  'c1-s1': {
+    color:'var(--c1)', bg:'var(--c1-soft)', icon:'📋',
+    num:'Service C1 · 01', title:'Enregistrement Alphatango — Drone + Exploitant',
+    intro:`Pour un C1, deux enregistrements distincts sont obligatoires : l'aéronef lui-même (numéro UAS) et le télépilote en tant qu'exploitant (numéro FRA). Sans ces deux démarches, tout vol est illégal.`,
+    steps:[
+      {t:'Création du compte Alphatango', p:'Création ou vérification du compte personnel via FranceConnect ou identifiants DGAC. Je guide le client étape par étape pour éviter les erreurs de saisie.'},
+      {t:'Enregistrement de l\'exploitant', p:'Déclaration en tant qu\'exploitant UAS. Attribution d\'un numéro FRA + 13 caractères. Ce numéro est le numéro de l\'opérateur — différent du numéro de l\'appareil.'},
+      {t:'Enregistrement de l\'aéronef', p:'Saisie des données du drone : marque, modèle, numéro de série, masse maximale au décollage. Attribution d\'un numéro d\'enregistrement aéronef (format UAS-FR-XXXX). Chaque drone a son propre numéro.'},
+      {t:'Génération et apposition des étiquettes', p:'Impression des étiquettes d\'identification à apposer sur le drone. Je conseille sur l\'emplacement optimal, la résistance des matériaux, et les exigences de lisibilité.'},
+      {t:'Vérification complète post-enregistrement', p:'Contrôle que les deux enregistrements (exploitant + aéronef) apparaissent bien dans le tableau de bord Alphatango. Export et archivage des justificatifs PDF à conserver lors des vols.'},
+      {t:'Rappel de renouvellement annuel', p:'Mise en place d\'une alerte pour le renouvellement obligatoire chaque année (exploitant et aéronef).'},
+    ],
+    delivers:['Compte Alphatango actif','Numéro exploitant (FRA + 13 car.)','Numéro aéronef (UAS-FR-XXXX)','Étiquettes apposées sur le drone','Justificatifs PDF archivés']
+  },
+  'c1-s2': {
+    color:'var(--c1)', bg:'var(--c1-soft)', icon:'🎓',
+    num:'Service C1 · 02', title:'Formation & examen OPEN A1/A3',
+    intro:`L'examen OPEN A1/A3 est obligatoire pour tout C1. C'est un QCM de 40 questions en ligne, gratuit, sans limite de tentatives, disponible directement sur Alphatango. L'attestation est valable 5 ans et reconnue dans toute l'UE.`,
+    steps:[
+      {t:'Évaluation du niveau initial', p:'Questionnaire rapide pour identifier les lacunes sur les 5 thématiques : réglementation aérienne, météo, espace aérien, performances drone, procédures d\'urgence.'},
+      {t:'Session de préparation théorique', p:'Session de 1h à 1h30 (visio ou présentiel) couvrant tous les thèmes du A1/A3. Support visuel fourni, exemples concrets, focus sur les points souvent ratés.'},
+      {t:'QCM d\'entraînement', p:'Série de QCM blancs similaires au test officiel. Correction commentée. Objectif : 75 % de bonnes réponses minimum avant le vrai test.'},
+      {t:'Passage du test officiel', p:'Je reste disponible le jour du passage pour aide à la navigation sur Alphatango. Le test est en ligne, gratuit, illimité en tentatives.'},
+      {t:'En cas d\'échec', p:'Analyse des erreurs et session de rattrapage ciblée. Le test est renouvelable immédiatement.'},
+    ],
+    delivers:['Attestation OPEN A1/A3 (valable 5 ans)','Support de cours PDF','QCM d\'entraînement archivés']
+  },
+  'c1-s3': {
+    color:'var(--c1)', bg:'var(--c1-soft)', icon:'🛡',
+    num:'Service C1 · 03', title:'Assurance RC aérienne',
+    intro:`L'assurance RC aéronautique est obligatoire pour tout C1, même en loisir. Sans elle, la responsabilité civile du propriétaire est engagée personnellement en cas d'accident ou de dommage à un tiers.`,
+    steps:[
+      {t:'Analyse du profil d\'utilisation', p:'Usage loisir ou pro ? Fréquence de vol ? Zones urbaines ou naturelles ? Valeur du matériel ? Ces paramètres déterminent le niveau de couverture nécessaire.'},
+      {t:'Vérification des couvertures existantes', p:'Certains contrats multirisques habitation couvrent les C1. Je vérifie l\'étendue réelle, les montants et les exclusions. Si inadaptée ou absente, je recommande une souscription spécifique.'},
+      {t:'Comparatif des offres', p:'Présentation des principales offres du marché : assurances annuelles drone, contrats via fédérations (FFAM, FPV France…), assurances constructeurs (DJI Care). Comparaison des garanties.'},
+      {t:'Explication des clauses essentielles', p:'Décryptage des points importants : montant de couverture RC requis, exclusions fréquentes (vols de nuit, hors-vue), couverture casse/vol (optionnelle mais conseillée).'},
+      {t:'Aide à la souscription', p:'Accompagnement dans le processus de souscription. Vérification que le contrat est conforme au règlement EU 2022/1145.'},
+    ],
+    delivers:['Analyse de la couverture existante','Contrat RC conforme souscrit','Attestation à conserver lors des vols','Fiche récap garanties et exclusions']
+  },
+  'c1-s4': {
+    color:'var(--c1)', bg:'var(--c1-soft)', icon:'📡',
+    num:'Service C1 · 04', title:'Remote ID & marquage physique',
+    intro:`Le Direct Remote ID est obligatoire pour tous les C1 depuis 2024. Il diffuse en continu les données d'identification du drone via un signal radio lisible par les autorités. Le marquage physique du numéro d'enregistrement est également obligatoire.`,
+    steps:[
+      {t:'Vérification de la compatibilité', p:'Je vérifie si le drone dispose du Remote ID natif (cas des drones récents DJI, Autel…). Pour les anciens modèles, identification des solutions : module externe OpenDroneID, mise à jour firmware.'},
+      {t:'Configuration du Remote ID', p:'Vérification que le numéro d\'enregistrement Alphatango est correctement configuré dans le Remote ID. Test de diffusion du signal avec une app dédiée (OpenDroneID, DJI Fly…).'},
+      {t:'Test de conformité du signal', p:'Utilisation d\'une app réceptrice pour vérifier que les données diffusées sont complètes : numéro d\'enregistrement, position GPS, altitude, vecteur vitesse, position du pilote.'},
+      {t:'Vérification et mise en conformité du marquage', p:'Contrôle de la présence, lisibilité et conformité du numéro visible sur le drone. Si absent ou non conforme, aide à l\'apposition de l\'étiquette Alphatango.'},
+    ],
+    delivers:['Remote ID configuré et testé','Marquage physique conforme','Rapport de conformité technique']
+  },
+  'c1-s5': {
+    color:'var(--c1)', bg:'var(--c1-soft)', icon:'🗺',
+    num:'Service C1 · 05', title:'Guide des zones de vol',
+    intro:`La majorité des infractions involontaires viennent de vols dans des zones interdites. La France a un espace aérien très réglementé. Je forme le client à la lecture des cartes et à l'utilisation des outils officiels.`,
+    steps:[
+      {t:'Formation à Géoportail aviation', p:'Session pratique sur géoportail.aviation-civile.gouv.fr. Lecture des zones (CTR, TMA, ZRT, ZIT…), des couleurs et des NOTAM en vigueur.'},
+      {t:'Présentation des apps mobiles', p:'Démonstration de Drone Assist (DSNA), AirMap, apps constructeurs (DJI Fly, Autel Sky). Mise en garde sur les différences avec les données officielles.'},
+      {t:'Audit des lieux de vol habituels', p:'Vérification de chaque lieu habituel : autorisé ? Restrictions d\'altitude ou d\'horaires ? Autorisations nécessaires ? Fiche personnalisée remise.'},
+      {t:'Checklist pré-vol', p:'Création d\'une checklist pré-vol : vérification zones, météo, état matériel, Remote ID actif, assurance valide.'},
+    ],
+    delivers:['Maîtrise de Géoportail','Fiche des zones habituelles','Checklist pré-vol smartphone','Mémo règles clés C1']
+  },
+  'c1-s6': {
+    color:'var(--c1)', bg:'var(--c1-soft)', icon:'🔄',
+    num:'Service C1 · 06', title:'Suivi post-audit',
+    intro:`La conformité doit être maintenue dans le temps. La réglementation évolue régulièrement, et plusieurs obligations sont annuelles.`,
+    steps:[
+      {t:'Rapport d\'audit complet', p:'Document écrit synthétisant l\'état de conformité, les actions réalisées, les points restants, et les échéances à surveiller.'},
+      {t:'Rappels annuels automatiques', p:'Alertes pour : renouvellement enregistrement Alphatango (aéronef + exploitant), renouvellement assurance RC, validité attestation A1/A3 (5 ans).'},
+      {t:'Veille réglementaire proactive', p:'Surveillance des publications EASA et DGAC. Information du client dès qu\'une nouvelle obligation impacte son profil C1.'},
+      {t:'Point de conformité annuel', p:'Bilan rapide (30 min visio) : enregistrements à jour, assurance conforme, firmware mis à jour, pratiques dans le cadre réglementaire.'},
+      {t:'Support en cas de contrôle', p:'Assistance pour rassembler les documents en cas de contrôle DGAC / gendarmerie. Aide en cas d\'incident ou d\'accident.'},
+    ],
+    delivers:['Rapport d\'audit écrit','Rappels automatiques pour toutes les échéances','Veille réglementaire personnalisée','Point annuel de conformité','Support contrôle/incident']
+  },
+
+  /* ─── C2 ─── */
+  'c2-s1': {
+    color:'var(--c2)', bg:'var(--c2-soft)', icon:'📋',
+    num:'Service C2 · 01', title:'Enregistrement Alphatango — Aéronef + Exploitant',
+    intro:`Pour un C2, l'enregistrement de l'aéronef est obligatoire dès 800 g (ce qui couvre tous les C2), ainsi que l'enregistrement de l'exploitant. Deux numéros distincts, deux procédures à réaliser sur Alphatango.`,
+    steps:[
+      {t:'Création du compte Alphatango', p:'Connexion via FranceConnect ou identifiants DGAC. Je vérifie que le compte est correctement créé et les paramètres de profil bien renseignés.'},
+      {t:'Enregistrement de l\'exploitant', p:'Déclaration en tant qu\'exploitant UAS. Attribution du numéro FRA + 13 caractères. Apposition obligatoire sur le drone (format lisible au sol).'},
+      {t:'Enregistrement de l\'aéronef (> 800 g)', p:'Saisie des données techniques du drone C2 : marque, modèle, numéro de série, masse maximale au décollage. Attribution du numéro UAS-FR-XXXX spécifique à l\'appareil.'},
+      {t:'Étiquetage et marquage', p:'Génération des étiquettes officielles. Je conseille sur l\'emplacement (châssis, bras…) et la résistance nécessaire pour un appareil de cette taille et masse.'},
+      {t:'Vérification complète et archivage', p:'Contrôle de la présence des deux enregistrements dans le tableau de bord. Export des justificatifs PDF. Les deux documents sont à conserver lors des vols.'},
+    ],
+    delivers:['Numéro exploitant FRA + 13 car.','Numéro aéronef UAS-FR-XXXX','Étiquettes apposées','Justificatifs PDF archivés','Rappel renouvellement annuel']
+  },
+  'c2-s2': {
+    color:'var(--c2)', bg:'var(--c2-soft)', icon:'🎓',
+    num:'Service C2 · 02', title:'Formation A1/A3 + Examen BAPD (A2)',
+    intro:`Le C2 exige deux qualifications successives : d'abord l'attestation OPEN A1/A3 (prérequis, gratuite, 40 questions), puis l'examen complémentaire OPEN A2 qui délivre le BAPD (Brevet d'Aptitude de Pilote à Distance — 30 questions, 30€, sous surveillance). Les deux sont valables 5 ans.`,
+    steps:[
+      {t:'Étape 1 — Préparation à l\'examen A1/A3', p:'Session de préparation couvrant les 5 thématiques (réglementation, météo, espace aérien, performances, urgences). QCM d\'entraînement fournis. Objectif : réussir le test gratuit en ligne sur Alphatango (40 questions, 75 %).'},
+      {t:'Étape 2 — Passage du test A1/A3', p:'Le test est disponible directement sur Alphatango, gratuit et illimité en tentatives. Je reste disponible le jour du test pour assistance technique. L\'attestation est immédiatement téléchargeable.'},
+      {t:'Étape 3 — Préparation à l\'examen BAPD (A2)', p:'Formation complémentaire sur les 3 thèmes spécifiques du BAPD : météorologie avancée, performances et limitations UAS, mesures d\'atténuation des risques au sol. Session de 1h à 1h30 dédiée.'},
+      {t:'Étape 4 — Inscription et passage du BAPD', p:'Inscription via Alphatango (30€, gratuit pour demandeurs d\'emploi). Choix du mode : en ligne (surveillance webcam TestWe) ou en centre agréé Bureau Veritas/DGAC (26 centres en France). QCM de 30 questions, 1h max, 75 % requis.'},
+      {t:'Obtention du BAPD', p:'Le BAPD est délivré immédiatement en centre, ou sous 72h si passage à domicile. Il est téléchargeable depuis "Mes titres de télépilote" sur Alphatango. Valable 5 ans, reconnu dans toute l\'UE.'},
+    ],
+    delivers:['Attestation OPEN A1/A3 (valable 5 ans)','BAPD — Brevet d\'Aptitude de Pilote à Distance (valable 5 ans)','Support de cours PDF A1/A3 et A2','QCM d\'entraînement archivés']
+  },
+  'c2-s3': {
+    color:'var(--c2)', bg:'var(--c2-soft)', icon:'🏋',
+    num:'Service C2 · 03', title:'Autoformation pratique — Sous-catégorie A3',
+    intro:`Avant de passer le BAPD, le télépilote doit obligatoirement réaliser une autoformation pratique : des vols d'entraînement dans les conditions de la sous-catégorie A3 (loin des personnes, à plus de 150 m des zones habitées). Cette formation est déclarée par le télépilote lui-même sur Alphatango.`,
+    steps:[
+      {t:'Explication du cadre A3', p:'Sous-catégorie A3 : vol à plus de 150 m des zones résidentielles, commerciales, industrielles et récréatives. Loin des personnes. Je montre au client comment identifier les zones conformes pour s\'entraîner.'},
+      {t:'Définir le programme de vols d\'entraînement', p:'Je construis avec le client un programme de vols pratiques adapté : nombre de sessions recommandées, types de manœuvres à maîtriser (décollage/atterrissage, hovering, trajectoires, retour maison), conditions météo idéales.'},
+      {t:'Identification des sites d\'entraînement', p:'Recherche de sites conformes aux conditions A3 à proximité du domicile du client : zones rurales, champs ouverts, aéromodélisme, etc. Vérification de la conformité de ces sites sur Géoportail.'},
+      {t:'Accompagnement des premières sessions', p:'Je peux assister aux premières sessions de vol (présentiel ou en visio via partage d\'écran de l\'app de vol) pour corriger les erreurs et valider la progression.'},
+      {t:'Déclaration de l\'autoformation', p:'Je guide le client pour déclarer son autoformation pratique sur Alphatango, étape indispensable avant l\'inscription à l\'examen BAPD.'},
+    ],
+    delivers:['Programme de vols d\'entraînement personnalisé','Liste de sites conformes A3','Déclaration d\'autoformation effectuée sur Alphatango','Autoformation validée — prérequis BAPD rempli']
+  },
+  'c2-s4': {
+    color:'var(--c2)', bg:'var(--c2-soft)', icon:'🛡',
+    num:'Service C2 · 04', title:'Assurance RC aérienne — Profil C2',
+    intro:`L'assurance RC est obligatoire pour tout C2. Avec une masse pouvant atteindre 4 kg, le potentiel de dommage en cas d'accident est significativement plus élevé qu'un C1. La couverture doit être proportionnée.`,
+    steps:[
+      {t:'Analyse du profil C2', p:'Usage loisir ou professionnel ? Zones de vol (urbain, rural, événements, inspections…) ? Ces éléments déterminent le niveau minimal de garantie. Un usage professionnel impose une assurance RC professionnelle dédiée.'},
+      {t:'Vérification des couvertures existantes', p:'Les contrats habitation couvrent rarement les C2 correctement, surtout en usage professionnel. Je vérifie les plafonds et les exclusions. Une assurance spécifique est souvent nécessaire.'},
+      {t:'Comparatif des offres C2', p:'Présentation des offres adaptées : assurances drone spécialisées (Coverdrone, Allianz Pro Drone, Generali UAS…), contrats professionnels avec couverture équipement et RC, offres constructeurs (DJI Care Enterprise). Comparaison des niveaux de garantie.'},
+      {t:'Décryptage des clauses spécifiques C2', p:'Points de vigilance : montant de couverture RC (minimum EU 2022/1145 pour un appareil de cette masse), couverture en cas de survol à 30 m des personnes (A2), exclusion des vols non conformes.'},
+      {t:'Aide à la souscription et vérification', p:'Accompagnement dans la souscription. Vérification de la conformité réglementaire du contrat. L\'attestation est à conserver lors de chaque vol.'},
+    ],
+    delivers:['Analyse de couverture existante','Contrat RC conforme et proportionné souscrit','Attestation d\'assurance','Fiche récap garanties, exclusions et montants']
+  },
+  'c2-s5': {
+    color:'var(--c2)', bg:'var(--c2-soft)', icon:'📡',
+    num:'Service C2 · 05', title:'Remote ID & marquage physique',
+    intro:`Le Direct Remote ID est obligatoire pour tous les C2. Avec un drone de cette masse, la conformité technique est essentielle — une panne ou une absence de Remote ID peut entraîner une non-conformité immédiate lors d'un contrôle.`,
+    steps:[
+      {t:'Vérification de compatibilité C2', p:'Les C2 récents (DJI Mavic 3, Autel EVO II…) disposent généralement du Remote ID natif. Je vérifie la version firmware, l\'activation du module, et la bonne configuration du numéro d\'enregistrement.'},
+      {t:'Configuration du numéro d\'enregistrement', p:'Le numéro UAS-FR-XXXX de l\'aéronef doit être correctement saisi dans l\'application de vol (DJI Fly, Autel Sky, etc.). Sans cette configuration, le Remote ID diffuse des données incomplètes ou incorrectes.'},
+      {t:'Test complet du signal Remote ID', p:'Utilisation d\'une app réceptrice (OpenDroneID, DroneScanner…) pour vérifier que toutes les données obligatoires sont diffusées : numéro d\'enregistrement, position GPS, altitude barométrique, vecteur vitesse, position opérateur.'},
+      {t:'Vérification du marquage physique', p:'Contrôle que les deux numéros (exploitant FRA + aéronef UAS-FR-XXXX) sont apposés de manière lisible et durable sur le drone. Pour un C2, la taille et la durabilité des étiquettes sont particulièrement importantes.'},
+      {t:'Rapport de conformité technique', p:'Document récapitulatif de la vérification technique : Remote ID fonctionnel, numéros corrects, marquage conforme. Peut être présenté en cas de contrôle.'},
+    ],
+    delivers:['Remote ID configuré et testé avec rapport','Marquage physique (exploitant + aéronef) conforme','Rapport de conformité technique signé']
+  },
+  'c2-s6': {
+    color:'var(--c2)', bg:'var(--c2-soft)', icon:'🔄',
+    num:'Service C2 · 06', title:'Suivi post-audit',
+    intro:`Pour un C2, le suivi post-audit est particulièrement important. La double qualification (A1/A3 + BAPD), les renouvellements annuels, et les évolutions réglementaires EASA nécessitent un accompagnement structuré dans la durée.`,
+    steps:[
+      {t:'Rapport d\'audit complet et structuré', p:'Document détaillé : état de conformité par poste, actions réalisées et à réaliser, timeline de régularisation, échéances futures. Plus complet que pour un C1 compte tenu des étapes de qualification.'},
+      {t:'Rappels automatiques — toutes les échéances', p:'Alertes pour : renouvellement enregistrement annuel (aéronef + exploitant), renouvellement assurance RC, validité BAPD (5 ans), validité attestation A1/A3 (5 ans), mise à jour firmware.'},
+      {t:'Veille réglementaire proactive C2', p:'Surveillance particulière des évolutions EASA sur la sous-catégorie A2. En France, les règles sur le vol en agglomération avec un C2 évoluent — je tiens le client informé en temps réel.'},
+      {t:'Point de conformité annuel approfondi', p:'Bilan annuel (45 min visio) : ensemble de la conformité C2 vérifiée, nouvelles obligations détectées, mise à jour des certifications si nécessaire.'},
+      {t:'Support en cas de contrôle ou incident', p:'Assistance complète en cas de contrôle DGAC/gendarmerie. En cas d\'accident ou d\'incident avec un C2 (masse significative), aide pour la gestion de l\'incident avec l\'assureur et les obligations déclaratives DGAC.'},
+      {t:'Accompagnement si évolution vers catégorie spécifique', p:'Si le client souhaite voler en zone urbaine de manière professionnelle (STS-01), je l\'accompagne dans la transition vers la catégorie spécifique : CATS, MANEX, déclaration DGAC.'},
+    ],
+    delivers:['Rapport d\'audit C2 complet et structuré','Rappels automatiques toutes échéances','Veille réglementaire A2 personnalisée','Point annuel approfondi','Support contrôle/incident C2','Accompagnement évolution catégorie spécifique si besoin']
+  },
+
+  /* ─── A3 ─── */
+  'a3-s1': {
+    color:'var(--a3)', bg:'var(--a3-soft)', icon:'📋',
+    num:'Service A3 · 01', title:'Enregistrement Alphatango — Selon le profil',
+    intro:`Les obligations d'enregistrement diffèrent selon que le drone est un C3/C4 (avec marquage CE) ou un drone legacy/FPV artisanal (sans marquage CE). C'est le premier point à clarifier lors de l'audit.`,
+    steps:[
+      {t:'Étape 1 — Identifier le profil', p:'C3/C4 : le drone porte un marquage CE avec la mention de classe sur l\'appareil ou sa boîte. Legacy : ancien modèle acheté avant le 1er janvier 2024 sans marquage de classe. FPV artisanal : frame construite ou assemblée par le propriétaire, pas de marquage de classe possible.'},
+      {t:'C3/C4 — Enregistrement exploitant + aéronef', p:'Comme pour un C1/C2, deux enregistrements sont nécessaires : (1) l\'exploitant (numéro FRA + 13 caractères) et (2) l\'aéronef lui-même (numéro UAS-FR-XXXX) si la masse est supérieure à 800 g ou si le drone est équipé d\'un Remote ID. Je guide le client pour les deux démarches sur Alphatango.'},
+      {t:'Legacy / FPV artisanal — Enregistrement exploitant uniquement', p:'Pour les drones sans marquage de classe CE, seul l\'enregistrement de l\'exploitant est requis — et uniquement si le drone est équipé d\'une caméra ou dépasse 250 g. Il n\'existe pas d\'enregistrement de l\'aéronef pour ces appareils. Un seul numéro FRA s\'applique à tous les drones du propriétaire.'},
+      {t:'Cas multi-drones (fréquent en FPV)', p:'Un pilote FPV possède souvent plusieurs frames. Un seul enregistrement exploitant suffit pour tous les appareils legacy/artisanaux. Si le pilote possède à la fois un C3 et des legacy, l\'enregistrement aéronef ne s\'applique qu\'au C3.'},
+      {t:'Marquage et archivage', p:'Apposition du numéro sur le ou les drones. Pour un C3/C4 : les deux numéros (exploitant + aéronef) doivent être visibles. Pour legacy/FPV : le numéro exploitant seul, apposé sur chaque appareil du parc. Export des justificatifs PDF à conserver lors des vols.'},
+    ],
+    delivers:['Identification claire du profil (C3, C4, legacy ou FPV)','Enregistrements Alphatango adaptés au profil','Numéros apposés sur tous les drones','Justificatifs PDF archivés','Rappel renouvellement annuel']
+  },
+  'a3-s2': {
+    color:'var(--a3)', bg:'var(--a3-soft)', icon:'🎓',
+    num:'Service A3 · 02', title:'Formation OPEN A1/A3',
+    intro:`L'examen OPEN A1/A3 est obligatoire pour tout drone legacy de plus de 250 g et pour les FPV artisanaux utilisés en extérieur. C'est un QCM de 40 questions, gratuit, en ligne sur Alphatango. La communauté FPV le méconnaît presque entièrement.`,
+    steps:[
+      {t:'Explication du pourquoi — spécifique A3', p:'Beaucoup de pilotes FPV pensent que la réglementation ne les concerne pas. Je prends le temps d\'expliquer que depuis 2024, même un drone artisanal sans marquage CE est soumis à l\'examen A1/A3. C\'est non-négociable pour voler légalement.'},
+      {t:'Présentation du contenu — focus A3', p:'5 thématiques : réglementation aérienne (dont sous-catégorie A3 spécifiquement), espace aérien, météorologie, performances UAS, procédures d\'urgence. J\'insiste sur les questions spécifiques à la A3 — distance des zones habitées, restrictions — souvent mal connues même des pilotes expérimentés.'},
+      {t:'Session de préparation adaptée au profil FPV', p:'Session de 1h30 adaptée : focus sur les points spécifiques à la A3 (zones de vol, distances, restrictions) et explication pourquoi les pratiques habituelles FPV (vol urbain, intérieur de bâtiments) sont non conformes.'},
+      {t:'QCM d\'entraînement et passage du test', p:'Mise à disposition de QCM blancs. Objectif : 75 % minimum. Le test est disponible sur Alphatango, gratuit, sans limite de tentatives. Je reste disponible pour assistance technique le jour du passage.'},
+      {t:'Attestation et archivage', p:'L\'attestation est valable 5 ans, reconnue dans toute l\'UE. Je conseille au client de la garder sur son smartphone lors de chaque session de vol.'},
+    ],
+    delivers:['Attestation OPEN A1/A3 valable 5 ans','Support de cours PDF orienté A3 et FPV','Compréhension des restrictions spécifiques A3','QCM d\'entraînement archivés']
+  },
+  'a3-s3': {
+    color:'var(--a3)', bg:'var(--a3-soft)', icon:'🛡',
+    num:'Service A3 · 03', title:'Assurance RC aérienne — Profil FPV',
+    intro:`L'assurance RC est obligatoire pour tout drone, y compris les legacy et FPV artisanaux. Le profil FPV est particulier : les assureurs sont parfois frileux sur les drones artisanaux à haute vitesse. Je guide le client vers les offres les mieux adaptées.`,
+    steps:[
+      {t:'Analyse du profil FPV', p:'Drone artisanal ou produit fini ? Vitesse maximale ? Usage racing compétition ou freestyle loisir ? Lieu de vol habituel ? Un drone FPV 5 pouces à 150 km/h n\'est pas couvert par une assurance habitation standard.'},
+      {t:'Vérification de la couverture habitation', p:'Les assurances habitation couvrent rarement les drones FPV artisanaux, surtout en compétition ou pratique fréquente. Je vérifie les conditions exactes du contrat existant.'},
+      {t:'Offres spécifiques FPV et modélisme', p:'Présentation des meilleures options : contrats via la FFAM (Fédération Française d\'Aéromodélisme) — très adaptés et complets pour les FPV, assurances RC drone spécialisées (Coverdrone, Allianz Modélisme…). L\'adhésion à la FFAM est souvent la solution la plus avantageuse et ouvre des droits de vol dans les clubs homologués.'},
+      {t:'Cas de la compétition racing', p:'Un pilote qui participe à des compétitions doit s\'assurer que son contrat couvre les événements organisés. Certaines compétitions imposent une assurance fédérale. Je vérifie ce point et oriente vers les contrats adaptés.'},
+      {t:'Aide à la souscription', p:'Accompagnement dans la souscription. Vérification que le contrat couvre les drones artisanaux, la pratique spécifique (FPV, racing) et les zones de vol envisagées.'},
+    ],
+    delivers:['Analyse de couverture existante','Recommandation assurance adaptée FPV','Information sur l\'adhésion FFAM','Contrat RC conforme souscrit','Attestation à conserver lors des vols']
+  },
+  'a3-s4': {
+    color:'var(--a3)', bg:'var(--a3-soft)', icon:'🗺',
+    num:'Service A3 · 04', title:'Identifier les zones de vol A3 conformes',
+    intro:`La restriction A3 — 150 m des zones habitées — est la contrainte la plus impactante pour les pilotes FPV. La plupart volent dans des endroits totalement incompatibles avec cette règle. Je les aide à identifier des spots légaux proches de chez eux.`,
+    steps:[
+      {t:'Explication concrète de la restriction A3', p:'150 m des zones résidentielles, commerciales, industrielles et récréatives exclut les villes, villages, parcs, jardins publics, zones industrielles, terrains de sport… En pratique, seuls les espaces ruraux ouverts, les champs agricoles éloignés et certaines zones naturelles sont conformes. Je montre des exemples concrets sur carte.'},
+      {t:'Formation à Géoportail pour le profil A3', p:'Session pratique sur géoportail.aviation-civile.gouv.fr avec focus A3 : comment identifier les zones habitées à 150 m, comment évaluer un spot en moins de 2 minutes avant de déployer le matériel.'},
+      {t:'Audit des lieux de vol habituels', p:'Analyse de chaque spot que le client fréquente. Pour chaque lieu, je détermine s\'il est conforme A3 et j\'identifie des alternatives conformes dans le secteur géographique du client.'},
+      {t:'Clubs aéromodélisme et terrains homologués', p:'Les clubs affiliés à la FFAM disposent souvent de terrains homologués avec des dérogations permettant de voler dans des conditions élargies. Je recherche les clubs proches du domicile du client.'},
+      {t:'Checklist pré-vol A3 personnalisée', p:'Création d\'une checklist pré-vol spécifique A3 : vérification distance des zones habitées, consultation Géoportail, météo, assurance valide, observateur présent si lunettes FPV, attestation sur soi. Format smartphone.'},
+    ],
+    delivers:['Compréhension opérationnelle de la restriction A3','Maîtrise de Géoportail pour évaluer un spot','Liste de spots conformes A3 dans le secteur','Information clubs FFAM proches','Checklist pré-vol A3 format smartphone']
+  },
+  'a3-s5': {
+    color:'var(--a3)', bg:'var(--a3-soft)', icon:'📡',
+    num:'Service A3 · 05', title:'Remote ID & géovigilance (C3) — Lunettes & observateur (FPV)',
+    intro:`Ce service couvre deux obligations distinctes selon le profil. Pour les drones C3 : le Remote ID et la géovigilance sont obligatoires et doivent être vérifiés. Pour les pilotes FPV avec lunettes : la règle de l'observateur est quasi universellement ignorée dans la communauté.`,
+    steps:[
+      {t:'C3 — Vérification du Remote ID obligatoire', p:'La classe C3 impose l\'identification directe à distance (Remote ID). Je vérifie que le drone en est équipé, que le numéro d\'enregistrement Alphatango est correctement configuré, et que le signal diffusé est complet et conforme à l\'aide d\'une app réceptrice (OpenDroneID, DroneScanner…).'},
+      {t:'C3 — Vérification de la géovigilance', p:'La classe C3 impose également la fonction de géovigilance : le drone doit être capable de détecter une violation de limite d\'espace aérien et d\'en informer le télépilote. Je vérifie que cette fonction est bien active et correctement paramétrée.'},
+      {t:'C4 / Legacy / FPV — Pas de Remote ID obligatoire', p:'Les C4, legacy et FPV artisanaux ne sont pas soumis à l\'obligation de Remote ID en sous-catégorie A3. Toutefois, si le drone en dispose (certains legacy récents), je conseille de le configurer correctement pour éviter toute confusion lors d\'un contrôle.'},
+      {t:'FPV avec lunettes — Règle de l\'observateur', p:'En catégorie ouverte, le télépilote doit maintenir son drone en vue directe (VLOS). Avec des lunettes immersives, il est considéré comme volant hors vue (BVLOS), interdit en catégorie ouverte. La seule exception : la présence d\'un observateur désigné qui maintient le drone en vue directe à l\'œil nu en permanence.'},
+      {t:'Organisation pratique de l\'observateur', p:'L\'observateur est une personne distincte du pilote, responsable de détecter tout risque de collision. Il n\'a pas besoin d\'être qualifié. Je conseille le client sur le positionnement, le protocole de communication, et comment briefer un observateur non-pilote.'},
+      {t:'Configuration technique recommandée (FPV)', p:'Pour minimiser les risques : OSD affichant distance et direction de retour, buzzer d\'urgence, failsafe configuré, limiteur d\'altitude actif. Ces éléments réduisent le risque d\'incident et montrent la bonne foi du pilote en cas de contrôle.'},
+    ],
+    delivers:['C3 : Remote ID configuré, testé et validé','C3 : géovigilance vérifiée et active','FPV : compréhension de la règle VLOS/observateur','Protocole observateur pratique','Configuration technique recommandée','Fiche récap règles A3 à conserver lors des vols']
+  },
+  'a3-s6': {
+    color:'var(--a3)', bg:'var(--a3-soft)', icon:'🔄',
+    num:'Service A3 · 06', title:'Suivi post-audit — Veille & Évolutions',
+    intro:`La réglementation des drones legacy évolue régulièrement. La communauté FPV doit être accompagnée dans la durée pour anticiper les changements et envisager une éventuelle évolution vers des appareils avec marquage de classe CE.`,
+    steps:[
+      {t:'Rapport d\'audit complet A3', p:'Document synthétisant l\'état de conformité : liste des appareils et leur statut, actions réalisées, restrictions A3 applicables à la pratique, spots conformes identifiés, points restants à régler.'},
+      {t:'Rappels des échéances récurrentes', p:'Alertes pour : renouvellement enregistrement exploitant annuel (si applicable), renouvellement assurance RC, validité attestation A1/A3 (5 ans), renouvellement adhésion club FFAM si applicable.'},
+      {t:'Veille réglementaire spécifique FPV / legacy', p:'Surveillance des publications EASA et DGAC sur les évolutions de la catégorie A3 et du statut des drones legacy. Toute modification des distances de sécurité, des conditions FPV, ou des dérogations sera immédiatement communiquée.'},
+      {t:'Conseil sur l\'évolution du parc', p:'Si le client envisage un nouvel achat, je l\'aide à choisir un appareil avec marquage de classe (C0 ou C1) pour accéder à des zones de vol plus larges. Comparaison pratique des contraintes A3 vs A1 pour aider à décider.'},
+      {t:'Suivi de la situation des clubs FFAM', p:'Si le client adhère à un club suite à l\'audit, je le tiens informé des nouvelles dérogations et de l\'évolution de la réglementation fédérale dans sa région.'},
+      {t:'Support en cas de contrôle', p:'Assistance en cas de contrôle DGAC ou gendarmerie — les contrôles sont plus fréquents sur les spots FPV urbains suite aux signalements de riverains. Je prépare le client à cette éventualité et l\'aide à rassembler les documents nécessaires.'},
+    ],
+    delivers:['Rapport d\'audit A3 complet','Rappels automatiques toutes échéances','Veille réglementaire FPV/legacy','Conseil évolution vers classe CE','Info clubs FFAM et dérogations','Support contrôle/incident']
+  }
+};
+
+function showDetail(classe, service) {
+  const key = classe + '-' + service;
+  const d = details[key];
+  if (!d) return;
+
+  const stepsHtml = d.steps.map((s,i) => `
+    <li class="step-item">
+      <div class="step-n" style="background:${d.bg};color:${d.color};">${i+1}</div>
+      <div class="step-body"><h4>${s.t}</h4><p>${s.p}</p></div>
+    </li>`).join('');
+
+  const delivHtml = d.delivers.map(x => `<li><span style="color:${d.color}">✓</span>${x}</li>`).join('');
+
+  document.getElementById('detail-content').innerHTML = `
+    <div class="detail-head">
+      <div class="detail-ico" style="background:${d.bg};">${d.icon}</div>
+      <div>
+        <div class="detail-num" style="color:${d.color};">${d.num}</div>
+        <h3>${d.title}</h3>
+      </div>
+    </div>
+    <p class="detail-intro">${d.intro}</p>
+    <div>
+      <div class="dsec-title">Ce que je fais concrètement</div>
+      <ul class="step-list">${stepsHtml}</ul>
+    </div>
+    <div class="deliver-box" style="background:${d.bg};border-color:${d.color}40;">
+      <div class="deliver-title" style="color:${d.color};">Ce que le client repart avec</div>
+      <ul class="deliver-list">${delivHtml}</ul>
+    </div>
+  `;
+
+  // Update back button label
+  var labels = {'c0':'C0','c1':'C1','c2':'C2','a3':'A3 (Legacy / FPV)'};
+  document.getElementById('detail-back').textContent = '← Retour à la fiche ' + (labels[classe] || classe.toUpperCase());
+  showPage('detail');
+  setNavActive(classe);
+}
+
+function closeDetail() {
+  if (currentFiche) {
+    showPage(currentFiche);
+    setNavActive(currentFiche);
+  } else {
+    goHome();
+  }
+}
+
+// Hover effect for service cards
+document.querySelectorAll('.srv-card').forEach(card => {
+  const colors = {'c0':'var(--c0)','c1':'var(--c1)','c2':'var(--c2)'};
+  card.addEventListener('mouseenter', function() {
+    const bar = this.querySelector('.srv-bar');
+    if (bar) bar.style.opacity = '1';
+  });
+  card.addEventListener('mouseleave', function() {
+    const bar = this.querySelector('.srv-bar');
+    if (bar) bar.style.opacity = '0';
+  });
+});
+</script>
+</body>
+</html>

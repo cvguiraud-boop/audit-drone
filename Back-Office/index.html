@@ -1,0 +1,1039 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Back-Office — Audit Drone | Glocal Defense</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700&family=Mulish:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0C0E14;
+  --bg2: #12151E;
+  --bg3: #181C28;
+  --border: rgba(255,255,255,0.07);
+  --border-h: rgba(255,255,255,0.14);
+  --text: #EEF0FF;
+  --muted: rgba(238,240,255,0.5);
+  --hint: rgba(238,240,255,0.28);
+  --c0: #00D4A0;
+  --c0-soft: rgba(0,212,160,0.1);
+  --c0-border: rgba(0,212,160,0.35);
+  --c1: #4F9FFF;
+  --c1-soft: rgba(79,159,255,0.1);
+  --c1-border: rgba(79,159,255,0.35);
+  --c2: #FFB830;
+  --c2-soft: rgba(255,184,48,0.1);
+  --c2-border: rgba(255,184,48,0.35);
+  --fpv: #C084FC;
+  --fpv-soft: rgba(192,132,252,0.1);
+  --fpv-border: rgba(192,132,252,0.35);
+  --red: #FF5C5C;
+  --red-soft: rgba(255,92,92,0.1);
+  --green: #34D399;
+  --green-soft: rgba(52,211,153,0.1);
+  --font-h: 'Syne', sans-serif;
+  --font-b: 'Mulish', sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--text);font-family:var(--font-b);font-size:15px;line-height:1.65;min-height:100vh;}
+body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background-image:
+    radial-gradient(ellipse 60% 40% at 10% 0%,rgba(0,212,160,0.05) 0%,transparent 70%),
+    radial-gradient(ellipse 50% 35% at 90% 100%,rgba(79,159,255,0.06) 0%,transparent 70%);}
+
+/* NAV */
+nav{position:sticky;top:0;z-index:200;background:rgba(12,14,20,0.92);backdrop-filter:blur(16px);
+  border-bottom:1px solid var(--border);height:54px;display:flex;align-items:center;padding:0 1.5rem;gap:0;}
+.nav-logo{font-family:var(--font-h);font-size:14px;font-weight:700;color:var(--text);text-decoration:none;
+  display:flex;align-items:center;gap:9px;flex-shrink:0;margin-right:1.5rem;}
+.logo-badge{width:28px;height:28px;border-radius:7px;
+  background:linear-gradient(135deg,var(--c0) 0%,var(--c1) 60%,var(--c2) 100%);
+  display:flex;align-items:center;justify-content:center;font-size:13px;}
+.nav-label{font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--fpv);background:var(--fpv-soft);border:1px solid var(--fpv-border);
+  border-radius:4px;padding:2px 7px;margin-left:4px;}
+.nav-tabs{display:flex;gap:2px;overflow-x:auto;}
+.nav-tab{height:54px;display:flex;align-items:center;gap:6px;padding:0 13px;font-size:13px;
+  font-family:var(--font-b);font-weight:500;color:var(--muted);text-decoration:none;cursor:pointer;
+  border:none;background:none;white-space:nowrap;border-bottom:2px solid transparent;
+  transition:color .15s,border-color .15s;position:relative;top:1px;}
+.nav-tab:hover{color:var(--text);}
+.nav-tab.active{color:var(--text);border-bottom-color:var(--c0);}
+.nav-tab.active.t-c1{border-bottom-color:var(--c1);}
+.nav-tab.active.t-c2{border-bottom-color:var(--c2);}
+.nav-tab.active.t-fpv{border-bottom-color:var(--fpv);}
+.nav-pip{width:6px;height:6px;border-radius:50%;flex-shrink:0;}
+
+/* PAGES */
+.page{display:none;position:relative;z-index:1;}
+.page.active{display:block;}
+
+/* ── HOME ── */
+.home-wrap{max-width:1000px;margin:0 auto;padding:3rem 2rem 5rem;}
+.home-header{text-align:center;margin-bottom:3rem;}
+.eyebrow{display:inline-flex;align-items:center;gap:7px;background:rgba(255,255,255,0.05);
+  border:1px solid var(--border-h);border-radius:20px;padding:4px 13px;font-size:11px;
+  font-weight:700;letter-spacing:.08em;color:var(--muted);margin-bottom:1.2rem;text-transform:uppercase;}
+h1{font-family:var(--font-h);font-size:clamp(1.8rem,4vw,2.8rem);font-weight:700;line-height:1.15;margin-bottom:.7rem;}
+.home-sub{font-size:15px;color:var(--muted);max-width:480px;margin:0 auto 2rem;line-height:1.7;}
+.btn-primary{display:inline-flex;align-items:center;gap:8px;padding:.8rem 1.8rem;
+  background:var(--c0);color:#0C0E14;border:none;border-radius:10px;font-size:14px;
+  font-weight:700;font-family:var(--font-b);cursor:pointer;transition:opacity .15s,transform .15s;}
+.btn-primary:hover{opacity:.88;transform:translateY(-1px);}
+.btn-secondary{display:inline-flex;align-items:center;gap:7px;padding:.65rem 1.4rem;
+  background:transparent;color:var(--muted);border:1px solid var(--border-h);border-radius:9px;
+  font-size:13px;font-weight:600;font-family:var(--font-b);cursor:pointer;transition:all .15s;}
+.btn-secondary:hover{color:var(--text);border-color:rgba(255,255,255,.25);}
+
+/* QUICK CARDS */
+.quick-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:2.5rem;}
+@media(max-width:800px){.quick-grid{grid-template-columns:repeat(2,1fr);}}
+@media(max-width:480px){.quick-grid{grid-template-columns:1fr;}}
+.qcard{background:var(--bg2);border:1px solid var(--border);border-radius:13px;padding:1.25rem 1.1rem;
+  cursor:pointer;transition:border-color .2s,transform .2s;position:relative;overflow:hidden;}
+.qcard::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;}
+.qcard.qc0::before{background:var(--c0);}
+.qcard.qc1::before{background:var(--c1);}
+.qcard.qc2::before{background:var(--c2);}
+.qcard.qfpv::before{background:var(--fpv);}
+.qcard:hover{transform:translateY(-2px);}
+.qcard.qc0:hover{border-color:var(--c0-border);}
+.qcard.qc1:hover{border-color:var(--c1-border);}
+.qcard.qc2:hover{border-color:var(--c2-border);}
+.qcard.qfpv:hover{border-color:var(--fpv-border);}
+.qcard-class{font-family:var(--font-h);font-size:1.5rem;font-weight:700;margin-bottom:2px;}
+.qcard-weight{font-size:11px;color:var(--muted);font-weight:600;letter-spacing:.04em;margin-bottom:.6rem;}
+.qcard-price{font-size:18px;font-weight:700;font-family:var(--font-h);}
+.qcard-time{font-size:11px;color:var(--hint);}
+.qcard-cta{font-size:12px;font-weight:600;margin-top:.8rem;display:flex;justify-content:space-between;align-items:center;}
+
+/* ── WIZARD ── */
+.wizard-wrap{max-width:680px;margin:0 auto;padding:2.5rem 2rem 5rem;}
+.wizard-header{margin-bottom:2rem;}
+.progress-bar{height:3px;background:var(--border);border-radius:2px;margin-top:1.25rem;overflow:hidden;}
+.progress-fill{height:100%;background:var(--c0);border-radius:2px;transition:width .3s ease;}
+.step-count{font-size:11px;color:var(--hint);font-weight:600;letter-spacing:.06em;text-transform:uppercase;margin-bottom:.4rem;}
+.wizard-title{font-family:var(--font-h);font-size:1.5rem;font-weight:700;line-height:1.2;}
+.wizard-sub{font-size:13px;color:var(--muted);margin-top:.4rem;}
+
+.wizard-step{display:none;}
+.wizard-step.active{display:block;}
+
+.choices{display:flex;flex-direction:column;gap:.7rem;margin-top:1.5rem;}
+.choice{background:var(--bg2);border:1.5px solid var(--border);border-radius:12px;
+  padding:1rem 1.25rem;cursor:pointer;display:flex;align-items:center;gap:12px;
+  transition:border-color .15s,background .15s;}
+.choice:hover{border-color:var(--border-h);background:var(--bg3);}
+.choice.selected{border-color:var(--c0);background:rgba(0,212,160,0.06);}
+.choice-ico{width:38px;height:38px;border-radius:9px;background:var(--bg3);
+  display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+.choice-label{font-size:14px;font-weight:600;color:var(--text);}
+.choice-sub{font-size:12px;color:var(--muted);margin-top:2px;}
+
+/* already-done checkboxes */
+.done-list{display:flex;flex-direction:column;gap:.5rem;margin-top:1.5rem;}
+.done-item{display:flex;align-items:center;gap:10px;padding:.8rem 1rem;
+  background:var(--bg2);border:1px solid var(--border);border-radius:10px;cursor:pointer;
+  transition:border-color .15s;}
+.done-item:hover{border-color:var(--border-h);}
+.done-item.checked{border-color:var(--green);background:var(--green-soft);}
+.done-check{width:18px;height:18px;border-radius:5px;border:1.5px solid rgba(255,255,255,.2);
+  flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .15s;}
+.done-item.checked .done-check{border-color:var(--green);background:var(--green);}
+.done-item.checked .done-check::after{content:'✓';font-size:10px;color:#0C0E14;font-weight:900;}
+.done-label{font-size:13.5px;color:var(--text);}
+
+.wizard-nav{display:flex;gap:10px;margin-top:2rem;align-items:center;}
+.wizard-nav .btn-primary{padding:.7rem 1.4rem;font-size:13px;}
+.wizard-nav .btn-secondary{padding:.65rem 1.2rem;font-size:13px;}
+
+/* ── RESULT ── */
+.result-wrap{max-width:800px;margin:0 auto;padding:2rem 2rem 5rem;}
+.result-hero{display:flex;align-items:center;gap:1.25rem;padding:1.5rem;
+  background:var(--bg2);border:1px solid var(--border);border-radius:14px;margin-bottom:1.5rem;}
+.result-badge{width:56px;height:56px;border-radius:13px;display:flex;align-items:center;
+  justify-content:center;font-size:24px;flex-shrink:0;}
+.result-class{font-family:var(--font-h);font-size:1.75rem;font-weight:700;}
+.result-desc{font-size:13px;color:var(--muted);margin-top:3px;}
+.result-price-box{margin-left:auto;text-align:right;}
+.result-price{font-family:var(--font-h);font-size:2rem;font-weight:700;color:var(--c0);}
+.result-price-label{font-size:11px;color:var(--hint);}
+
+.result-cols{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem;}
+@media(max-width:640px){.result-cols{grid-template-columns:1fr;}}
+
+.rcard{background:var(--bg2);border:1px solid var(--border);border-radius:13px;padding:1.25rem;}
+.rcard-title{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--hint);margin-bottom:.9rem;display:flex;align-items:center;gap:7px;}
+.rcard-title::after{content:'';flex:1;height:1px;background:var(--border);}
+
+/* obligation items */
+.obl-list{list-style:none;display:flex;flex-direction:column;gap:5px;}
+.obl-item{display:flex;align-items:flex-start;gap:8px;font-size:13px;padding:4px 0;}
+.obl-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;margin-top:5px;}
+
+/* services checklist */
+.srv-list{list-style:none;display:flex;flex-direction:column;gap:4px;}
+.srv-item{display:flex;align-items:flex-start;gap:9px;padding:7px 8px;border-radius:8px;
+  cursor:pointer;transition:background .1s;user-select:none;}
+.srv-item:hover{background:rgba(255,255,255,.03);}
+.srv-item.done .srv-label{color:var(--hint);text-decoration:line-through;}
+.srv-box{width:17px;height:17px;border-radius:5px;border:1.5px solid rgba(255,255,255,.2);
+  flex-shrink:0;margin-top:2px;display:flex;align-items:center;justify-content:center;
+  transition:all .15s;}
+.srv-item.done .srv-box{border-color:var(--c0);background:var(--c0);}
+.srv-item.done .srv-box::after{content:'✓';font-size:10px;color:#0C0E14;font-weight:900;}
+.srv-label{font-size:13px;color:var(--text);line-height:1.45;flex:1;}
+.srv-price{font-size:11px;color:var(--muted);font-weight:600;white-space:nowrap;margin-left:4px;}
+
+.options-section{margin-top:.8rem;}
+.options-title{font-size:11px;color:var(--hint);font-weight:600;letter-spacing:.07em;text-transform:uppercase;
+  padding:.5rem 0;border-top:1px solid var(--border);}
+
+/* pills */
+.pill{display:inline-block;border-radius:4px;padding:2px 8px;font-size:11px;font-weight:700;
+  letter-spacing:.03em;border:1px solid;}
+.pill-obl{background:rgba(255,92,92,.12);color:#FF7070;border-color:rgba(255,92,92,.3);}
+.pill-ok{background:var(--green-soft);color:var(--green);border-color:rgba(52,211,153,.3);}
+.pill-warn{background:rgba(255,184,48,.1);color:#FFB830;border-color:rgba(255,184,48,.25);}
+
+/* notes */
+.notes-card{background:var(--bg2);border:1px solid var(--border);border-radius:13px;padding:1.25rem;margin-bottom:1rem;}
+.notes-label{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--hint);margin-bottom:.7rem;}
+textarea{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:8px;
+  color:var(--text);font-family:var(--font-b);font-size:13.5px;line-height:1.6;padding:.8rem 1rem;
+  resize:vertical;min-height:90px;transition:border-color .15s;}
+textarea:focus{outline:none;border-color:var(--c1);}
+textarea::placeholder{color:var(--hint);}
+
+.result-actions{display:flex;gap:10px;flex-wrap:wrap;}
+
+/* ── FICHES ── */
+.fiche-wrap{max-width:820px;margin:0 auto;padding:2.5rem 2rem 5rem;}
+.fiche-hero{display:flex;align-items:flex-start;gap:1.25rem;padding-bottom:1.75rem;margin-bottom:1.75rem;border-bottom:1px solid var(--border);}
+.fiche-icon{width:56px;height:56px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;}
+.fiche-eyebrow{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin-bottom:5px;}
+h2{font-family:var(--font-h);font-size:1.9rem;font-weight:700;line-height:1.15;margin-bottom:.3rem;}
+.fiche-sub{font-size:14px;color:var(--muted);}
+.fiche-price{font-family:var(--font-h);font-size:2.2rem;font-weight:700;margin-top:.3rem;}
+
+.scard{background:var(--bg2);border:1px solid var(--border);border-radius:13px;padding:1.4rem;margin-bottom:1rem;transition:border-color .2s;}
+.scard:hover{border-color:var(--border-h);}
+.scard-head{display:flex;align-items:center;gap:9px;padding-bottom:.9rem;margin-bottom:1rem;border-bottom:1px solid var(--border);}
+.scard-num{width:28px;height:28px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;font-family:var(--font-h);}
+.scard-label{font-size:12px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);}
+
+.cl{list-style:none;}
+.cl-item{display:flex;align-items:flex-start;gap:10px;padding:8px 4px;border-bottom:1px solid rgba(255,255,255,.04);cursor:pointer;user-select:none;border-radius:6px;transition:background .1s;}
+.cl-item:last-child{border-bottom:none;}
+.cl-item:hover{background:rgba(255,255,255,.025);}
+.cl-item.done .cl-text{color:var(--hint);text-decoration:line-through;}
+.cl-box{width:17px;height:17px;border-radius:5px;border:1.5px solid rgba(255,255,255,.2);flex-shrink:0;margin-top:3px;display:flex;align-items:center;justify-content:center;transition:all .15s;}
+.cl-item.done .cl-box{border-color:currentColor;}
+.cl-item.done .cl-box::after{content:'';width:8px;height:4.5px;border-left:1.5px solid currentColor;border-bottom:1.5px solid currentColor;transform:rotate(-45deg) translate(1px,-1px);display:block;}
+.cl-text{flex:1;font-size:13.5px;color:var(--text);line-height:1.5;}
+.tag{display:inline-block;font-size:10px;font-weight:700;padding:2px 7px;border-radius:20px;margin-left:6px;vertical-align:middle;letter-spacing:.04em;text-transform:uppercase;border:1px solid;}
+.t-obl{background:rgba(255,92,92,.12);color:#FF7070;border-color:rgba(255,92,92,.3);}
+.t-imp{background:rgba(255,184,48,.12);color:#FFB830;border-color:rgba(255,184,48,.3);}
+.t-ok{background:var(--green-soft);color:var(--green);border-color:rgba(52,211,153,.3);}
+
+.alert-band{display:flex;align-items:flex-start;gap:11px;border-radius:10px;padding:.85rem 1rem;font-size:13px;line-height:1.6;margin-bottom:1.25rem;border:1px solid;}
+.alert-red{background:var(--red-soft);border-color:rgba(255,92,92,.25);color:#EEF0FF;}
+.alert-green{background:var(--green-soft);border-color:rgba(52,211,153,.3);color:#EEF0FF;}
+.alert-amber{background:rgba(255,184,48,.08);border-color:rgba(255,184,48,.25);color:#EEF0FF;}
+
+/* ── TARIFS ── */
+.tarifs-wrap{max-width:860px;margin:0 auto;padding:2.5rem 2rem 5rem;}
+h3{font-family:var(--font-h);font-size:1.2rem;font-weight:700;margin-bottom:1rem;}
+.tarif-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-bottom:2rem;}
+@media(max-width:700px){.tarif-grid{grid-template-columns:1fr 1fr;}}
+@media(max-width:480px){.tarif-grid{grid-template-columns:1fr;}}
+.tarif-card{background:var(--bg2);border:1px solid var(--border);border-radius:13px;padding:1.3rem;
+  display:flex;flex-direction:column;gap:.4rem;transition:border-color .2s;}
+.tarif-card:hover{border-color:var(--border-h);}
+.tarif-class{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;}
+.tarif-name{font-family:var(--font-h);font-size:.95rem;font-weight:700;color:var(--text);line-height:1.3;}
+.tarif-price{font-family:var(--font-h);font-size:1.7rem;font-weight:700;margin-top:.3rem;}
+.tarif-ht{font-size:11px;color:var(--hint);}
+.tarif-time{font-size:12px;color:var(--muted);margin-top:.2rem;}
+.tarif-desc{font-size:12px;color:var(--hint);line-height:1.5;margin-top:.4rem;}
+.options-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:.8rem;}
+@media(max-width:500px){.options-grid{grid-template-columns:1fr;}}
+.opt-card{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:1rem 1.1rem;}
+.opt-name{font-size:13px;font-weight:600;color:var(--text);}
+.opt-desc{font-size:11px;color:var(--muted);margin-top:2px;line-height:1.5;}
+.opt-price{font-size:1.1rem;font-weight:700;font-family:var(--font-h);margin-top:.4rem;}
+
+/* ── AMENDES ── */
+.amendes-wrap{max-width:820px;margin:0 auto;padding:2.5rem 2rem 5rem;}
+.amende-row{display:flex;gap:12px;padding:.9rem 0;border-bottom:1px solid rgba(255,255,255,.04);align-items:flex-start;}
+.amende-row:last-child{border-bottom:none;}
+.amende-ico{width:32px;height:32px;border-radius:7px;background:var(--red-soft);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;margin-top:2px;}
+.amende-infraction{font-size:13.5px;color:var(--text);line-height:1.55;flex:1;}
+.amende-montant{font-family:var(--font-h);font-size:1rem;font-weight:700;color:var(--red);white-space:nowrap;flex-shrink:0;}
+
+/* RESPONSIVE NAV */
+@media(max-width:600px){
+  nav{padding:0 1rem;}
+  .nav-label{display:none;}
+  .tarifs-wrap,.fiche-wrap,.result-wrap,.wizard-wrap,.home-wrap,.amendes-wrap{padding-left:1rem;padding-right:1rem;}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a class="nav-logo" href="#" onclick="showPage('home');return false;">
+    <div class="logo-badge">✈</div>
+    Glocal Defense
+    <span class="nav-label">Back-Office</span>
+  </a>
+  <div class="nav-tabs">
+    <button class="nav-tab active" id="nt-home" onclick="showPage('home')">Accueil</button>
+    <button class="nav-tab" id="nt-wizard" onclick="showPage('wizard');initWizard()">📞 Qualifier un client</button>
+    <button class="nav-tab t-c1" id="nt-fiches" onclick="showPage('fiches')">Fiches classes</button>
+    <button class="nav-tab t-c2" id="nt-tarifs" onclick="showPage('tarifs')">Tarifs</button>
+    <button class="nav-tab t-fpv" id="nt-amendes" onclick="showPage('amendes')">Amendes</button>
+  </div>
+</nav>
+
+<!-- ══════════ HOME ══════════ -->
+<div class="page active" id="page-home">
+  <div class="home-wrap">
+    <div class="home-header">
+      <div class="eyebrow">Glocal Defense · Usage interne</div>
+      <h1>Outil de qualification<br>client — Audit Drone</h1>
+      <p class="home-sub">Sélectionne un profil ou lance le wizard pour qualifier un appel entrant et proposer le bon audit.</p>
+      <button class="btn-primary" onclick="showPage('wizard');initWizard()">📞 Nouvel appel client</button>
+    </div>
+
+    <div class="quick-grid">
+      <div class="qcard qc0" onclick="showFicheDirecte('c0s')">
+        <div class="qcard-class" style="color:var(--c0)">C0 sans cam.</div>
+        <div class="qcard-weight">moins de 250 g</div>
+        <div class="qcard-price" style="color:var(--muted)">—</div>
+        <div class="qcard-time">Aucune obligation</div>
+        <div class="qcard-cta" style="color:var(--c0)"><span>Voir fiche</span><span>→</span></div>
+      </div>
+      <div class="qcard qc0" onclick="showFicheDirecte('c0c')">
+        <div class="qcard-class" style="color:var(--c0)">C0 avec cam.</div>
+        <div class="qcard-weight">moins de 250 g</div>
+        <div class="qcard-price" style="color:var(--c0)">48 €</div>
+        <div class="qcard-time">TTC · 30 min</div>
+        <div class="qcard-cta" style="color:var(--c0)"><span>Voir fiche</span><span>→</span></div>
+      </div>
+      <div class="qcard qc1" onclick="showFicheDirecte('c1')">
+        <div class="qcard-class" style="color:var(--c1)">Classe C1</div>
+        <div class="qcard-weight">250 g – 900 g</div>
+        <div class="qcard-price" style="color:var(--c1)">96 €</div>
+        <div class="qcard-time">TTC · 1h</div>
+        <div class="qcard-cta" style="color:var(--c1)"><span>Voir fiche</span><span>→</span></div>
+      </div>
+      <div class="qcard qc2" onclick="showFicheDirecte('c2')">
+        <div class="qcard-class" style="color:var(--c2)">Classe C2</div>
+        <div class="qcard-weight">900 g – 4 kg</div>
+        <div class="qcard-price" style="color:var(--c2)">144 €</div>
+        <div class="qcard-time">TTC · 1h30</div>
+        <div class="qcard-cta" style="color:var(--c2)"><span>Voir fiche</span><span>→</span></div>
+      </div>
+    </div>
+
+    <div class="quick-grid" style="grid-template-columns:1fr 1fr;max-width:520px;">
+      <div class="qcard qfpv" onclick="showFicheDirecte('fpv')">
+        <div class="qcard-class" style="color:var(--fpv)">FPV</div>
+        <div class="qcard-weight">vol en immersion</div>
+        <div class="qcard-price" style="color:var(--fpv)">156 €</div>
+        <div class="qcard-time">TTC · 1h30</div>
+        <div class="qcard-cta" style="color:var(--fpv)"><span>Voir fiche</span><span>→</span></div>
+      </div>
+      <div class="qcard qfpv" onclick="showFicheDirecte('diy')">
+        <div class="qcard-class" style="color:var(--fpv)">DIY / Legacy</div>
+        <div class="qcard-weight">sans classe CE</div>
+        <div class="qcard-price" style="color:var(--fpv)">108 €</div>
+        <div class="qcard-time">TTC · 1h</div>
+        <div class="qcard-cta" style="color:var(--fpv)"><span>Voir fiche</span><span>→</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ WIZARD ══════════ -->
+<div class="page" id="page-wizard">
+  <div class="wizard-wrap">
+    <div class="wizard-header">
+      <div class="step-count" id="wiz-step-label">Étape 1 / 4</div>
+      <div class="wizard-title" id="wiz-title">Quel est le poids du drone ?</div>
+      <div class="wizard-sub" id="wiz-sub">Demandez le modèle exact si le client ne connaît pas le poids.</div>
+      <div class="progress-bar"><div class="progress-fill" id="wiz-progress" style="width:25%"></div></div>
+    </div>
+
+    <!-- Step 1: Poids -->
+    <div class="wizard-step active" id="wiz-s1">
+      <div class="choices">
+        <div class="choice" onclick="selectChoice(1,'c0')">
+          <div class="choice-ico" style="background:var(--c0-soft)">🪶</div>
+          <div><div class="choice-label">Moins de 250 g</div><div class="choice-sub">DJI Mini 4 Pro, Mini 3, Hubsan, jouets caméra…</div></div>
+        </div>
+        <div class="choice" onclick="selectChoice(1,'c1')">
+          <div class="choice-ico" style="background:var(--c1-soft)">🚁</div>
+          <div><div class="choice-label">Entre 250 g et 900 g</div><div class="choice-sub">DJI Air 3, Air 2S, Mavic 3 Classic…</div></div>
+        </div>
+        <div class="choice" onclick="selectChoice(1,'c2')">
+          <div class="choice-ico" style="background:var(--c2-soft)">🛸</div>
+          <div><div class="choice-label">Entre 900 g et 4 kg</div><div class="choice-sub">DJI Mavic 3, Inspire, gros drones loisirs…</div></div>
+        </div>
+        <div class="choice" onclick="selectChoice(1,'diy')">
+          <div class="choice-ico" style="background:var(--fpv-soft)">🔧</div>
+          <div><div class="choice-label">DIY / FPV monté soi-même / inconnu</div><div class="choice-sub">Drone assemblé, sans marquage CE officiel</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 2: Caméra (si C0) -->
+    <div class="wizard-step" id="wiz-s2">
+      <div class="choices">
+        <div class="choice" onclick="selectChoice(2,'oui')">
+          <div class="choice-ico">📷</div>
+          <div><div class="choice-label">Oui, avec caméra</div><div class="choice-sub">Enregistrement exploitant obligatoire → 48 € TTC</div></div>
+        </div>
+        <div class="choice" onclick="selectChoice(2,'non')">
+          <div class="choice-ico">🪶</div>
+          <div><div class="choice-label">Non, sans caméra</div><div class="choice-sub">Aucune obligation légale — sensibilisation gratuite</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 3: FPV -->
+    <div class="wizard-step" id="wiz-s3">
+      <div class="choices">
+        <div class="choice" onclick="selectChoice(3,'oui')">
+          <div class="choice-ico">🥽</div>
+          <div><div class="choice-label">Oui, vol en immersion (FPV)</div><div class="choice-sub">Observateur obligatoire + obligations selon classe</div></div>
+        </div>
+        <div class="choice" onclick="selectChoice(3,'non')">
+          <div class="choice-ico">🎮</div>
+          <div><div class="choice-label">Non, vol normal (ligne de vue directe)</div><div class="choice-sub">VLOS standard</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 4: Démarches déjà faites -->
+    <div class="wizard-step" id="wiz-s4">
+      <div class="wizard-sub" style="margin-bottom:.5rem">Cochez ce que le client a déjà fait :</div>
+      <div class="done-list">
+        <div class="done-item" id="done-assurance" onclick="toggleDone(this)">
+          <div class="done-check"></div>
+          <div class="done-label">Assurance RC drone souscrite</div>
+        </div>
+        <div class="done-item" id="done-alphatango" onclick="toggleDone(this)">
+          <div class="done-check"></div>
+          <div class="done-label">Enregistrement exploitant AlphaTango (numéro FRA-XXXXX)</div>
+        </div>
+        <div class="done-item" id="done-uas" onclick="toggleDone(this)">
+          <div class="done-check"></div>
+          <div class="done-label">Enregistrement drone (UAS) sur AlphaTango</div>
+        </div>
+        <div class="done-item" id="done-a1a3" onclick="toggleDone(this)">
+          <div class="done-check"></div>
+          <div class="done-label">Formation A1/A3 passée (certificat obtenu)</div>
+        </div>
+        <div class="done-item" id="done-a2" onclick="toggleDone(this)">
+          <div class="done-check"></div>
+          <div class="done-label">Formation A2 / BAPD passée (certificat obtenu)</div>
+        </div>
+        <div class="done-item" id="done-marquage" onclick="toggleDone(this)">
+          <div class="done-check"></div>
+          <div class="done-label">Marquage FRA apposé sur le drone</div>
+        </div>
+        <div class="done-item" id="done-balise" onclick="toggleDone(this)">
+          <div class="done-check"></div>
+          <div class="done-label">Balise de signalement installée et déclarée</div>
+        </div>
+      </div>
+      <div class="wizard-nav">
+        <button class="btn-primary" onclick="showResult()">Voir le résultat →</button>
+        <button class="btn-secondary" onclick="wizBack(4)">← Retour</button>
+      </div>
+    </div>
+
+    <div class="wizard-nav" id="wiz-nav-1" style="margin-top:2rem;">
+      <button class="btn-secondary" onclick="showPage('home')">← Annuler</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ RÉSULTAT ══════════ -->
+<div class="page" id="page-result">
+  <div class="result-wrap">
+    <div style="margin-bottom:1.5rem;">
+      <button class="btn-secondary" onclick="showPage('wizard')">← Modifier</button>
+    </div>
+
+    <div class="result-hero" id="result-hero">
+      <!-- filled by JS -->
+    </div>
+
+    <div class="result-cols">
+      <div class="rcard">
+        <div class="rcard-title">Obligations légales</div>
+        <ul class="obl-list" id="result-obligations"></ul>
+      </div>
+      <div class="rcard">
+        <div class="rcard-title">Services à proposer</div>
+        <ul class="srv-list" id="result-services"></ul>
+      </div>
+    </div>
+
+    <div class="notes-card">
+      <div class="notes-label">📝 Notes client</div>
+      <textarea id="result-notes" placeholder="Nom du client, modèle de drone, remarques, date de rappel…"></textarea>
+    </div>
+
+    <div class="result-actions">
+      <button class="btn-primary" onclick="copyResult()">📋 Copier le résumé</button>
+      <button class="btn-secondary" onclick="showPage('wizard');initWizard()">🔄 Nouveau client</button>
+    </div>
+    <div id="copy-confirm" style="font-size:12px;color:var(--green);margin-top:.5rem;display:none;">✓ Copié dans le presse-papier</div>
+  </div>
+</div>
+
+<!-- ══════════ FICHES CLASSES ══════════ -->
+<div class="page" id="page-fiches">
+  <div class="fiche-wrap">
+    <div style="display:flex;gap:.7rem;flex-wrap:wrap;margin-bottom:2rem;">
+      <button class="btn-secondary" id="fb-c0s" onclick="showFicheTab('c0s')">🪶 C0 sans cam.</button>
+      <button class="btn-secondary" id="fb-c0c" onclick="showFicheTab('c0c')">📷 C0 avec cam.</button>
+      <button class="btn-secondary" id="fb-c1" onclick="showFicheTab('c1')">🚁 Classe C1</button>
+      <button class="btn-secondary" id="fb-c2" onclick="showFicheTab('c2')">🛸 Classe C2</button>
+      <button class="btn-secondary" id="fb-fpv" onclick="showFicheTab('fpv')">🥽 FPV</button>
+      <button class="btn-secondary" id="fb-diy" onclick="showFicheTab('diy')">🔧 DIY</button>
+    </div>
+
+    <!-- C0 sans caméra -->
+    <div class="fiche-tab" id="ft-c0s">
+      <div class="fiche-hero">
+        <div class="fiche-icon" style="background:var(--c0-soft)">🪶</div>
+        <div>
+          <div class="fiche-eyebrow" style="color:var(--c0)">Classe C0 · Sous-cat. A1</div>
+          <h2>C0 sans caméra</h2>
+          <div class="fiche-sub">Moins de 250 g · Aucune caméra embarquée</div>
+          <div class="fiche-price" style="color:var(--muted)">Pas de prestation tarifée</div>
+        </div>
+      </div>
+      <div class="alert-band alert-green"><span>✅</span><span>Ce profil n'a <strong>aucune obligation légale</strong>. Sensibilisation et assurance conseillées. Orienter vers le pack C0 si une caméra est ajoutée ultérieurement.</span></div>
+      <div class="scard">
+        <div class="scard-head"><div class="scard-num" style="background:var(--c0-soft);color:var(--c0)">1</div><div class="scard-label">Script d'appel</div></div>
+        <ul class="cl" onclick="toggleItem(event)">
+          <li class="cl-item"><div class="cl-box" style="color:var(--c0)"></div><div class="cl-text">Confirmer : le drone fait bien moins de 250g</div></li>
+          <li class="cl-item"><div class="cl-box" style="color:var(--c0)"></div><div class="cl-text">Confirmer : pas de caméra embarquée (ni GoPro fixée)</div></li>
+          <li class="cl-item"><div class="cl-box" style="color:var(--c0)"></div><div class="cl-text">Vérifier l'assurance RC — conseillée même si non obligatoire</div></li>
+          <li class="cl-item"><div class="cl-box" style="color:var(--c0)"></div><div class="cl-text">Informer sur les règles essentielles : hauteur max 120m, VLOS, pas de survol de foules</div></li>
+          <li class="cl-item"><div class="cl-box" style="color:var(--c0)"></div><div class="cl-text">Présenter Géoportail Drones pour vérifier les zones</div></li>
+          <li class="cl-item"><div class="cl-box" style="color:var(--c0)"></div><div class="cl-text">Si prévoit d'ajouter une caméra → basculer vers pack C0 avec cam. (48 € TTC)</div></li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- C0 avec caméra -->
+    <div class="fiche-tab" id="ft-c0c" style="display:none">
+      <div class="fiche-hero">
+        <div class="fiche-icon" style="background:var(--c0-soft)">📷</div>
+        <div>
+          <div class="fiche-eyebrow" style="color:var(--c0)">Classe C0 · Sous-cat. A1</div>
+          <h2>C0 avec caméra</h2>
+          <div class="fiche-sub">Moins de 250 g · DJI Mini 2, Mini SE, Hubsan Zino Mini…</div>
+          <div class="fiche-price" style="color:var(--c0)">48 € TTC <span style="font-size:1rem;font-weight:400;color:var(--muted)">· 30 min</span></div>
+        </div>
+      </div>
+      <div class="alert-band alert-red"><span>⚠️</span><span>Idée reçue fréquente : <strong>"moins de 250g = rien à faire"</strong>. FAUX dès qu'il y a une caméra. Amende jusqu'à <strong>750 €</strong> sans enregistrement.</span></div>
+      <div class="scard">
+        <div class="scard-head"><div class="scard-num" style="background:var(--c0-soft);color:var(--c0)">1</div><div class="scard-label">Script d'appel & checklist</div></div>
+        <ul class="cl" onclick="toggleItem(event)">
+          <li class="cl-item"><div class="cl-box" style="color:var(--c0)"></div><div class="cl-text">Confirmer le poids &lt; 250 g et la présence de la caméra</div></li>
+          <li class="cl-item"><div class="cl-box" style="color:var(--c0)"></div><div class="cl-text"><strong>Enregistrement exploitant AlphaTango</strong> <span class="tag t-obl">Obligatoire</span></div></li>
+          <li class="cl-item"><div class="cl-box" style="color:var(--c0)"></div><div class="cl-text">Obtention numéro FRA-XXXXX</div></li>
+          <li class="cl-item"><div class="cl-box" style="color:var(--c0)"></div><div class="cl-text"><strong>Marquage FRA</strong> apposé sur le drone <span class="tag t-obl">Obligatoire</span></div></li>
+          <li class="cl-item"><div class="cl-box" style="color:var(--c0)"></div><div class="cl-text">Vérifier assurance RC spécifique drone</div></li>
+          <li class="cl-item"><div class="cl-box" style="color:var(--c0)"></div><div class="cl-text">Formation A1/A3 — non obligatoire mais conseillée</div></li>
+          <li class="cl-item"><div class="cl-box" style="color:var(--c0)"></div><div class="cl-text">Remise Kit Conformité C0 (attestation, étiquettes x3, fiches mémo)</div></li>
+        </ul>
+      </div>
+      <div class="scard">
+        <div class="scard-head"><div class="scard-num" style="background:var(--c0-soft);color:var(--c0)">2</div><div class="scard-label">Argument commercial</div></div>
+        <p style="font-size:13px;color:var(--muted);line-height:1.65">L'amende forfaitaire de <strong style="color:var(--red)">135 €</strong> (pouvant monter à <strong style="color:var(--red)">750 €</strong>) est <strong>plus chère que notre audit à 48 €</strong>. En 30 minutes, le drone est en règle.</p>
+      </div>
+    </div>
+
+    <!-- C1 -->
+    <div class="fiche-tab" id="ft-c1" style="display:none">
+      <div class="fiche-hero">
+        <div class="fiche-icon" style="background:var(--c1-soft)">🚁</div>
+        <div>
+          <div class="fiche-eyebrow" style="color:var(--c1)">Classe C1 · Sous-cat. A1</div>
+          <h2>Classe C1</h2>
+          <div class="fiche-sub">250 g – 900 g · DJI Air 3, Air 2S, Mavic 3 Classic…</div>
+          <div class="fiche-price" style="color:var(--c1)">96 € TTC <span style="font-size:1rem;font-weight:400;color:var(--muted)">· 1h</span></div>
+        </div>
+      </div>
+      <div class="alert-band alert-amber"><span>⚠️</span><span>Catégorie la plus répandue et la plus souvent non conforme. Vérifier systématiquement enregistrement + formation A1/A3.</span></div>
+      <div class="scard">
+        <div class="scard-head"><div class="scard-num" style="background:var(--c1-soft);color:var(--c1)">1</div><div class="scard-label">Checklist obligations</div></div>
+        <ul class="cl" onclick="toggleItem(event)">
+          <li class="cl-item"><div class="cl-box" style="color:var(--c1)"></div><div class="cl-text"><strong>Enregistrement exploitant AlphaTango</strong> (numéro FRA-XXXXX) <span class="tag t-obl">Obligatoire</span></div></li>
+          <li class="cl-item"><div class="cl-box" style="color:var(--c1)"></div><div class="cl-text">Enregistrement UAS (drone) — non requis si &lt; 800 g <span class="tag t-imp">Vérifier</span></div></li>
+          <li class="cl-item"><div class="cl-box" style="color:var(--c1)"></div><div class="cl-text"><strong>Formation A1/A3</strong> (BAPD) — gratuite sur AlphaTango <span class="tag t-obl">Obligatoire</span></div></li>
+          <li class="cl-item"><div class="cl-box" style="color:var(--c1)"></div><div class="cl-text">Marquage FRA apposé sur le drone <span class="tag t-obl">Obligatoire</span></div></li>
+          <li class="cl-item"><div class="cl-box" style="color:var(--c1)"></div><div class="cl-text">Identification électronique (e-ID) activée <span class="tag t-obl">Obligatoire</span></div></li>
+          <li class="cl-item"><div class="cl-box" style="color:var(--c1)"></div><div class="cl-text">Balise de signalement — obligatoire seulement si &gt; 800 g <span class="tag t-imp">Vérifier</span></div></li>
+          <li class="cl-item"><div class="cl-box" style="color:var(--c1)"></div><div class="cl-text">Assurance RC spécifique drone</div></li>
+        </ul>
+      </div>
+      <div class="scard">
+        <div class="scard-head"><div class="scard-num" style="background:var(--c1-soft);color:var(--c1)">2</div><div class="scard-label">Ce qu'on fait pendant l'audit</div></div>
+        <ul class="cl" onclick="toggleItem(event)">
+          <li class="cl-item"><div class="cl-box" style="color:var(--c1)"></div><div class="cl-text">Diagnostic matériel complet (classe, poids exact, e-ID présente)</div></li>
+          <li class="cl-item"><div class="cl-box" style="color:var(--c1)"></div><div class="cl-text">Création/vérification compte AlphaTango</div></li>
+          <li class="cl-item"><div class="cl-box" style="color:var(--c1)"></div><div class="cl-text">Accompagnement formation A1/A3 (tutoriel, fiches de révision, QCM types)</div></li>
+          <li class="cl-item"><div class="cl-box" style="color:var(--c1)"></div><div class="cl-text">Vérification paramétrage identification électronique</div></li>
+          <li class="cl-item"><div class="cl-box" style="color:var(--c1)"></div><div class="cl-text">Apposition étiquettes FRA sur le drone</div></li>
+          <li class="cl-item"><div class="cl-box" style="color:var(--c1)"></div><div class="cl-text">Remise Kit documentation complet</div></li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- C2 -->
+    <div class="fiche-tab" id="ft-c2" style="display:none">
+      <div class="fiche-hero">
+        <div class="fiche-icon" style="background:var(--c2-soft)">🛸</div>
+        <div>
+          <div class="fiche-eyebrow" style="color:var(--c2)">Classe C2 · Sous-cat. A2</div>
+          <h2>Classe C2</h2>
+          <div class="fiche-sub">900 g – 4 kg · DJI Mavic 3, Inspire 2…</div>
+          <div class="fiche-price" style="color:var(--c2)">144 € TTC <span style="font-size:1rem;font-weight:400;color:var(--muted)">· 1h30</span></div>
+        </div>
+      </div>
+      <div class="alert-band alert-red"><span>🔴</span><span>Profil le plus exigeant. Examen A2 payant (~30 €). Balise obligatoire si &gt; 800 g. Vérifier le mode basse vitesse pour les 5m.</span></div>
+      <div class="scard">
+        <div class="scard-head"><div class="scard-num" style="background:var(--c2-soft);color:var(--c2)">1</div><div class="scard-label">Checklist obligations</div></div>
+        <ul class="cl" onclick="toggleItem(event)">
+          <li class="cl-item"><div class="cl-box" style="color:var(--c2)"></div><div class="cl-text"><strong>Enregistrement exploitant AlphaTango</strong> (FRA-XXXXX) <span class="tag t-obl">Obligatoire</span></div></li>
+          <li class="cl-item"><div class="cl-box" style="color:var(--c2)"></div><div class="cl-text"><strong>Enregistrement UAS</strong> (numéro de série drone) <span class="tag t-obl">Obligatoire</span></div></li>
+          <li class="cl-item"><div class="cl-box" style="color:var(--c2)"></div><div class="cl-text"><strong>Formation A1/A3</strong> (BAPD) — gratuite <span class="tag t-obl">Obligatoire</span></div></li>
+          <li class="cl-item"><div class="cl-box" style="color:var(--c2)"></div><div class="cl-text"><strong>Formation A2</strong> (BAPD) — examen ~30 € <span class="tag t-obl">Obligatoire</span></div></li>
+          <li class="cl-item"><div class="cl-box" style="color:var(--c2)"></div><div class="cl-text">Marquage FRA apposé sur le drone <span class="tag t-obl">Obligatoire</span></div></li>
+          <li class="cl-item"><div class="cl-box" style="color:var(--c2)"></div><div class="cl-text">Identification électronique (e-ID) activée <span class="tag t-obl">Obligatoire</span></div></li>
+          <li class="cl-item"><div class="cl-box" style="color:var(--c2)"></div><div class="cl-text"><strong>Balise de signalement</strong> installée et déclarée <span class="tag t-obl">Obligatoire si &gt;800g</span></div></li>
+          <li class="cl-item"><div class="cl-box" style="color:var(--c2)"></div><div class="cl-text">Mode basse vitesse paramétré (distance 5m possible) <span class="tag t-imp">Important</span></div></li>
+          <li class="cl-item"><div class="cl-box" style="color:var(--c2)"></div><div class="cl-text">Assurance RC spécifique drone</div></li>
+        </ul>
+      </div>
+      <div class="scard">
+        <div class="scard-head"><div class="scard-num" style="background:var(--c2-soft);color:var(--c2)">2</div><div class="scard-label">Ce qu'on fait pendant l'audit</div></div>
+        <ul class="cl" onclick="toggleItem(event)">
+          <li class="cl-item"><div class="cl-box" style="color:var(--c2)"></div><div class="cl-text">Diagnostic matériel (classe, poids, e-ID, balise &gt; 800g ?)</div></li>
+          <li class="cl-item"><div class="cl-box" style="color:var(--c2)"></div><div class="cl-text">Enregistrement exploitant + UAS sur AlphaTango</div></li>
+          <li class="cl-item"><div class="cl-box" style="color:var(--c2)"></div><div class="cl-text">Préparation A1/A3 + A2 (fiches météo, gestion des risques, simulation examen)</div></li>
+          <li class="cl-item"><div class="cl-box" style="color:var(--c2)"></div><div class="cl-text">Paramétrage mode basse vitesse (distance réduite à 5m)</div></li>
+          <li class="cl-item"><div class="cl-box" style="color:var(--c2)"></div><div class="cl-text">Installation + déclaration balise si &gt; 800g</div></li>
+          <li class="cl-item"><div class="cl-box" style="color:var(--c2)"></div><div class="cl-text">Formation distances 30m / 5m et gestion zones peuplées</div></li>
+          <li class="cl-item"><div class="cl-box" style="color:var(--c2)"></div><div class="cl-text">Remise kit documentation complet</div></li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- FPV -->
+    <div class="fiche-tab" id="ft-fpv" style="display:none">
+      <div class="fiche-hero">
+        <div class="fiche-icon" style="background:var(--fpv-soft)">🥽</div>
+        <div>
+          <div class="fiche-eyebrow" style="color:var(--fpv)">FPV · Vol en immersion</div>
+          <h2>Drone FPV</h2>
+          <div class="fiche-sub">Variable C0 à C2 · Obligatoire : observateur à chaque vol</div>
+          <div class="fiche-price" style="color:var(--fpv)">156 € TTC <span style="font-size:1rem;font-weight:400;color:var(--muted)">· 1h30</span></div>
+        </div>
+      </div>
+      <div class="alert-band alert-red"><span>🔴</span><span>Infraction systématique : <strong>voler en FPV sans observateur</strong> est illégal quelle que soit la classe. Profil le plus à risque d'amende.</span></div>
+      <div class="scard">
+        <div class="scard-head"><div class="scard-num" style="background:var(--fpv-soft);color:var(--fpv)">1</div><div class="scard-label">Checklist obligations FPV</div></div>
+        <ul class="cl" onclick="toggleItem(event)">
+          <li class="cl-item"><div class="cl-box" style="color:var(--fpv)"></div><div class="cl-text"><strong>Observateur</strong> présent à chaque vol en immersion <span class="tag t-obl">Toujours obligatoire</span></div></li>
+          <li class="cl-item"><div class="cl-box" style="color:var(--fpv)"></div><div class="cl-text">Identifier la classe du drone FPV (C0, C1, C2, DIY sans classe)</div></li>
+          <li class="cl-item"><div class="cl-box" style="color:var(--fpv)"></div><div class="cl-text">Enregistrement exploitant si caméra (C0 avec cam, C1, C2) <span class="tag t-obl">Obligatoire</span></div></li>
+          <li class="cl-item"><div class="cl-box" style="color:var(--fpv)"></div><div class="cl-text">Formation A1/A3 si drone C1 ou C2 <span class="tag t-obl">Obligatoire</span></div></li>
+          <li class="cl-item"><div class="cl-box" style="color:var(--fpv)"></div><div class="cl-text">Balise de signalement si drone &gt; 800 g <span class="tag t-obl">Obligatoire</span></div></li>
+          <li class="cl-item"><div class="cl-box" style="color:var(--fpv)"></div><div class="cl-text">Formation observateur : briefing, communication pilote/obs., failsafe</div></li>
+          <li class="cl-item"><div class="cl-box" style="color:var(--fpv)"></div><div class="cl-text">Gestion des failsafe (retour auto) configurée et testée</div></li>
+          <li class="cl-item"><div class="cl-box" style="color:var(--fpv)"></div><div class="cl-text">Vérifications pré-vol FPV formalisées</div></li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- DIY -->
+    <div class="fiche-tab" id="ft-diy" style="display:none">
+      <div class="fiche-hero">
+        <div class="fiche-icon" style="background:var(--fpv-soft)">🔧</div>
+        <div>
+          <div class="fiche-eyebrow" style="color:var(--fpv)">DIY / Legacy · Sans classe CE</div>
+          <h2>Drone DIY / sans classe</h2>
+          <div class="fiche-sub">Assemblé soi-même, sans marquage CE officiel</div>
+          <div class="fiche-price" style="color:var(--fpv)">108 € TTC <span style="font-size:1rem;font-weight:400;color:var(--muted)">· 1h</span></div>
+        </div>
+      </div>
+      <div class="alert-band alert-amber"><span>⚠️</span><span>Les drones DIY n'appartiennent à aucune classe CE. Selon leur poids et usage, ils peuvent relever de la <strong>catégorie spécifique</strong> (plus contraignante).</span></div>
+      <div class="scard">
+        <div class="scard-head"><div class="scard-num" style="background:var(--fpv-soft);color:var(--fpv)">1</div><div class="scard-label">Script d'appel</div></div>
+        <ul class="cl" onclick="toggleItem(event)">
+          <li class="cl-item"><div class="cl-box" style="color:var(--fpv)"></div><div class="cl-text">Déterminer le poids réel du drone</div></li>
+          <li class="cl-item"><div class="cl-box" style="color:var(--fpv)"></div><div class="cl-text">Présence d'une caméra ? → enregistrement exploitant si oui</div></li>
+          <li class="cl-item"><div class="cl-box" style="color:var(--fpv)"></div><div class="cl-text">Poids &gt; 800 g ? → balise de signalement obligatoire</div></li>
+          <li class="cl-item"><div class="cl-box" style="color:var(--fpv)"></div><div class="cl-text">Usage FPV → observateur obligatoire</div></li>
+          <li class="cl-item"><div class="cl-box" style="color:var(--fpv)"></div><div class="cl-text">Orienter vers catégorie spécifique si vol en zone peuplée</div></li>
+          <li class="cl-item"><div class="cl-box" style="color:var(--fpv)"></div><div class="cl-text">Conseil CATS si vol professionnel ou opérations complexes</div></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ TARIFS ══════════ -->
+<div class="page" id="page-tarifs">
+  <div class="tarifs-wrap">
+    <div class="eyebrow" style="margin-bottom:1.5rem">Grille tarifaire 2026</div>
+    <h3>Prestations principales</h3>
+    <div class="tarif-grid">
+      <div class="tarif-card">
+        <div class="tarif-class" style="color:var(--c0)">C0 avec caméra</div>
+        <div class="tarif-name">Audit simple</div>
+        <div class="tarif-price" style="color:var(--c0)">48 € <span class="tarif-ht">TTC</span></div>
+        <div class="tarif-time">⏱ 30 min · 40 € HT</div>
+        <div class="tarif-desc">Diagnostic + enregistrement AlphaTango + marquage FRA</div>
+      </div>
+      <div class="tarif-card">
+        <div class="tarif-class" style="color:var(--c1)">Classe C1</div>
+        <div class="tarif-name">Audit complet</div>
+        <div class="tarif-price" style="color:var(--c1)">96 € <span class="tarif-ht">TTC</span></div>
+        <div class="tarif-time">⏱ 1h · 80 € HT</div>
+        <div class="tarif-desc">Diagnostic + enregistrement + accompagnement A1/A3</div>
+      </div>
+      <div class="tarif-card">
+        <div class="tarif-class" style="color:var(--c2)">Classe C2</div>
+        <div class="tarif-name">Audit premium</div>
+        <div class="tarif-price" style="color:var(--c2)">144 € <span class="tarif-ht">TTC</span></div>
+        <div class="tarif-time">⏱ 1h30 · 120 € HT</div>
+        <div class="tarif-desc">Diagnostic + enregistrements + prépa A2 (BAPD) + mode basse vitesse</div>
+      </div>
+      <div class="tarif-card">
+        <div class="tarif-class" style="color:var(--fpv)">FPV</div>
+        <div class="tarif-name">Audit FPV</div>
+        <div class="tarif-price" style="color:var(--fpv)">156 € <span class="tarif-ht">TTC</span></div>
+        <div class="tarif-time">⏱ 1h30 · 130 € HT</div>
+        <div class="tarif-desc">Diagnostic + enregistrements + formation observateur</div>
+      </div>
+      <div class="tarif-card">
+        <div class="tarif-class" style="color:var(--fpv)">DIY sans classe CE</div>
+        <div class="tarif-name">Audit + conseil</div>
+        <div class="tarif-price" style="color:var(--fpv)">108 € <span class="tarif-ht">TTC</span></div>
+        <div class="tarif-time">⏱ 1h · 90 € HT</div>
+        <div class="tarif-desc">Diagnostic + orientation catégorie spécifique</div>
+      </div>
+      <div class="tarif-card">
+        <div class="tarif-class" style="color:var(--muted)">Multi-drones</div>
+        <div class="tarif-name">Pack famille</div>
+        <div class="tarif-price" style="color:var(--text)">180 € <span class="tarif-ht">TTC</span></div>
+        <div class="tarif-time">⏱ 2h · 150 € HT · jusqu'à 3 drones</div>
+        <div class="tarif-desc">Forfait pour 2 à 3 appareils</div>
+      </div>
+    </div>
+
+    <h3>Options complémentaires</h3>
+    <div class="options-grid">
+      <div class="opt-card">
+        <div class="opt-name">Déclaration préfectorale (zone peuplée)</div>
+        <div class="opt-desc">Rédaction et soumission du dossier STS-01 sur AlphaTango</div>
+        <div class="opt-price" style="color:var(--c2)">96 € TTC <span style="font-size:11px;color:var(--hint)">· 80 € HT</span></div>
+      </div>
+      <div class="opt-card">
+        <div class="opt-name">Installation balise de signalement</div>
+        <div class="opt-desc">Déplacement, installation physique + déclaration AlphaTango (hors coût balise)</div>
+        <div class="opt-price" style="color:var(--c2)">60 € TTC <span style="font-size:11px;color:var(--hint)">· 50 € HT</span></div>
+      </div>
+      <div class="opt-card">
+        <div class="opt-name">Formation terrain</div>
+        <div class="opt-desc">Session pratique avec mise en situation réelle (1h)</div>
+        <div class="opt-price" style="color:var(--c2)">72 € TTC <span style="font-size:11px;color:var(--hint)">· 60 € HT</span></div>
+      </div>
+      <div class="opt-card">
+        <div class="opt-name">Forfait "Presta continue"</div>
+        <div class="opt-desc">Accompagnement annuel — mises à jour réglementaires, conseils, rappels</div>
+        <div class="opt-price" style="color:var(--c2)">144 €/an TTC <span style="font-size:11px;color:var(--hint)">· 120 € HT</span></div>
+      </div>
+    </div>
+
+    <div class="scard" style="margin-top:1.5rem">
+      <div class="scard-head"><div class="scard-label">Offres de lancement</div></div>
+      <p style="font-size:13px;color:var(--muted);line-height:1.65">
+        <strong style="color:var(--c0)">-20%</strong> sur la première semaine de lancement.<br>
+        <strong style="color:var(--c1)">Parrainage</strong> : -10% pour le parrain et le filleul.<br>
+        <strong style="color:var(--c2)">Revenu horaire cible</strong> : 90 à 104 €/h selon profil.
+      </p>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ AMENDES ══════════ -->
+<div class="page" id="page-amendes">
+  <div class="amendes-wrap">
+    <div class="eyebrow" style="margin-bottom:1.5rem">Réglementation 2026</div>
+    <h2 style="margin-bottom:.5rem">Amendes pour infractions drone</h2>
+    <p style="font-size:14px;color:var(--muted);margin-bottom:2rem">Utiliser ces éléments pour convaincre les clients hésitants.</p>
+
+    <div class="alert-band alert-red" style="margin-bottom:1.5rem">
+      <span>💡</span>
+      <span><strong>Argument clé :</strong> Notre audit C0 avec caméra (48 €) coûte <strong>3× moins</strong> que l'amende forfaitaire de 135 €. Pour un C1, notre audit (96 €) est moins cher que l'amende maximum de 750 €.</span>
+    </div>
+
+    <div class="scard">
+      <div class="scard-head"><div class="scard-num" style="background:var(--red-soft);color:var(--red)">!</div><div class="scard-label">Contraventions de 4ème classe — 135 € forfaitaires</div></div>
+      <div class="amende-row"><div class="amende-ico">📋</div><div class="amende-infraction">Non-enregistrement du drone (appareils &gt; 800 g ou équipés d'un dispositif de signalement)</div><div class="amende-montant">135 € → 750 €</div></div>
+      <div class="amende-row"><div class="amende-ico">🏷️</div><div class="amende-infraction">Non-apposition du marquage FRA sur le drone (drones avec caméra, C1, C2)</div><div class="amende-montant">135 € → 750 €</div></div>
+      <div class="amende-row"><div class="amende-ico">📡</div><div class="amende-infraction">Absence de signalement électronique (balise) pour un drone &gt; 800 g</div><div class="amende-montant">135 € → 750 €</div></div>
+      <div class="amende-row"><div class="amende-ico">🎓</div><div class="amende-infraction">Vol sans formation A1/A3 valide (drones C1 et C2)</div><div class="amende-montant">135 € → 750 €</div></div>
+      <div class="amende-row"><div class="amende-ico">🥽</div><div class="amende-infraction">Vol FPV en immersion sans observateur à proximité</div><div class="amende-montant">135 € → 750 €</div></div>
+    </div>
+
+    <div class="scard">
+      <div class="scard-head"><div class="scard-num" style="background:var(--red-soft);color:var(--red)">!!</div><div class="scard-label">Infractions majeures — jusqu'à 75 000 € + 1 an d'emprisonnement</div></div>
+      <div class="amende-row"><div class="amende-ico">🚫</div><div class="amende-infraction">Vol dans une zone interdite (aéroport, site sensible, zone militaire)</div><div class="amende-montant">Pénal</div></div>
+      <div class="amende-row"><div class="amende-ico">👥</div><div class="amende-infraction">Survol de rassemblement de personnes sans autorisation</div><div class="amende-montant">Pénal</div></div>
+      <div class="amende-row"><div class="amende-ico">🌙</div><div class="amende-infraction">Vol de nuit sans autorisation préfectorale</div><div class="amende-montant">Pénal</div></div>
+    </div>
+
+    <div class="scard">
+      <div class="scard-head"><div class="scard-label">Rappel assurance</div></div>
+      <div class="alert-band alert-amber" style="margin:0">
+        <span>⚠️</span>
+        <span>L'assurance habitation <strong>ne couvre généralement pas</strong> les drones. Une RC spécifique est obligatoire. Et en cas de vol <strong>hors conformité</strong>, même une RC drone spécifique peut refuser la couverture.</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ─── State wizard ───
+let wiz = { poids: null, camera: null, fpv: null };
+
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+  const nt = document.getElementById('nt-' + id);
+  if (nt) nt.classList.add('active');
+  window.scrollTo(0,0);
+}
+
+function initWizard() {
+  wiz = { poids: null, camera: null, fpv: null };
+  document.querySelectorAll('.wizard-step').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.choice').forEach(c => c.classList.remove('selected'));
+  document.querySelectorAll('.done-item').forEach(d => d.classList.remove('checked'));
+  document.getElementById('wiz-s1').classList.add('active');
+  setWizHeader(1,'Quel est le poids du drone ?','Demandez le modèle exact si le client ne connaît pas le poids.');
+  setProgress(1);
+  document.getElementById('wiz-nav-1').style.display='flex';
+}
+
+function setWizHeader(step, title, sub) {
+  document.getElementById('wiz-step-label').textContent = 'Étape ' + step + ' / 4';
+  document.getElementById('wiz-title').textContent = title;
+  document.getElementById('wiz-sub').textContent = sub;
+}
+
+function setProgress(step) {
+  document.getElementById('wiz-progress').style.width = (step * 25) + '%';
+}
+
+function selectChoice(step, val) {
+  const stepEl = document.getElementById('wiz-s' + step);
+  stepEl.querySelectorAll('.choice').forEach(c => c.classList.remove('selected'));
+  event.currentTarget.classList.add('selected');
+
+  setTimeout(() => {
+    if (step === 1) {
+      wiz.poids = val;
+      if (val === 'c0') {
+        goWizStep(2, 'Le drone a-t-il une caméra ?', 'Point déterminant pour les C0 : avec caméra = enregistrement obligatoire.');
+      } else {
+        wiz.camera = 'oui';
+        goWizStep(3, 'Le client fait-il du FPV ?', 'Vol en immersion avec casque ou lunettes.');
+      }
+    } else if (step === 2) {
+      wiz.camera = val;
+      goWizStep(3, 'Le client fait-il du FPV ?', 'Vol en immersion avec casque ou lunettes.');
+    } else if (step === 3) {
+      wiz.fpv = val;
+      goWizStep(4, 'Démarches déjà effectuées ?', 'Cochez ce que le client a déjà fait.');
+    }
+  }, 200);
+}
+
+function goWizStep(n, title, sub) {
+  document.querySelectorAll('.wizard-step').forEach(s => s.classList.remove('active'));
+  document.getElementById('wiz-s' + n).classList.add('active');
+  setWizHeader(n, title, sub);
+  setProgress(n);
+  if (n > 1) document.getElementById('wiz-nav-1').style.display = 'none';
+}
+
+function wizBack(n) {
+  if (n === 4) {
+    const prev = (wiz.poids === 'c0') ? 3 : 2;
+    goWizStep(prev === 3 ? 3 : 2,
+      prev === 3 ? 'Le client fait-il du FPV ?' : 'Le drone a-t-il une caméra ?',
+      '');
+    if (wiz.poids !== 'c0' && prev === 2) {
+      goWizStep(3, 'Le client fait-il du FPV ?', 'Vol en immersion avec casque ou lunettes.');
+    }
+  }
+}
+
+function toggleDone(el) { el.classList.toggle('checked'); }
+
+// ─── Result ───
+const PROFILES = {
+  c0s: { label:'C0 sans caméra', icon:'🪶', color:'var(--c0)', bg:'var(--c0-soft)', price:null,
+    obligs:['Aucune obligation légale','Assurance RC conseillée','Respecter règles de vol (120m, VLOS, pas de foules)'],
+    oblig_status:['ok','warn','warn'],
+    services:['Sensibilisation aux règles de vol (gratuit)','Vérification assurance RC','Présentation Géoportail Drones'],
+    srv_prices:[null,null,null] },
+  c0c: { label:'C0 avec caméra', icon:'📷', color:'var(--c0)', bg:'var(--c0-soft)', price:'48 € TTC',
+    obligs:['Enregistrement exploitant AlphaTango (FRA-XXXXX)','Marquage FRA apposé sur le drone','Assurance RC conseillée'],
+    oblig_status:['obl','obl','warn'],
+    services:['Diagnostic + création compte AlphaTango','Obtention numéro FRA exploitant','Apposition étiquettes FRA','Remise Kit Conformité C0'],
+    srv_prices:['inclus','inclus','inclus','inclus'] },
+  c1: { label:'Classe C1', icon:'🚁', color:'var(--c1)', bg:'var(--c1-soft)', price:'96 € TTC',
+    obligs:['Enregistrement exploitant AlphaTango','Formation A1/A3 (BAPD) — gratuite','Marquage FRA sur le drone','Identification électronique (e-ID) activée','Balise si > 800 g'],
+    oblig_status:['obl','obl','obl','obl','warn'],
+    services:['Diagnostic matériel complet','Enregistrement exploitant AlphaTango','Accompagnement formation A1/A3','Vérification paramétrage e-ID','Apposition étiquettes FRA','Kit documentation complet'],
+    srv_prices:['inclus','inclus','inclus','inclus','inclus','inclus'] },
+  c2: { label:'Classe C2', icon:'🛸', color:'var(--c2)', bg:'var(--c2-soft)', price:'144 € TTC',
+    obligs:['Enregistrement exploitant AlphaTango','Enregistrement UAS (drone) AlphaTango','Formation A1/A3 + A2 (BAPD ~30 €)','Marquage FRA + e-ID activée','Balise de signalement (>800g)'],
+    oblig_status:['obl','obl','obl','obl','obl'],
+    services:['Diagnostic complet','Enregistrements exploitant + UAS','Préparation examens A1/A3 + A2','Paramétrage mode basse vitesse (5m)','Installation balise si >800g (+60€)','Kit documentation complet'],
+    srv_prices:['inclus','inclus','inclus','inclus','+60€ TTC','inclus'] },
+  fpv: { label:'FPV', icon:'🥽', color:'var(--fpv)', bg:'var(--fpv-soft)', price:'156 € TTC',
+    obligs:['Observateur OBLIGATOIRE à chaque vol','Enregistrement selon classe du drone','Formation selon classe (C1 → A1/A3, C2 → +A2)','Balise si drone >800g'],
+    oblig_status:['obl','obl','obl','obl'],
+    services:['Diagnostic + identification classe FPV','Enregistrements adaptés à la classe','Formation observateur (briefing, failsafe)','Gestion des failsafe et procédures urgence','Kit documentation FPV'],
+    srv_prices:['inclus','inclus','inclus','inclus','inclus'] },
+  diy: { label:'DIY / sans classe CE', icon:'🔧', color:'var(--fpv)', bg:'var(--fpv-soft)', price:'108 € TTC',
+    obligs:['Catégorie spécifique probable selon poids','Enregistrement exploitant si caméra','Balise si >800g','Observateur si FPV'],
+    oblig_status:['warn','obl','obl','obl'],
+    services:['Diagnostic poids et usage','Enregistrement exploitant si nécessaire','Conseil orientation catégorie spécifique','Formation CATS si vol pro/zone peuplée'],
+    srv_prices:['inclus','inclus','inclus','+devis'] }
+};
+
+function getProfile() {
+  const { poids, camera, fpv } = wiz;
+  if (fpv === 'oui') return 'fpv';
+  if (poids === 'diy') return 'diy';
+  if (poids === 'c0') return camera === 'oui' ? 'c0c' : 'c0s';
+  if (poids === 'c1') return 'c1';
+  if (poids === 'c2') return 'c2';
+  return 'c1';
+}
+
+function getDoneIds() {
+  const ids = [];
+  document.querySelectorAll('.done-item.checked').forEach(d => ids.push(d.id));
+  return ids;
+}
+
+function showResult() {
+  const key = getProfile();
+  const p = PROFILES[key];
+  const done = getDoneIds();
+
+  // Hero
+  let priceHtml = p.price
+    ? `<div class="result-price-box"><div class="result-price" style="color:${p.color}">${p.price}</div><div class="result-price-label">prestation estimée</div></div>`
+    : `<div class="result-price-box"><div class="result-price" style="color:var(--muted)">—</div><div class="result-price-label">pas de prestation tarifée</div></div>`;
+
+  document.getElementById('result-hero').innerHTML = `
+    <div class="result-badge" style="background:${p.bg};font-size:26px">${p.icon}</div>
+    <div>
+      <div style="font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:${p.color};margin-bottom:3px">Profil identifié</div>
+      <div class="result-class" style="color:${p.color}">${p.label}</div>
+      <div class="result-desc">${wiz.fpv==='oui'?'Vol FPV · ':''}${done.length > 0 ? done.length + ' démarche(s) déjà effectuée(s)' : 'Aucune démarche encore effectuée'}</div>
+    </div>
+    ${priceHtml}`;
+
+  // Obligations
+  const oblEl = document.getElementById('result-obligations');
+  oblEl.innerHTML = p.obligs.map((o,i) => {
+    const s = p.oblig_status[i];
+    const dotColor = s==='obl'?'var(--red)':s==='warn'?'var(--c2)':'var(--green)';
+    return `<li class="obl-item"><span class="obl-dot" style="background:${dotColor}"></span><span style="font-size:13px">${o}</span></li>`;
+  }).join('');
+
+  // Services
+  const srvEl = document.getElementById('result-services');
+  srvEl.innerHTML = p.services.map((s,i) => {
+    return `<li class="srv-item" onclick="this.classList.toggle('done')">
+      <div class="srv-box"></div>
+      <span class="srv-label">${s}</span>
+      ${p.srv_prices[i] ? `<span class="srv-price">${p.srv_prices[i]}</span>` : ''}
+    </li>`;
+  }).join('');
+
+  document.getElementById('result-notes').value = '';
+  showPage('result');
+}
+
+function copyResult() {
+  const key = getProfile();
+  const p = PROFILES[key];
+  const notes = document.getElementById('result-notes').value;
+  let text = `AUDIT DRONE — ${p.label.toUpperCase()}\n`;
+  if (p.price) text += `Prix estimé : ${p.price}\n`;
+  text += `\nOBLIGATIONS :\n`;
+  p.obligs.forEach(o => text += `• ${o}\n`);
+  text += `\nSERVICES À PROPOSER :\n`;
+  p.services.forEach((s,i) => text += `• ${s}${p.srv_prices[i] ? ' ('+p.srv_prices[i]+')' : ''}\n`);
+  if (notes) text += `\nNOTES :\n${notes}`;
+  navigator.clipboard.writeText(text).then(() => {
+    const el = document.getElementById('copy-confirm');
+    el.style.display = 'block';
+    setTimeout(() => el.style.display = 'none', 2500);
+  });
+}
+
+// ─── Fiches directes ───
+function showFicheDirecte(key) {
+  showPage('fiches');
+  showFicheTab(key);
+  document.getElementById('nt-fiches').classList.add('active','t-c1');
+}
+
+function showFicheTab(key) {
+  document.querySelectorAll('.fiche-tab').forEach(t => t.style.display = 'none');
+  document.querySelectorAll('[id^="fb-"]').forEach(b => b.style.background = '');
+  const el = document.getElementById('ft-' + key);
+  const btn = document.getElementById('fb-' + key);
+  if (el) el.style.display = 'block';
+  if (btn) btn.style.background = 'rgba(255,255,255,0.08)';
+}
+
+// ─── Checklist toggle ───
+function toggleItem(e) {
+  const item = e.target.closest('.cl-item');
+  if (item) item.classList.toggle('done');
+}
+
+// Init
+showFicheTab('c0s');
+</script>
+</body>
+</html>
