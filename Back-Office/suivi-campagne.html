@@ -459,7 +459,9 @@ function addContact() {
   updateStats();
 
   // Reset form
-  ['f-pseudo','f-modele','f-lien','f-notes'].forEach(id => document.getElementById(id).value = '');
+  ['f-pseudo','f-lien','f-notes','f-modele-libre'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('f-modele').value = '';
+  document.getElementById('f-modele-libre').style.display = 'none';
   document.getElementById('f-cat').value = 'C1';
 }
 
