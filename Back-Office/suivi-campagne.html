@@ -410,11 +410,33 @@ function getMessages(contact) {
   ];
 }
 
+// ─── DRONE SELECT AUTO-FILL ───────────────────────────────────────────────────
+
+function onDroneSelect(sel) {
+  const opt    = sel.options[sel.selectedIndex];
+  const cat    = opt.getAttribute('data-cat') || '';
+  const libre  = document.getElementById('f-modele-libre');
+
+  // Auto-fill catégorie
+  if (cat) document.getElementById('f-cat').value = cat;
+
+  // Afficher le champ libre si "Autre modèle"
+  if (opt.value === 'Autre modèle') {
+    libre.style.display = 'block';
+    libre.focus();
+  } else {
+    libre.style.display = 'none';
+    libre.value = '';
+  }
+}
+
 // ─── ADD CONTACT ──────────────────────────────────────────────────────────────
 
 function addContact() {
   const pseudo = document.getElementById('f-pseudo').value.trim();
-  const modele = document.getElementById('f-modele').value.trim();
+  const sel    = document.getElementById('f-modele');
+  const libre  = document.getElementById('f-modele-libre').value.trim();
+  const modele = sel.value === 'Autre modèle' ? (libre || 'Autre modèle') : sel.value;
   const cat    = document.getElementById('f-cat').value;
   const lien   = document.getElementById('f-lien').value.trim();
   const notes  = document.getElementById('f-notes').value.trim();
