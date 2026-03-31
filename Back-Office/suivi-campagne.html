@@ -691,14 +691,76 @@ function copyMessage() {
   });
 }
 
+// ─── COORDONNÉES ─────────────────────────────────────────────────────────────
+
+let coordsCurrentId = null;
+
+function openCoordsModal(id) {
+  const c = contacts.find(c => c.id === id);
+  if (!c) return;
+  coordsCurrentId = id;
+  const label = c.pseudo || c.modele || 'ce contact';
+  document.getElementById('coords-sub').textContent =
+    `${label} · ${c.modele || ''} · ${c.cat} — ${c.coords ? 'Coordonnées déjà enregistrées, tu peux les modifier.' : 'Aucune coordonnée pour l\'instant.'}`;
+  const co = c.coords || {};
+  document.getElementById('c-nom').value          = co.nom     || '';
+  document.getElementById('c-prenom').value       = co.prenom  || '';
+  document.getElementById('c-tel').value          = co.tel     || '';
+  document.getElementById('c-email').value        = co.email   || '';
+  document.getElementById('c-adresse').value      = co.adresse || '';
+  document.getElementById('c-cp').value           = co.cp      || '';
+  document.getElementById('c-ville').value        = co.ville   || '';
+  document.getElementById('c-notes-coords').value = co.notes   || '';
+  document.getElementById('coords-overlay').classList.add('open');
+}
+
+function closeCoordsModal() {
+  document.getElementById('coords-overlay').classList.remove('open');
+  coordsCurrentId = null;
+}
+
+function saveCoords() {
+  const c = contacts.find(c => c.id === coordsCurrentId);
+  if (!c) return;
+  const nom     = document.getElementById('c-nom').value.trim();
+  const prenom  = document.getElementById('c-prenom').value.trim();
+  const tel     = document.getElementById('c-tel').value.trim();
+  const email   = document.getElementById('c-email').value.trim();
+  const adresse = document.getElementById('c-adresse').value.trim();
+  const cp      = document.getElementById('c-cp').value.trim();
+  const ville   = document.getElementById('c-ville').value.trim();
+  const notes   = document.getElementById('c-notes-coords').value.trim();
+
+  if (!nom && !prenom && !tel && !email) {
+    alert('Remplis au moins un champ (nom, prénom ou téléphone).'); return;
+  }
+  c.coords = { nom, prenom, tel, email, adresse, cp, ville, notes };
+  // Passer automatiquement en "Réponse reçue" si encore "À contacter" ou "Message envoyé"
+  if (['a-contacter','envoye'].includes(c.statut)) c.statut = 'reponse';
+  save();
+  renderTable();
+  updateStats();
+  closeCoordsModal();
+}
+
+document.getElementById('coords-overlay').addEventListener('click', function(e) {
+  if (e.target === this) closeCoordsModal();
+});
+
 // ─── EXPORT CSV ──────────────────────────────────────────────────────────────
 
 function exportCSV() {
   if (contacts.length === 0) { alert('Aucun contact à exporter.'); return; }
-  const headers = ['#','Date','Pseudo','Modèle','Catégorie','Lien annonce','Statut','Notes'];
-  const rows = contacts.map((c, i) => [
-    i+1, c.date, c.pseudo, c.modele, c.cat, c.lien, STATUTS[c.statut]?.label || c.statut, c.notes
-  ]);
+  const headers = ['#','Date','Pseudo','Modèle','Catégorie','Lien annonce','Statut','Notes',
+                   'Nom','Prénom','Téléphone','Email','Adresse','CP','Ville','Notes coordonnées'];
+  const rows = contacts.map((c, i) => {
+    const co = c.coords || {};
+    return [
+      i+1, c.date, c.pseudo, c.modele, c.cat, c.lien,
+      STATUTS[c.statut]?.label || c.statut, c.notes,
+      co.nom, co.prenom, co.tel, co.email, co.adresse, co.cp, co.ville, co.notes
+    ];
+  });
   const csv = [headers, ...rows].map(r => r.map(v => `"${(v||'').toString().replace(/"/g,'""')}"`).join(',')).join('\n');
   const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
   const a = document.createElement('a');
