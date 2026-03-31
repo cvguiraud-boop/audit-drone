@@ -829,6 +829,339 @@ function toggleCheck(el){
   el.classList.toggle('done');
 }
 
+// ── Overlay détail ──
+function closeDetail(){
+  document.getElementById('detail-overlay').style.display='none';
+  document.body.style.overflow='';
+}
+
+const DETAILS = {
+
+'alphatango': {
+  icon:'📋', color:'var(--c0)', title:'Enregistrement AlphaTango',
+  intro:'AlphaTango est le portail officiel de la DGAC (Direction Générale de l\'Aviation Civile). C\'est sur ce site que tout pilote de drone doit s\'enregistrer dès que la réglementation l\'exige. Sans cet enregistrement, chaque vol constitue une infraction passible d\'une amende allant de 135 € à 750 €.',
+  pourquoi:'La réglementation européenne EU 2019/947 impose l\'enregistrement pour identifier les pilotes et leurs appareils. En cas de contrôle, d\'accident ou d\'incident, les autorités peuvent retracer le propriétaire. C\'est aussi la condition pour obtenir son numéro d\'exploitant (FRA-XXXXX) qui doit être apposé sur le drone.',
+  etapes:[
+    {t:'Créer un compte sur AlphaTango', p:'Rendez-vous sur alphatango.aviation-civile.gouv.fr. Connexion via FranceConnect (avec vos identifiants impôts, Ameli ou La Poste) ou création d\'un compte DGAC directement.'},
+    {t:'Déclarer votre profil d\'exploitant', p:'Renseigner vos informations personnelles : nom, prénom, adresse, date de naissance. Vous obtenez un numéro d\'exploitant au format FRA-XXXXX (13 caractères).'},
+    {t:'Enregistrer votre drone (si C1, C2 ou >800g)', p:'Pour les drones C1 (>800g) et C2, il faut également enregistrer l\'appareil lui-même en renseignant : marque, modèle, numéro de série, masse maximale au décollage.'},
+    {t:'Télécharger les justificatifs', p:'AlphaTango génère des attestations PDF à conserver lors de chaque vol. Je vous aide à les télécharger et à les organiser dans votre dossier de vol.'},
+    {t:'Renouvellement annuel', p:'L\'enregistrement doit être renouvelé chaque année. Je mets en place un rappel pour ne pas oublier.'},
+  ],
+  docs:['Pièce d\'identité (CNI ou passeport)','Adresse email valide','Numéro de série du drone (pour C1/C2)','Accès FranceConnect recommandé (impôts, Ameli, La Poste)']
+},
+
+'marquage-fra': {
+  icon:'🏷️', color:'var(--c0)', title:'Marquage FRA du drone',
+  intro:'Une fois enregistré sur AlphaTango, tout pilote doit apposer son numéro d\'exploitant (FRA-XXXXX) de façon visible sur son drone. C\'est obligatoire pour tous les drones avec caméra (même C0), les C1 et les C2. L\'absence de marquage est une infraction.',
+  pourquoi:'Ce marquage permet aux autorités d\'identifier rapidement le propriétaire d\'un drone lors d\'un contrôle ou en cas d\'accident. Il est l\'équivalent de la plaque d\'immatriculation d\'une voiture. Sans lui, même si vous êtes enregistré sur AlphaTango, vous êtes en infraction.',
+  etapes:[
+    {t:'Obtenir votre numéro d\'exploitant', p:'Le numéro FRA-XXXXX est généré automatiquement lors de votre enregistrement sur AlphaTango. Il est au format FRA suivi de 13 caractères alphanumériques.'},
+    {t:'Imprimer ou commander les étiquettes', p:'L\'étiquette doit être lisible sans outil. Format recommandé : minimum 6mm de hauteur de caractères. Support : adhésif résistant aux UV, à l\'eau et aux chocs. Je fournis 3 étiquettes dans le Kit Conformité C0.'},
+    {t:'Apposer l\'étiquette sur le drone', p:'Choisir un emplacement visible au sol (corps principal du drone, bras ou dessous). Pas sur les hélices ni les batteries qui se retirent. Une étiquette sur la batterie principale est recommandée en option.'},
+    {t:'Vérifier la lisibilité', p:'Le numéro doit rester lisible même après utilisation. Contrôler après chaque session si l\'étiquette est toujours bien en place.'},
+  ],
+  docs:['Numéro d\'exploitant AlphaTango (FRA-XXXXX)','Étiquettes adhésives résistantes (fournies dans le kit)']
+},
+
+'zones-vol': {
+  icon:'🗺', color:'var(--c0)', title:'Guide Zones de vol — Géoportail Drones',
+  intro:'Géoportail Aviation Civile est le site officiel de la DGAC qui cartographie toutes les zones de vol en France. Il est indispensable de le consulter AVANT chaque vol. Voler dans une zone interdite, même sans le savoir, est une infraction pénale pouvant entraîner des amendes très lourdes.',
+  pourquoi:'La France a l\'un des espaces aériens les plus réglementés d\'Europe : aéroports, bases militaires, centrales nucléaires, zones sensibles, manifestations… Des dizaines de restrictions existent sur tout le territoire. Un pilote non informé peut facilement se retrouver en infraction sans le vouloir.',
+  etapes:[
+    {t:'Accéder à Géoportail Aviation', p:'Site officiel : geoportail.aviation-civile.gouv.fr — Gratuit, mis à jour en temps réel. Disponible sur ordinateur et mobile.'},
+    {t:'Comprendre les couleurs des zones', p:'Rouge = vol interdit. Orange = restrictions (altitude, horaires, autorisation requise). Vert = vol libre dans les limites réglementaires. Gris = zones d\'information.'},
+    {t:'Vérifier avant chaque vol', p:'Saisir l\'adresse ou le lieu de vol, vérifier les zones et leur altitude maximale autorisée, consulter les NOTAM (avis aux navigants) pour les restrictions temporaires.'},
+    {t:'Applications mobiles complémentaires', p:'Drone Assist (DSNA/Services) et les apps constructeurs (DJI Fly, Autel Sky) peuvent compléter Géoportail mais ne font pas foi officiellement. Toujours croiser avec Géoportail.'},
+    {t:'Créer une checklist pré-vol', p:'Je vous aide à créer une routine de vérification : zone verte ? Altitude ok ? NOTAM consulté ? Cette habitude vous protège légalement.'},
+  ],
+  docs:[]
+},
+
+'assurance-rc': {
+  icon:'🛡', color:'var(--c0)', title:'Assurance Responsabilité Civile drone',
+  intro:'L\'assurance RC (Responsabilité Civile) aéronautique est obligatoire pour tous les drones C1 et C2, et fortement conseillée pour les C0. Elle couvre les dommages causés à des tiers (personnes, biens, véhicules) en cas d\'accident lors d\'un vol.',
+  pourquoi:'Un drone qui tombe peut blesser une personne, endommager une voiture ou un bâtiment. Sans assurance RC, vous êtes personnellement responsable de tous les dommages — sans plafond. Une simple chute sur une voiture peut coûter plusieurs milliers d\'euros. Votre assurance habitation couvre rarement les drones : il faut vérifier les conditions générales.',
+  etapes:[
+    {t:'Vérifier votre couverture actuelle', p:'Certains contrats multirisques habitation incluent une extension drone. Je vous aide à lire les conditions générales pour vérifier : le montant de couverture (minimum 1M€ recommandé), les exclusions (vol de nuit, hors-vue, usage pro).'},
+    {t:'Choisir une assurance spécifique si besoin', p:'Si votre habitation ne couvre pas ou mal : assurances annuelles drone (Allianz, AXA, assurances fédérations FFAM/FPV France), DJI Care pour la casse (option), contrats spécialisés drone loisirs.'},
+    {t:'Vérifier la conformité', p:'Le contrat doit être conforme au règlement EU 2022/1145. Je vérifie que la couverture est adaptée à votre classe de drone et à votre usage (loisir, urbain, FPV).'},
+    {t:'Conserver l\'attestation lors des vols', p:'L\'attestation d\'assurance doit être accessible en cas de contrôle. Je vous conseille de la garder dans votre sac de transport avec les autres documents.'},
+  ],
+  docs:['Attestation d\'assurance RC aéronautique en cours de validité','Conditions générales du contrat (pour vérifier les exclusions)']
+},
+
+'kit-c0': {
+  icon:'📦', color:'var(--c0)', title:'Kit Conformité C0',
+  intro:'Le Kit Conformité C0 est remis au client à la fin de l\'audit. Il regroupe tous les documents et outils nécessaires pour voler en toute légalité et les présenter en cas de contrôle. C\'est un livrable concret qui valorise la prestation et professionnalise la relation client.',
+  pourquoi:'Un pilote C0 avec caméra qui a fait l\'audit repart avec tout ce dont il a besoin en main. Plus d\'excuses, plus d\'oubli : tout est là, organisé, prêt à être présenté. Ce kit crée aussi une excellente impression et favorise le bouche-à-oreille.',
+  etapes:[],
+  contenu:[
+    {ico:'📄', label:'Attestation d\'enregistrement AlphaTango', detail:'Certificat officiel imprimé avec numéro FRA-XXXXX'},
+    {ico:'🏷️', label:'3 étiquettes FRA adhésives', detail:'1 pour le drone · 1 pour la batterie · 1 de secours — résistantes UV et eau'},
+    {ico:'📋', label:'Fiche "Droits et devoirs du pilote C0"', detail:'Récapitulatif des règles essentielles : hauteur 120m, VLOS, zones interdites'},
+    {ico:'🛡', label:'Fiche "Assurance RC"', detail:'Guide pour vérifier sa couverture et liste des assureurs spécialisés'},
+    {ico:'✅', label:'Check-list pré-vol plastifiée', detail:'Batteries chargées · Hélices intactes · Étiquette FRA présente · Zone vérifiée · Assurance à jour'},
+    {ico:'🗺', label:'Guide Géoportail Drones', detail:'QR code + explication des couleurs de zones (rouge/orange/vert)'},
+    {ico:'📱', label:'QR codes personnalisés', detail:'Géoportail Drones · AlphaTango · Fiche réglementation mise à jour'},
+  ],
+  docs:[]
+},
+
+'formation-a1a3': {
+  icon:'🎓', color:'var(--c1)', title:'Formation OPEN A1/A3 (BAPD)',
+  intro:'La formation A1/A3 est le premier niveau du Brevet d\'Aptitude de Pilote à Distance (BAPD). Elle est obligatoire pour piloter un drone de classe C1 (250g-900g) ou C2 (900g-4kg). C\'est un QCM de 40 questions, entièrement gratuit, passé en ligne directement sur AlphaTango.',
+  pourquoi:'Sans cette attestation, chaque vol avec un drone C1 ou C2 est illégal. Elle prouve que vous connaissez les règles de l\'espace aérien, les procédures de sécurité et vos obligations réglementaires. Elle est valable à vie (illimitée) et reconnue dans toute l\'Union Européenne.',
+  etapes:[
+    {t:'Évaluation du niveau initial', p:'Je fais un rapide tour des 5 thématiques pour identifier vos lacunes : réglementation aérienne, météorologie, espace aérien, performances du drone, procédures d\'urgence.'},
+    {t:'Session de préparation', p:'Session d\'1h à 1h30 (visio ou présentiel) couvrant tous les thèmes du A1/A3. Je fournis un support visuel, des exemples concrets et un focus sur les questions souvent ratées.'},
+    {t:'QCM d\'entraînement', p:'Série de QCM blancs similaires au test officiel. Correction commentée. Objectif : atteindre 75% de bonnes réponses avant le vrai test (seuil requis pour la validation).'},
+    {t:'Passage du test officiel sur AlphaTango', p:'Le test est en ligne, gratuit, illimité en tentatives. Je reste disponible le jour du passage pour vous aider à naviguer sur la plateforme.'},
+    {t:'Obtention de l\'attestation', p:'Une fois validé, AlphaTango génère votre attestation A1/A3. Je vous aide à la télécharger et à l\'intégrer à votre dossier de vol.'},
+  ],
+  docs:['Compte AlphaTango actif','Attestation A1/A3 (générée automatiquement après le test)','Support de cours PDF fourni par Glocal Defense','QCM d\'entraînement archivés']
+},
+
+'remote-id': {
+  icon:'📡', color:'var(--c1)', title:'Remote ID & Marquage physique',
+  intro:'Le Direct Remote ID est un système d\'identification électronique obligatoire pour tous les drones C1 et C2 depuis 2024. Il diffuse en continu un signal radio contenant les données d\'identification du drone (numéro, position GPS, altitude, vitesse) lisible par les autorités et les applications mobiles.',
+  pourquoi:'Sans Remote ID actif et correctement configuré, les autorités ne peuvent pas identifier votre drone en vol — c\'est une infraction. C\'est l\'équivalent électronique du marquage physique : les deux sont obligatoires et complémentaires.',
+  etapes:[
+    {t:'Vérifier la compatibilité du drone', p:'Les drones récents (DJI Air 3, Air 2S, Mini 4 Pro avec module…) ont le Remote ID intégré. Pour les anciens modèles, un module externe OpenDroneID peut être nécessaire. Je vérifie votre modèle.'},
+    {t:'Configurer le Remote ID', p:'Dans l\'application du drone (DJI Fly, Autel Sky…), vérifier que le numéro d\'enregistrement AlphaTango est bien renseigné dans les paramètres Remote ID. Sans ce numéro, le signal est non conforme.'},
+    {t:'Tester la diffusion du signal', p:'Utilisation d\'une application réceptrice (OpenDroneID, DroneScanner) pour vérifier que les données diffusées sont complètes et correctes.'},
+    {t:'Vérifier le marquage physique', p:'Contrôle de la présence, lisibilité et conformité du numéro FRA apposé sur le drone. Le marquage physique ET le Remote ID sont tous les deux obligatoires.'},
+  ],
+  docs:['Numéro d\'enregistrement AlphaTango (FRA-XXXXX)','Application drone mise à jour (firmware récent)','Rapport de conformité Remote ID (fourni par Glocal Defense)']
+},
+
+'kit-doc': {
+  icon:'📦', color:'var(--c1)', title:'Kit Documentation complet',
+  intro:'Le kit documentation est le dossier complet remis au client à la fin de l\'audit C1 ou C2. Il regroupe tous les justificatifs légaux et les outils pratiques nécessaires pour voler en toute conformité et se défendre en cas de contrôle.',
+  pourquoi:'En cas de contrôle par la gendarmerie ou la DGAC, le pilote doit être en mesure de présenter ses documents immédiatement. Un dossier bien organisé évite le stress et prouve la bonne foi. C\'est aussi un livrable concret qui justifie la valeur de l\'audit.',
+  etapes:[],
+  contenu:[
+    {ico:'📄', label:'Attestation d\'enregistrement exploitant', detail:'Certificat AlphaTango avec numéro FRA-XXXXX'},
+    {ico:'📄', label:'Attestation d\'enregistrement UAS (drone)', detail:'Pour C1 >800g et C2 — numéro UAS-FR-XXXX'},
+    {ico:'🎓', label:'Attestation formation A1/A3', detail:'Certificat officiel valable à vie'},
+    {ico:'🎓', label:'Attestation BAPD A2 (C2)', detail:'Certificat officiel valable 5 ans'},
+    {ico:'🛡', label:'Attestation d\'assurance RC', detail:'Contrat en cours de validité'},
+    {ico:'🏷️', label:'Étiquettes FRA apposées', detail:'Confirmation du marquage physique conforme'},
+    {ico:'✅', label:'Check-list pré-vol personnalisée', detail:'Adaptée à votre drone et vos lieux de vol habituels'},
+    {ico:'🗺', label:'Fiche zones de vol habituelles', detail:'Vos lieux de vol vérifiés et classifiés'},
+  ],
+  docs:[]
+},
+
+'formation-a2': {
+  icon:'🎓', color:'var(--c2)', title:'Préparation A1/A3 + A2 (BAPD)',
+  intro:'Pour un drone C2 (900g–4kg), deux formations sont obligatoires : la formation A1/A3 (gratuite, en ligne) et la formation A2 appelée BAPD A2. La particularité du A2 : la partie théorique peut se passer en candidat libre, mais la partie pratique doit être justifiée auprès d\'un centre agréé.',
+  pourquoi:'Le BAPD A2 permet de voler en sous-catégorie A2, c\'est-à-dire à une distance réduite de 30m des personnes (voire 5m en mode basse vitesse). Sans ce brevet, un pilote C2 doit rester à 150m de toute zone habitée — ce qui rend le drone quasiment inutilisable en pratique.',
+  etapes:[
+    {t:'Étape 1 — Formation A1/A3 en prérequis', p:'La formation A1/A3 doit être obtenue en premier. C\'est un QCM gratuit en ligne sur AlphaTango. Je vous prépare à le passer rapidement.'},
+    {t:'Étape 2 — Préparation théorique A2', p:'La théorie du A2 couvre des notions avancées : météorologie approfondie, performances de vol, gestion des risques, distances de sécurité, mode basse vitesse. Je fournis fiches de révision, QCM types et simulations d\'examen.'},
+    {t:'Étape 3 — Passage de l\'examen théorique A2', p:'L\'examen théorique A2 se passe sur AlphaTango, en ligne, en candidat libre. Coût : environ 30 €. Il comporte 30 questions avec un seuil de 75% requis. Illimité en tentatives.'},
+    {t:'Étape 4 — Justification de la pratique auprès d\'un centre agréé', p:'⚠️ IMPORTANT : la partie pratique ne se passe pas sur AlphaTango. Le pilote doit faire attester sa compétence pratique par un organisme de formation agréé DGAC. Ce n\'est pas un examen formel mais une déclaration sur l\'honneur validée par un instructeur agréé. Je vous oriente vers les centres partenaires.'},
+    {t:'Étape 5 — Obtention du BAPD A2', p:'Une fois la théorie validée et la pratique attestée, AlphaTango génère votre BAPD A2. Durée de validité : 5 ans.'},
+  ],
+  docs:['Attestation A1/A3 préalablement obtenue','Justificatif de passage théorique A2 (AlphaTango — ~30 €)','Attestation de pratique signée par un organisme agréé DGAC','BAPD A2 généré sur AlphaTango (valable 5 ans)']
+},
+
+'mode-basse-vitesse': {
+  icon:'⚡', color:'var(--c2)', title:'Mode basse vitesse (C2)',
+  intro:'Le mode basse vitesse est un paramètre de vol disponible sur les drones C2. Lorsqu\'il est activé, il limite la vitesse maximale du drone à 3 m/s, ce qui permet de réduire la distance de sécurité avec les personnes de 30 mètres à seulement 5 mètres.',
+  pourquoi:'Sans mode basse vitesse activé, un pilote C2 doit maintenir 30m de distance avec toute personne non impliquée dans le vol. Avec ce mode, cette distance tombe à 5m — ce qui change radicalement les possibilités de vol en milieu urbain ou lors de prises de vue proches de sujets.',
+  etapes:[
+    {t:'Vérifier la disponibilité sur votre modèle', p:'Le mode basse vitesse est disponible sur la plupart des drones C2 récents (DJI Mavic 3, Mavic 3 Pro…). Il est activé dans l\'application de vol (DJI Fly). Je vérifie si votre firmware est à jour.'},
+    {t:'Activer et configurer le mode', p:'Dans l\'application DJI Fly : Paramètres → Contrôle → Mode basse vitesse. La vitesse maximale est limitée à 3 m/s automatiquement. Je vous montre comment l\'activer et le désactiver en vol.'},
+    {t:'Comprendre les implications réglementaires', p:'Ce mode n\'est utilisable que si vous avez le BAPD A2. Sans ce brevet, même avec le mode activé, vous n\'êtes pas autorisé à vous approcher à 5m des personnes.'},
+    {t:'Pratiquer avant de l\'utiliser en conditions réelles', p:'Je vous recommande de vous exercer dans un espace dégagé avant d\'utiliser ce mode près de personnes. La réactivité du drone est différente à basse vitesse.'},
+  ],
+  docs:['BAPD A2 obligatoire pour bénéficier de la distance réduite à 5m','Firmware du drone à jour (vérification lors de l\'audit)']
+},
+
+'balise': {
+  icon:'📡', color:'var(--c2)', title:'Balise de signalement électronique',
+  intro:'La balise de signalement (ou dispositif de signalement électronique) est obligatoire pour tous les drones de plus de 800g. Elle émet un signal radio permettant aux autorités de détecter et localiser le drone depuis le sol, même de nuit ou par mauvaise visibilité.',
+  pourquoi:'C\'est une obligation légale depuis 2021 pour tout drone >800g. L\'absence de balise entraîne une amende de 135 € à 750 €. Elle permet aussi aux services de secours de localiser un drone en cas de crash ou d\'incident.',
+  etapes:[
+    {t:'Vérifier si votre drone en a besoin', p:'Obligation pour tout drone >800g. La plupart des drones C2 et certains C1 sont concernés. Je vérifie le poids exact de votre appareil lors du diagnostic.'},
+    {t:'Choisir la balise adaptée', p:'Deux types : balise intégrée (certains drones récents DJI ont la fonction en firmware) ou module externe à fixer sur le drone. Marques reconnues : DJI (intégré), Drotek, UASidekick… Coût : 30 € à 150 €.'},
+    {t:'Installer la balise', p:'Je réalise l\'installation physique du module si externe : fixation sécurisée, raccordement à la batterie ou autonome. Vérification que le signal est bien émis avant le premier vol.'},
+    {t:'Déclarer la balise sur AlphaTango', p:'La balise doit être déclarée sur AlphaTango en renseignant : type de dispositif, numéro de série, identifiant de signal. Je réalise cette démarche lors de l\'audit.'},
+    {t:'Vérifier le bon fonctionnement avant chaque vol', p:'La balise doit être active avant le décollage. Je vous montre comment le vérifier avec une application réceptrice.'},
+  ],
+  docs:['Référence et numéro de série de la balise','Déclaration AlphaTango du dispositif de signalement','Attestation de conformité (fournie par Glocal Defense après installation)']
+},
+
+'declaration-prefectorale': {
+  icon:'🏙️', color:'var(--c2)', title:'Déclaration préfectorale — Zone peuplée (STS-01)',
+  intro:'Pour voler légalement au-dessus d\'une zone peuplée (ville, village, rassemblement) avec un drone C2, il faut déposer une déclaration de scénario standard STS-01 auprès de la préfecture via AlphaTango. C\'est le seul moyen légal de voler en milieu urbain dense avec un C2.',
+  pourquoi:'La sous-catégorie A2 standard ne suffit pas pour voler au-dessus de zones habitées. Sans déclaration STS-01, tout vol en milieu urbain dense avec un C2 est illégal, même avec le BAPD A2. Cette déclaration ouvre des droits spécifiques pour une zone et une période définies.',
+  etapes:[
+    {t:'Vérifier l\'éligibilité', p:'Le pilote doit posséder le BAPD A2 + une assurance RC adaptée. Le drone doit être de classe C2 avec balise de signalement et Remote ID actifs.'},
+    {t:'Définir la zone et la période', p:'La déclaration est liée à une zone géographique précise et une période de validité. Je vous aide à délimiter la zone sur AlphaTango et à définir les paramètres.'},
+    {t:'Rédiger le dossier STS-01', p:'Le dossier comprend : description de l\'opération, zone concernée, mesures de sécurité, équipements utilisés, compétences du pilote. Je rédige l\'intégralité du dossier.'},
+    {t:'Soumettre sur AlphaTango', p:'La déclaration est déposée sur AlphaTango. La préfecture dispose d\'un délai pour répondre. Je gère le suivi et les éventuelles demandes de compléments.'},
+    {t:'Conserver la confirmation', p:'La confirmation de déclaration doit être conservée lors des vols concernés. Je vous la remets au format PDF.'},
+  ],
+  docs:['BAPD A2 du pilote','Attestation assurance RC adaptée aux vols en zone peuplée','Numéros d\'enregistrement exploitant + drone (AlphaTango)','Attestation de balise de signalement','Description précise de la zone et de l\'opération']
+},
+
+'diagnostic-fpv': {
+  icon:'🔍', color:'var(--a3)', title:'Diagnostic classe FPV',
+  intro:'Avant tout audit FPV, il faut identifier précisément la classe du drone pour déterminer les obligations exactes du pilote. Un FPV racing léger (C0) n\'a pas les mêmes obligations qu\'un FPV cinematic lourd (C2). Ce diagnostic est la première étape de tout audit FPV.',
+  pourquoi:'Les pilotes FPV ignorent souvent la classe de leur drone — surtout s\'il est assemblé (DIY). Or, les obligations varient énormément selon le poids et la présence d\'un marquage CE. Une erreur d\'identification peut conduire à une sous-conformité ou une sur-conformité inutile.',
+  etapes:[],
+  tableau:[
+    {classe:'C0 FPV', poids:'< 250g', marquage:'Marquage CE C0', obligations:'Enregistrement exploitant si caméra · Observateur obligatoire · Pas de formation obligatoire', tarif:'156 € TTC'},
+    {classe:'C1 FPV', poids:'250g – 900g', marquage:'Marquage CE C1', obligations:'Enregistrement exploitant + UAS si >800g · Formation A1/A3 · Remote ID · Observateur obligatoire', tarif:'156 € TTC'},
+    {classe:'C2 FPV', poids:'900g – 4kg', marquage:'Marquage CE C2', obligations:'Enregistrement exploitant + UAS · A1/A3 + BAPD A2 · Remote ID · Balise · Observateur obligatoire', tarif:'156 € TTC'},
+    {classe:'DIY sans classe', poids:'Variable', marquage:'Aucun marquage CE', obligations:'Catégorie spécifique probable · Enregistrement si caméra · Balise si >800g · Observateur obligatoire', tarif:'108 € TTC'},
+  ],
+  docs:['Modèle et référence du drone','Poids avec batterie (peser si nécessaire)','Présence ou absence du marquage CE sur le drone']
+},
+
+'enregistrements-fpv': {
+  icon:'📋', color:'var(--a3)', title:'Enregistrements adaptés (FPV)',
+  intro:'Les enregistrements AlphaTango pour un pilote FPV dépendent directement de la classe du drone. Je détermine d\'abord la classe (C0, C1, C2 ou DIY), puis je réalise uniquement les enregistrements nécessaires — ni plus, ni moins.',
+  pourquoi:'Un pilote FPV qui s\'enregistre à tort ou pas assez risque une infraction. Le diagnostic de classe est donc obligatoire avant toute démarche administrative.',
+  etapes:[
+    {t:'FPV C0 avec caméra', p:'→ Enregistrement exploitant uniquement (numéro FRA-XXXXX). Pas d\'enregistrement du drone requis. Formation A1/A3 non obligatoire mais conseillée.'},
+    {t:'FPV C1', p:'→ Enregistrement exploitant + enregistrement UAS si drone >800g. Formation A1/A3 obligatoire. Remote ID requis.'},
+    {t:'FPV C2', p:'→ Enregistrement exploitant + enregistrement UAS. Formation A1/A3 + BAPD A2 obligatoires. Remote ID + balise requis.'},
+    {t:'FPV DIY sans classe CE', p:'→ Enregistrement exploitant si caméra embarquée. Orientation vers catégorie spécifique selon usage. Balise si >800g.'},
+  ],
+  docs:['Numéro de série du drone (si disponible)','Poids du drone avec batterie','Présence d\'une caméra (FPV cam ou action cam)','Compte AlphaTango ou création lors de l\'audit']
+},
+
+'formation-observateur': {
+  icon:'👁️', color:'var(--a3)', title:'Formation Observateur FPV',
+  intro:'L\'observateur est la personne qui se tient aux côtés du pilote FPV pendant tout le vol. Puisque le pilote porte des lunettes d\'immersion et ne voit pas directement son drone, l\'observateur est ses yeux. Son rôle est légalement défini et sa présence est obligatoire à chaque vol en immersion.',
+  pourquoi:'La loi impose un observateur pour tout vol FPV. Mais au-delà de l\'obligation légale, l\'observateur est un maillon de sécurité essentiel : il peut détecter un avion, un passant, un obstacle que le pilote ne voit pas. Un observateur non formé est aussi dangereux qu\'une absence d\'observateur.',
+  etapes:[
+    {t:'Comprendre le rôle légal de l\'observateur', p:'L\'observateur doit maintenir un contact visuel permanent avec le drone. Il informe le pilote de tout risque (aéronef, personne, obstacle). Il a autorité pour ordonner l\'arrêt du vol.'},
+    {t:'Apprendre la communication pilote/observateur', p:'Je fournis un protocole de communication standardisé : annonces de départ/atterrissage, codes d\'alerte, procédures d\'urgence. Nous pratiquons ce protocole ensemble.'},
+    {t:'Former à la gestion des situations d\'urgence', p:'Que faire si le drone ne répond plus ? Si la batterie tombe ? Si un aéronef approche ? L\'observateur doit connaître les réponses et être capable d\'agir vite.'},
+    {t:'Comprendre les failsafe', p:'Je explique les systèmes de retour automatique (Return to Home) et comment l\'observateur doit réagir lors de leur déclenchement.'},
+    {t:'Vérification pré-vol commune', p:'Pilote et observateur font ensemble la checklist pré-vol : zone vérifiée, drone en bon état, protocole rappelé, zone dégagée.'},
+  ],
+  docs:['Aucun document officiel requis pour l\'observateur','Protocole de communication pilote/observateur (fourni par Glocal Defense)','Fiche check-list pré-vol FPV (fournie)']
+},
+
+'failsafe': {
+  icon:'⚙️', color:'var(--a3)', title:'Failsafe & Sécurités drone',
+  intro:'Le failsafe désigne l\'ensemble des comportements automatiques de sécurité qu\'un drone exécute en cas de problème : perte de signal radio, batterie critique, perte de signal GPS. Bien configurés, ces systèmes peuvent éviter une perte du drone ou un accident. Mal configurés, ils peuvent aggraver la situation.',
+  pourquoi:'Un FPV ou un drone DIY sans failsafe correctement configuré est un risque réel : en cas de perte de liaison radio, le drone peut continuer à voler en ligne droite jusqu\'à s\'écraser. La configuration des failsafe est un prérequis de sécurité avant tout vol.',
+  etapes:[
+    {t:'Return to Home (RTH)', p:'Configuration du point de décollage comme point de retour automatique. Altitude de retour à définir au-dessus des obstacles locaux. Je configure et teste ce système.'},
+    {t:'Failsafe Radio (perte de signal)', p:'Définir l\'action en cas de perte de signal télécommande : retour automatique (recommandé) ou atterrissage sur place. Configuration dans le firmware du contrôleur de vol (Betaflight, INAV…).'},
+    {t:'Failsafe batterie', p:'Alertes à configurer : niveau d\'alerte (ex : 30%) et niveau critique (ex : 15% → atterrissage forcé). Je règle ces seuils selon votre drone et vos conditions de vol habituelles.'},
+    {t:'Perte de signal GPS', p:'En mode Angle ou Acro, configurer le comportement sans GPS. Pour les drones FPV racing en mode Acro, le failsafe radio doit déclencher un arrêt progressif des moteurs.'},
+    {t:'Test des failsafe avant le premier vol', p:'Je réalise des tests à basse altitude pour vérifier que chaque failsafe fonctionne comme prévu.'},
+  ],
+  docs:[]
+},
+
+'diy-sans-classe': {
+  icon:'🔧', color:'var(--a3)', title:'Drone DIY sans classe CE',
+  intro:'Un drone DIY (Do It Yourself) est un drone assemblé soi-même à partir de composants séparés. Il ne porte aucun marquage CE officiel de classe C0 à C4. Réglementairement, ces drones ne font partie d\'aucune classe CE et leur statut dépend entièrement de leur poids et de leur usage.',
+  pourquoi:'Les pilotes DIY pensent souvent qu\'ils sont "hors réglementation" car leur drone n\'a pas de classe. C\'est l\'inverse : sans classe CE, le drone peut tomber dans la catégorie spécifique (beaucoup plus contraignante) selon son poids et son usage, notamment en milieu urbain.',
+  etapes:[
+    {t:'Ce qu\'il faut faire', p:'Peser précisément le drone (avec batterie). Vérifier si une caméra est embarquée. Identifier l\'usage (loisir en campagne, FPV racing, cinematic en ville…). Ces trois éléments déterminent les obligations.'},
+    {t:'Ce qu\'il ne faut PAS faire', p:'Ne pas voler en zone habitée sans déclaration. Ne pas ignorer l\'obligation d\'observateur si vol FPV. Ne pas supposer que "DIY = pas de règle".'},
+    {t:'Catégorie ouverte si usage simple', p:'Un drone DIY léger (<250g), sans caméra, volant en rase campagne loin de toute zone habitée peut entrer en catégorie ouverte sous-catégorie A3. Obligations limitées mais réelles.'},
+    {t:'Catégorie spécifique si usage complexe', p:'Dès que le drone DIY dépasse 25kg, vole en zone habitée, ou est utilisé à des fins non standard, la catégorie spécifique s\'applique. Cela requiert une déclaration ou une autorisation DGAC spécifique (STS ou LUC).'},
+    {t:'Conseil CATS si professionnel', p:'Pour un usage professionnel (inspection, photographie commerciale…), une formation CATS (Certificat d\'Aptitude Théorique Spécifique) peut être nécessaire. Coût : 1000 € à 4000 €. Je vous oriente vers les organismes agréés.'},
+  ],
+  docs:['Poids du drone avec batterie (mesure obligatoire)','Description de l\'usage prévu et des zones de vol','Si >800g : balise de signalement requise','Si caméra : enregistrement exploitant AlphaTango requis','Si catégorie spécifique : dossier DGAC à constituer']
+},
+
+};
+
+function showDetail(key, accentClass){
+  const d = DETAILS[key];
+  if(!d) return;
+  const accents = {
+    'c0':'var(--c0)','c1':'var(--c1)','c2':'var(--c2)','a3':'var(--a3)'
+  };
+  const col = accents[accentClass] || d.color;
+
+  let html = `
+    <div style="background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:2rem;margin-bottom:1rem;">
+      <div style="font-size:2.5rem;margin-bottom:.75rem">${d.icon}</div>
+      <h2 style="font-family:var(--font-h);font-size:1.7rem;font-weight:700;color:${col};margin-bottom:1rem">${d.title}</h2>
+      <p style="font-size:14px;color:var(--muted);line-height:1.7">${d.intro}</p>
+    </div>`;
+
+  if(d.pourquoi){
+    html += `<div style="background:var(--bg2);border:1px solid var(--border);border-radius:13px;padding:1.4rem;margin-bottom:1rem;">
+      <div style="font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:${col};margin-bottom:.7rem">Pourquoi c'est important</div>
+      <p style="font-size:13.5px;color:var(--text);line-height:1.7">${d.pourquoi}</p>
+    </div>`;
+  }
+
+  if(d.etapes && d.etapes.length){
+    html += `<div style="background:var(--bg2);border:1px solid var(--border);border-radius:13px;padding:1.4rem;margin-bottom:1rem;">
+      <div style="font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:${col};margin-bottom:1rem">Étapes — Ce qu'on fait ensemble</div>`;
+    d.etapes.forEach((e,i)=>{
+      html+=`<div style="display:flex;gap:12px;padding:.9rem 0;border-bottom:1px solid rgba(255,255,255,.04)">
+        <div style="width:26px;height:26px;border-radius:50%;background:rgba(${col=='var(--c0)'?'0,212,160':col=='var(--c1)'?'79,159,255':col=='var(--c2)'?'255,184,48':'192,132,252'},.15);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;color:${col}">${i+1}</div>
+        <div><div style="font-size:13.5px;font-weight:600;color:var(--text);margin-bottom:3px">${e.t}</div><div style="font-size:12.5px;color:var(--muted);line-height:1.6">${e.p}</div></div>
+      </div>`;
+    });
+    html += `</div>`;
+  }
+
+  if(d.tableau){
+    html += `<div style="background:var(--bg2);border:1px solid var(--border);border-radius:13px;padding:1.4rem;margin-bottom:1rem;overflow-x:auto;">
+      <div style="font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:${col};margin-bottom:1rem">Tableau des classes FPV</div>
+      <table style="width:100%;border-collapse:collapse;font-size:12px;">
+        <thead><tr style="background:var(--bg3)">
+          <th style="padding:8px 12px;text-align:left;color:var(--muted);font-weight:700;border-bottom:1px solid var(--border)">Classe</th>
+          <th style="padding:8px 12px;text-align:left;color:var(--muted);font-weight:700;border-bottom:1px solid var(--border)">Poids</th>
+          <th style="padding:8px 12px;text-align:left;color:var(--muted);font-weight:700;border-bottom:1px solid var(--border)">Principales obligations</th>
+          <th style="padding:8px 12px;text-align:left;color:var(--muted);font-weight:700;border-bottom:1px solid var(--border)">Tarif audit</th>
+        </tr></thead><tbody>`;
+    d.tableau.forEach(r=>{
+      html+=`<tr style="border-bottom:1px solid rgba(255,255,255,.04)">
+        <td style="padding:8px 12px;font-weight:700;color:var(--a3)">${r.classe}</td>
+        <td style="padding:8px 12px;color:var(--muted)">${r.poids}</td>
+        <td style="padding:8px 12px;color:var(--text)">${r.obligations}</td>
+        <td style="padding:8px 12px;font-weight:700;color:var(--a3)">${r.tarif}</td>
+      </tr>`;
+    });
+    html += `</tbody></table></div>`;
+  }
+
+  if(d.contenu){
+    html += `<div style="background:var(--bg2);border:1px solid var(--border);border-radius:13px;padding:1.4rem;margin-bottom:1rem;">
+      <div style="font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:${col};margin-bottom:1rem">Contenu du kit</div>`;
+    d.contenu.forEach(c=>{
+      html+=`<div style="display:flex;gap:12px;padding:.8rem 0;border-bottom:1px solid rgba(255,255,255,.04);align-items:flex-start">
+        <div style="font-size:20px;flex-shrink:0">${c.ico}</div>
+        <div><div style="font-size:13.5px;font-weight:600;color:var(--text)">${c.label}</div><div style="font-size:12px;color:var(--muted);margin-top:2px">${c.detail}</div></div>
+      </div>`;
+    });
+    html += `</div>`;
+  }
+
+  if(d.docs && d.docs.length){
+    html += `<div style="background:var(--bg2);border:1px solid var(--border);border-radius:13px;padding:1.4rem;">
+      <div style="font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:${col};margin-bottom:.8rem">Documents nécessaires</div>`;
+    d.docs.forEach(doc=>{
+      html+=`<div style="display:flex;gap:9px;align-items:flex-start;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.04);font-size:13px;color:var(--text)">
+        <span style="color:${col};flex-shrink:0">→</span>${doc}</div>`;
+    });
+    html += `</div>`;
+  }
+
+  document.getElementById('detail-content').innerHTML = html;
+  document.getElementById('detail-overlay').style.display = 'block';
+  document.body.style.overflow = 'hidden';
+  document.getElementById('detail-overlay').scrollTop = 0;
+}
+
 // ── Wizard ──
 let W={poids:null,cam:null,fpv:null};
 function initWizard(){
