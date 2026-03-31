@@ -799,6 +799,14 @@ textarea::placeholder{color:var(--hint);}
   </div>
 </div></div>
 
+<!-- ══ OVERLAY DÉTAIL ══ -->
+<div id="detail-overlay" style="display:none;position:fixed;inset:0;z-index:500;background:rgba(0,0,0,0.7);backdrop-filter:blur(6px);overflow-y:auto;">
+  <div style="max-width:700px;margin:2rem auto;padding:0 1rem 4rem;">
+    <button onclick="closeDetail()" style="display:flex;align-items:center;gap:6px;background:var(--bg2);border:1px solid var(--border);color:var(--muted);padding:.6rem 1.1rem;border-radius:8px;font-family:var(--font-b);font-size:13px;cursor:pointer;margin-bottom:1.5rem;">← Retour à la fiche</button>
+    <div id="detail-content"></div>
+  </div>
+</div>
+
 <script>
 // ── Navigation ──
 function showPage(id){
