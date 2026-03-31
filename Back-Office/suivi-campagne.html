@@ -551,6 +551,11 @@ function renderTable() {
         </select>
       </td>
       <td class="td-msg"><button class="msg-btn" title="Voir les messages" onclick="openModal(${c.id})">📩</button></td>
+      <td class="td-msg">
+        <button class="coords-btn ${c.coords ? 'has-coords' : ''}" title="${c.coords ? 'Modifier les coordonnées' : 'Saisir les coordonnées'}" onclick="openCoordsModal(${c.id})">
+          ${c.coords ? '✅' : '📋'}
+        </button>
+      </td>
       <td class="td-notes"><input type="text" value="${(c.notes||'').replace(/"/g,'&quot;')}" placeholder="Notes..." onchange="updateNotes(${c.id}, this.value)"></td>
       <td class="td-del"><button onclick="deleteContact(${c.id})" title="Supprimer">✕</button></td>
     </tr>`;
