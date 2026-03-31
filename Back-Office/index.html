@@ -871,6 +871,265 @@ textarea::placeholder{color:var(--hint);}
   </div>
 </div></div>
 
+<!-- ══ PROSPECTS ══ -->
+<div class="page" id="page-prospects"><div class="prospects-wrap">
+
+  <div class="pros-header">
+    <div>
+      <div class="eyebrow" style="margin-bottom:.75rem">Gestion commerciale</div>
+      <h2>Prospects</h2>
+      <p>Enregistrez et suivez vos prospects — clients potentiels issus du terrain, LBC ou recommandations.</p>
+    </div>
+    <button class="btn-p" onclick="exportProspectsCSV()" style="flex-shrink:0;margin-top:.5rem">⬇ Exporter CSV</button>
+  </div>
+
+  <!-- Stats -->
+  <div class="pros-stats">
+    <div class="pros-stat"><div class="pval" id="pstat-total">0</div><div class="plbl">Total prospects</div></div>
+    <div class="pros-stat"><div class="pval" id="pstat-nouveau" style="color:#7A7F95">0</div><div class="plbl">Nouveaux</div></div>
+    <div class="pros-stat"><div class="pval" id="pstat-contacte" style="color:var(--c1)">0</div><div class="plbl">Contactés</div></div>
+    <div class="pros-stat"><div class="pval" id="pstat-devis" style="color:var(--c2)">0</div><div class="plbl">Devis envoyés</div></div>
+    <div class="pros-stat"><div class="pval" id="pstat-converti" style="color:var(--green)">0</div><div class="plbl">Convertis</div></div>
+    <div class="pros-stat"><div class="pval" id="pstat-taux" style="color:var(--c0)">0%</div><div class="plbl">Taux conversion</div></div>
+  </div>
+
+  <!-- Formulaire -->
+  <div class="pros-form-card">
+    <h3>➕ Enregistrer un prospect</h3>
+    <div class="pform-grid">
+
+      <div class="pfield">
+        <label>Nom</label>
+        <input type="text" id="pf-nom" placeholder="Dupont" />
+      </div>
+      <div class="pfield">
+        <label>Prénom</label>
+        <input type="text" id="pf-prenom" placeholder="Jean" />
+      </div>
+      <div class="pfield">
+        <label>Téléphone</label>
+        <input type="tel" id="pf-tel" placeholder="06 12 34 56 78" />
+      </div>
+      <div class="pfield">
+        <label>Email</label>
+        <input type="email" id="pf-email" placeholder="jean.dupont@email.com" />
+      </div>
+
+      <div class="pfield">
+        <label>Adresse (rue)</label>
+        <input type="text" id="pf-adresse" placeholder="12 rue de la Paix" />
+      </div>
+      <div class="pfield">
+        <label>Code postal</label>
+        <input type="text" id="pf-cp" placeholder="75001" maxlength="5" />
+      </div>
+      <div class="pfield">
+        <label>Ville</label>
+        <input type="text" id="pf-ville" placeholder="Paris" />
+      </div>
+
+      <div class="pfield" style="min-width:220px;">
+        <label>Modèle de drone</label>
+        <select id="pf-drone" onchange="onPDroneSelect(this)">
+          <option value="" data-cat="">— Sélectionner un modèle —</option>
+          <optgroup label="━━  Classe C0  —  moins de 250 g  ━━">
+            <option value="DJI Mini 1 (249g)" data-cat="C0">DJI Mini 1 (249g)</option>
+            <option value="DJI Mini 2 (249g)" data-cat="C0">DJI Mini 2 (249g)</option>
+            <option value="DJI Mini 2 SE (249g)" data-cat="C0">DJI Mini 2 SE (249g)</option>
+            <option value="DJI Mini 4K (249g)" data-cat="C0">DJI Mini 4K (249g)</option>
+            <option value="Autel EVO Nano (249g)" data-cat="C0">Autel EVO Nano (249g)</option>
+            <option value="Autel EVO Nano+ (249g)" data-cat="C0">Autel EVO Nano+ (249g)</option>
+            <option value="FIMI X8 Mini V2 (249g)" data-cat="C0">FIMI X8 Mini V2 (249g)</option>
+            <option value="Hubsan Zino Mini Pro (249g)" data-cat="C0">Hubsan Zino Mini Pro (249g)</option>
+            <option value="Potensic Atom SE (249g)" data-cat="C0">Potensic Atom SE (249g)</option>
+            <option value="Ryze Tello (80g)" data-cat="C0">Ryze Tello (80g)</option>
+            <option value="Holy Stone HS720E (249g)" data-cat="C0">Holy Stone HS720E (249g)</option>
+            <option value="Parrot Mambo (63g)" data-cat="C0">Parrot Mambo (63g)</option>
+          </optgroup>
+          <optgroup label="━━  Classe C1  —  250 g à 900 g  ━━">
+            <option value="DJI Mini 3 (C1 certifié)" data-cat="C1">DJI Mini 3 (C1 certifié)</option>
+            <option value="DJI Mini 3 Pro (C1 certifié)" data-cat="C1">DJI Mini 3 Pro (C1 certifié)</option>
+            <option value="DJI Mini 4 Pro (C1 certifié)" data-cat="C1">DJI Mini 4 Pro (C1 certifié)</option>
+            <option value="DJI Mavic Air (430g)" data-cat="C1">DJI Mavic Air (430g)</option>
+            <option value="DJI Mavic Air 2 (570g)" data-cat="C1">DJI Mavic Air 2 (570g)</option>
+            <option value="DJI Air 2S (595g)" data-cat="C1">DJI Air 2S (595g)</option>
+            <option value="DJI Air 3 (720g)" data-cat="C1">DJI Air 3 (720g)</option>
+            <option value="DJI Air 3S (720g)" data-cat="C1">DJI Air 3S (720g)</option>
+            <option value="DJI Mavic 3 (895g)" data-cat="C1">DJI Mavic 3 (895g)</option>
+            <option value="DJI Mavic 3 Classic (895g)" data-cat="C1">DJI Mavic 3 Classic (895g)</option>
+            <option value="DJI Mavic 2 Pro (907g)" data-cat="C1">DJI Mavic 2 Pro (907g)</option>
+            <option value="DJI Mavic 2 Zoom (905g)" data-cat="C1">DJI Mavic 2 Zoom (905g)</option>
+            <option value="DJI Mavic Pro (734g)" data-cat="C1">DJI Mavic Pro (734g)</option>
+            <option value="DJI Mavic Mini (249g)" data-cat="C1">DJI Mavic Mini (249g)</option>
+            <option value="Parrot Anafi (320g)" data-cat="C1">Parrot Anafi (320g)</option>
+            <option value="Parrot Anafi FPV (320g)" data-cat="C1">Parrot Anafi FPV (320g)</option>
+            <option value="Parrot Bebop 2 (500g)" data-cat="C1">Parrot Bebop 2 (500g)</option>
+            <option value="Autel EVO Lite (835g)" data-cat="C1">Autel EVO Lite (835g)</option>
+            <option value="Autel EVO Lite+ (835g)" data-cat="C1">Autel EVO Lite+ (835g)</option>
+            <option value="Potensic Atom (249g)" data-cat="C1">Potensic Atom (249g)</option>
+            <option value="Skydio 2+ (800g)" data-cat="C1">Skydio 2+ (800g)</option>
+            <option value="Hubsan Zino Pro+ (750g)" data-cat="C1">Hubsan Zino Pro+ (750g)</option>
+          </optgroup>
+          <optgroup label="━━  Classe C2  —  900 g à 4 kg  ━━">
+            <option value="DJI Mavic 3 Pro (958g)" data-cat="C2">DJI Mavic 3 Pro (958g)</option>
+            <option value="DJI Mavic 3 Cine Premium (958g)" data-cat="C2">DJI Mavic 3 Cine Premium (958g)</option>
+            <option value="DJI Phantom 4 (1380g)" data-cat="C2">DJI Phantom 4 (1380g)</option>
+            <option value="DJI Phantom 4 Pro (1388g)" data-cat="C2">DJI Phantom 4 Pro (1388g)</option>
+            <option value="DJI Phantom 4 Pro V2 (1388g)" data-cat="C2">DJI Phantom 4 Pro V2 (1388g)</option>
+            <option value="DJI Phantom 4 RTK (1391g)" data-cat="C2">DJI Phantom 4 RTK (1391g)</option>
+            <option value="DJI Phantom 3 Standard (1216g)" data-cat="C2">DJI Phantom 3 Standard (1216g)</option>
+            <option value="DJI Phantom 3 Pro (1280g)" data-cat="C2">DJI Phantom 3 Pro (1280g)</option>
+            <option value="DJI Phantom 3 Advanced (1280g)" data-cat="C2">DJI Phantom 3 Advanced (1280g)</option>
+            <option value="DJI Inspire 1 (2935g)" data-cat="C2">DJI Inspire 1 (2935g)</option>
+            <option value="DJI Inspire 2 (3440g)" data-cat="C2">DJI Inspire 2 (3440g)</option>
+            <option value="Autel EVO II (1127g)" data-cat="C2">Autel EVO II (1127g)</option>
+            <option value="Autel EVO II Pro (1127g)" data-cat="C2">Autel EVO II Pro (1127g)</option>
+            <option value="Autel EVO II V3 (1127g)" data-cat="C2">Autel EVO II V3 (1127g)</option>
+            <option value="Yuneec Typhoon H (1850g)" data-cat="C2">Yuneec Typhoon H (1850g)</option>
+            <option value="Yuneec Typhoon H3 (1995g)" data-cat="C2">Yuneec Typhoon H3 (1995g)</option>
+          </optgroup>
+          <optgroup label="━━  FPV / Racing / DIY  ━━">
+            <option value="DJI FPV (795g)" data-cat="FPV">DJI FPV (795g)</option>
+            <option value="DJI Avata (410g)" data-cat="FPV">DJI Avata (410g)</option>
+            <option value="DJI Avata 2 (377g)" data-cat="FPV">DJI Avata 2 (377g)</option>
+            <option value="iFlight Nazgul Evoque" data-cat="FPV">iFlight Nazgul Evoque</option>
+            <option value="iFlight Chimera7" data-cat="FPV">iFlight Chimera7</option>
+            <option value="Mobula6 (Tiny Whoop)" data-cat="FPV">Mobula6 (Tiny Whoop)</option>
+            <option value="Freestyle 5 pouces DIY" data-cat="FPV">Freestyle 5 pouces DIY</option>
+            <option value="Racing DIY (autre)" data-cat="FPV">Racing DIY (autre)</option>
+          </optgroup>
+          <optgroup label="━━  Autres / Professionnel  ━━">
+            <option value="DJI Matrice 30" data-cat="Autre">DJI Matrice 30</option>
+            <option value="DJI Matrice 300 RTK" data-cat="Autre">DJI Matrice 300 RTK</option>
+            <option value="DJI Matrice 350 RTK" data-cat="Autre">DJI Matrice 350 RTK</option>
+            <option value="Autel EVO Max 4T" data-cat="Autre">Autel EVO Max 4T</option>
+            <option value="Parrot Anafi USA" data-cat="Autre">Parrot Anafi USA</option>
+            <option value="Autre modèle" data-cat="Autre">✏️ Autre modèle (saisie libre)</option>
+          </optgroup>
+        </select>
+        <input type="text" id="pf-drone-libre" placeholder="Préciser le modèle…" style="display:none;margin-top:.4rem;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:.5rem .75rem;color:var(--text);font-family:var(--font-b);font-size:13px;outline:none;width:100%;" />
+      </div>
+
+      <div class="pfield">
+        <label>Catégorie</label>
+        <select id="pf-cat">
+          <option value="C0">C0 (&lt; 250g)</option>
+          <option value="C1" selected>C1 (250g – 900g)</option>
+          <option value="C2">C2 (900g – 4kg)</option>
+          <option value="FPV">FPV / DIY</option>
+          <option value="Autre">Autre / Pro</option>
+        </select>
+      </div>
+
+      <div class="pfield">
+        <label>Source</label>
+        <select id="pf-source">
+          <option value="Le Bon Coin">Le Bon Coin</option>
+          <option value="Facebook Marketplace">Facebook Marketplace</option>
+          <option value="Recommandation">Recommandation</option>
+          <option value="Site web">Site web</option>
+          <option value="Terrain / Événement">Terrain / Événement</option>
+          <option value="LinkedIn">LinkedIn</option>
+          <option value="Autre">Autre</option>
+        </select>
+      </div>
+
+      <div class="pfield">
+        <label>Statut</label>
+        <select id="pf-statut">
+          <option value="nouveau">Nouveau</option>
+          <option value="contacte">Contacté</option>
+          <option value="devis">Devis envoyé</option>
+          <option value="converti">Converti ✓</option>
+          <option value="perdu">Perdu</option>
+        </select>
+      </div>
+
+      <div class="pfield full">
+        <label>Notes</label>
+        <textarea id="pf-notes" placeholder="Observations, rappels, contexte…" rows="2"></textarea>
+      </div>
+
+    </div>
+    <div class="pform-actions">
+      <button class="btn-p" onclick="addProspect()">+ Enregistrer le prospect</button>
+      <button class="btn-s" onclick="resetPForm()">Effacer</button>
+    </div>
+  </div>
+
+  <!-- Filtres -->
+  <div class="pros-filters">
+    <select id="pfilter-statut" onchange="renderProspects()">
+      <option value="">Tous les statuts</option>
+      <option value="nouveau">Nouveau</option>
+      <option value="contacte">Contacté</option>
+      <option value="devis">Devis envoyé</option>
+      <option value="converti">Converti ✓</option>
+      <option value="perdu">Perdu</option>
+    </select>
+    <select id="pfilter-cat" onchange="renderProspects()">
+      <option value="">Toutes catégories</option>
+      <option value="C0">C0</option>
+      <option value="C1">C1</option>
+      <option value="C2">C2</option>
+      <option value="FPV">FPV</option>
+      <option value="Autre">Autre</option>
+    </select>
+    <select id="pfilter-source" onchange="renderProspects()">
+      <option value="">Toutes sources</option>
+      <option value="Le Bon Coin">Le Bon Coin</option>
+      <option value="Facebook Marketplace">Facebook Marketplace</option>
+      <option value="Recommandation">Recommandation</option>
+      <option value="Site web">Site web</option>
+      <option value="Terrain / Événement">Terrain / Événement</option>
+    </select>
+    <input type="text" id="pfilter-search" placeholder="🔍 Nom, ville, drone…" oninput="renderProspects()" style="min-width:180px;">
+    <div class="fspacer"></div>
+    <span class="flabel" id="pcount-label">0 prospect(s)</span>
+  </div>
+
+  <!-- Table -->
+  <div class="ptable-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Date</th>
+          <th>Nom / Prénom</th>
+          <th>Téléphone</th>
+          <th>Drone</th>
+          <th>Cat.</th>
+          <th>Ville</th>
+          <th>Source</th>
+          <th>Statut</th>
+          <th>Notes</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody id="ptable-body">
+        <tr><td colspan="11"><div class="pros-empty"><div class="ei">👤</div><p>Aucun prospect enregistré.<br>Remplissez le formulaire ci-dessus.</p></div></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+</div></div>
+
+<!-- ══ MODALE DÉTAIL PROSPECT ══ -->
+<div class="pros-detail-modal" id="pdm">
+  <div class="pdm-inner">
+    <h3 id="pdm-title">Fiche prospect</h3>
+    <div class="pdm-grid" id="pdm-grid"></div>
+    <div class="pfield" style="margin-top:.5rem;">
+      <label>Notes</label>
+      <textarea id="pdm-notes" rows="3" onchange="updatePNotes()"></textarea>
+    </div>
+    <div class="pdm-actions">
+      <button class="btn-p" id="pdm-call-btn">📞 Appeler</button>
+      <button class="btn-s" onclick="closePDM()">Fermer</button>
+    </div>
+  </div>
+</div>
+
 <!-- ══ OVERLAY DÉTAIL ══ -->
 <div id="detail-overlay" style="display:none;position:fixed;inset:0;z-index:500;background:rgba(0,0,0,0.7);backdrop-filter:blur(6px);overflow-y:auto;">
   <div style="max-width:700px;margin:2rem auto;padding:0 1rem 4rem;">
