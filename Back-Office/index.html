@@ -1149,6 +1149,226 @@ function showPage(id){
   window.scrollTo(0,0);
 }
 function goHome(){showPage('home');}
+
+// ══ PROSPECTS ══════════════════════════════════════════════════════════════
+
+let prospects = JSON.parse(localStorage.getItem('bo-prospects') || '[]');
+let pdmCurrentId = null;
+
+const PSTATUTS = {
+  'nouveau':   { label: 'Nouveau',       cls: 'ps-nouveau'  },
+  'contacte':  { label: 'Contacté',      cls: 'ps-contacte' },
+  'devis':     { label: 'Devis envoyé',  cls: 'ps-devis'    },
+  'converti':  { label: 'Converti ✓',    cls: 'ps-converti' },
+  'perdu':     { label: 'Perdu',         cls: 'ps-perdu'    },
+};
+
+function onPDroneSelect(sel) {
+  const cat   = sel.options[sel.selectedIndex].getAttribute('data-cat') || '';
+  const libre = document.getElementById('pf-drone-libre');
+  if (cat) document.getElementById('pf-cat').value = cat;
+  if (sel.value === 'Autre modèle') { libre.style.display = 'block'; libre.focus(); }
+  else { libre.style.display = 'none'; libre.value = ''; }
+}
+
+function addProspect() {
+  const nom    = document.getElementById('pf-nom').value.trim();
+  const prenom = document.getElementById('pf-prenom').value.trim();
+  const tel    = document.getElementById('pf-tel').value.trim();
+  const email  = document.getElementById('pf-email').value.trim();
+  const adresse= document.getElementById('pf-adresse').value.trim();
+  const cp     = document.getElementById('pf-cp').value.trim();
+  const ville  = document.getElementById('pf-ville').value.trim();
+  const sel    = document.getElementById('pf-drone');
+  const libre  = document.getElementById('pf-drone-libre').value.trim();
+  const drone  = sel.value === 'Autre modèle' ? (libre || 'Autre modèle') : sel.value;
+  const cat    = document.getElementById('pf-cat').value;
+  const source = document.getElementById('pf-source').value;
+  const statut = document.getElementById('pf-statut').value;
+  const notes  = document.getElementById('pf-notes').value.trim();
+
+  if (!nom && !prenom && !tel) { alert('Remplis au moins le nom ou le téléphone.'); return; }
+
+  const p = {
+    id: Date.now(),
+    date: new Date().toLocaleDateString('fr-FR'),
+    nom, prenom, tel, email, adresse, cp, ville,
+    drone, cat, source, statut, notes
+  };
+  prospects.unshift(p);
+  saveProspects();
+  renderProspects();
+  updatePStats();
+  resetPForm();
+}
+
+function resetPForm() {
+  ['pf-nom','pf-prenom','pf-tel','pf-email','pf-adresse','pf-cp','pf-ville','pf-notes','pf-drone-libre'].forEach(id => {
+    const el = document.getElementById(id); if (el) el.value = '';
+  });
+  document.getElementById('pf-drone').value = '';
+  document.getElementById('pf-drone-libre').style.display = 'none';
+  document.getElementById('pf-cat').value = 'C1';
+  document.getElementById('pf-source').value = 'Le Bon Coin';
+  document.getElementById('pf-statut').value = 'nouveau';
+}
+
+function deleteProspect(id) {
+  if (!confirm('Supprimer ce prospect ?')) return;
+  prospects = prospects.filter(p => p.id !== id);
+  saveProspects(); renderProspects(); updatePStats();
+}
+
+function updatePStatut(id, val) {
+  const p = prospects.find(p => p.id === id);
+  if (p) { p.statut = val; saveProspects(); updatePStats(); }
+}
+
+function renderProspects() {
+  const fStat   = document.getElementById('pfilter-statut')?.value  || '';
+  const fCat    = document.getElementById('pfilter-cat')?.value     || '';
+  const fSrc    = document.getElementById('pfilter-source')?.value  || '';
+  const fSearch = (document.getElementById('pfilter-search')?.value || '').toLowerCase();
+
+  let filtered = prospects.filter(p => {
+    if (fStat   && p.statut !== fStat)   return false;
+    if (fCat    && p.cat    !== fCat)    return false;
+    if (fSrc    && p.source !== fSrc)    return false;
+    if (fSearch) {
+      const hay = [p.nom,p.prenom,p.tel,p.ville,p.drone,p.notes,p.email].join(' ').toLowerCase();
+      if (!hay.includes(fSearch)) return false;
+    }
+    return true;
+  });
+
+  const lbl = document.getElementById('pcount-label');
+  if (lbl) lbl.textContent = `${filtered.length} prospect(s)`;
+
+  const tbody = document.getElementById('ptable-body');
+  if (!tbody) return;
+
+  if (filtered.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="11"><div class="pros-empty"><div class="ei">👤</div><p>Aucun prospect correspondant.</p></div></td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = filtered.map((p, i) => {
+    const s   = PSTATUTS[p.statut] || PSTATUTS['nouveau'];
+    const cat = 'pcat-' + p.cat;
+    const nom = [p.prenom, p.nom].filter(Boolean).join(' ') || '—';
+    const statutSel = Object.entries(PSTATUTS).map(([k,v]) =>
+      `<option value="${k}" ${p.statut===k?'selected':''}>${v.label}</option>`
+    ).join('');
+    return `<tr>
+      <td class="ptd-num">${i+1}</td>
+      <td style="font-size:12px;color:var(--hint);white-space:nowrap">${p.date}</td>
+      <td class="ptd-name" style="cursor:pointer" onclick="openPDM(${p.id})" title="Voir la fiche">${nom}</td>
+      <td class="ptd-phone">${p.tel ? `<a href="tel:${p.tel.replace(/\s/g,'')}">${p.tel}</a>` : '<span style="color:var(--hint)">—</span>'}</td>
+      <td class="ptd-drone" title="${p.drone}">${p.drone || '—'}</td>
+      <td class="ptd-cat"><span class="${cat}">${p.cat}</span></td>
+      <td class="ptd-ville">${p.ville || '—'}</td>
+      <td><span style="font-size:11px;color:var(--hint)">${p.source || '—'}</span></td>
+      <td class="ptd-statut">
+        <select class="${s.cls}" onchange="updatePStatut(${p.id},this.value)" style="background:transparent;border:none;font-family:var(--font-b);font-size:12px;font-weight:600;cursor:pointer;outline:none;padding:.2rem .35rem;border-radius:6px;${getPStatutStyle(p.statut)}">
+          ${statutSel}
+        </select>
+      </td>
+      <td style="font-size:12px;color:var(--muted);max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${(p.notes||'').replace(/"/g,'&quot;')}">${p.notes || '—'}</td>
+      <td class="ptd-actions"><button onclick="deleteProspect(${p.id})" title="Supprimer">✕</button></td>
+    </tr>`;
+  }).join('');
+
+  updatePStats();
+}
+
+function getPStatutStyle(s) {
+  return {
+    'nouveau':  'color:#7A7F95;background:rgba(122,127,149,.1)',
+    'contacte': 'color:var(--c1);background:rgba(79,159,255,.1)',
+    'devis':    'color:var(--c2);background:rgba(255,184,48,.1)',
+    'converti': 'color:var(--green);background:rgba(52,211,153,.1)',
+    'perdu':    'color:var(--red);background:rgba(255,92,92,.1)',
+  }[s] || '';
+}
+
+function updatePStats() {
+  const total    = prospects.length;
+  const nouveau  = prospects.filter(p => p.statut === 'nouveau').length;
+  const contacte = prospects.filter(p => p.statut === 'contacte').length;
+  const devis    = prospects.filter(p => p.statut === 'devis').length;
+  const converti = prospects.filter(p => p.statut === 'converti').length;
+  const base     = total - nouveau;
+  const taux     = base > 0 ? Math.round((converti / base) * 100) : 0;
+  const set = (id, v) => { const el=document.getElementById(id); if(el) el.textContent=v; };
+  set('pstat-total', total);
+  set('pstat-nouveau', nouveau);
+  set('pstat-contacte', contacte);
+  set('pstat-devis', devis);
+  set('pstat-converti', converti);
+  set('pstat-taux', taux + '%');
+}
+
+function openPDM(id) {
+  const p = prospects.find(p => p.id === id);
+  if (!p) return;
+  pdmCurrentId = id;
+  const nom = [p.prenom, p.nom].filter(Boolean).join(' ') || 'Prospect';
+  document.getElementById('pdm-title').textContent = '👤 ' + nom;
+  const fields = [
+    ['Nom',        p.nom       || '—'],
+    ['Prénom',     p.prenom    || '—'],
+    ['Téléphone',  p.tel       || '—'],
+    ['Email',      p.email     || '—'],
+    ['Adresse',    [p.adresse,p.cp,p.ville].filter(Boolean).join(', ') || '—'],
+    ['Drone',      p.drone     || '—'],
+    ['Catégorie',  p.cat       || '—'],
+    ['Source',     p.source    || '—'],
+    ['Statut',     PSTATUTS[p.statut]?.label || p.statut],
+    ['Date ajout', p.date      || '—'],
+  ];
+  document.getElementById('pdm-grid').innerHTML = fields.map(([lbl,val]) =>
+    `<div class="pdm-field"><label>${lbl}</label><span>${val}</span></div>`
+  ).join('');
+  document.getElementById('pdm-notes').value = p.notes || '';
+  const callBtn = document.getElementById('pdm-call-btn');
+  if (p.tel) { callBtn.style.display=''; callBtn.onclick = () => window.location.href = 'tel:' + p.tel.replace(/\s/g,''); }
+  else { callBtn.style.display='none'; }
+  document.getElementById('pdm').classList.add('open');
+}
+
+function updatePNotes() {
+  const p = prospects.find(p => p.id === pdmCurrentId);
+  if (p) { p.notes = document.getElementById('pdm-notes').value; saveProspects(); renderProspects(); }
+}
+
+function closePDM() {
+  document.getElementById('pdm').classList.remove('open');
+  pdmCurrentId = null;
+}
+
+function exportProspectsCSV() {
+  if (!prospects.length) { alert('Aucun prospect à exporter.'); return; }
+  const heads = ['#','Date','Nom','Prénom','Téléphone','Email','Adresse','CP','Ville','Drone','Catégorie','Source','Statut','Notes'];
+  const rows  = prospects.map((p,i) => [
+    i+1, p.date, p.nom, p.prenom, p.tel, p.email,
+    p.adresse, p.cp, p.ville, p.drone, p.cat, p.source,
+    PSTATUTS[p.statut]?.label || p.statut, p.notes
+  ]);
+  const csv = [heads,...rows].map(r => r.map(v=>`"${(v||'').toString().replace(/"/g,'""')}"`).join(',')).join('\n');
+  const blob = new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8;'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `prospects-glocal-${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+}
+
+function saveProspects() {
+  localStorage.setItem('bo-prospects', JSON.stringify(prospects));
+}
+
+document.getElementById('pdm').addEventListener('click', function(e) {
+  if (e.target === this) closePDM();
+});
 function showFiche(c){
   showPage(c);
   const nt=document.getElementById('nt-'+c);
