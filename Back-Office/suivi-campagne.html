@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Suivi Campagne LBC — Glocal Defense</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700&family=Mulish:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0C0E14;
+  --bg2: #13161F;
+  --bg3: #1A1E2A;
+  --border: rgba(255,255,255,0.08);
+  --text: #E8EAF0;
+  --muted: #7A7F95;
+  --c0: #6C63FF;
+  --c1: #3B82F6;
+  --c2: #10B981;
+  --orange: #F59E0B;
+  --red: #EF4444;
+  --green: #22C55E;
+  --purple: #A855F7;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg); color: var(--text); font-family: 'Mulish', sans-serif; font-size: 14px; min-height: 100vh; }
+
+/* NAV */
+nav { background: var(--bg2); border-bottom: 1px solid var(--border); padding: 0 1.5rem; display: flex; align-items: center; gap: 1rem; height: 56px; position: sticky; top: 0; z-index: 100; }
+nav img { height: 32px; }
+nav .title { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 1rem; color: var(--text); }
+nav .subtitle { color: var(--muted); font-size: 0.8rem; margin-left: 0.25rem; }
+nav .spacer { flex: 1; }
+nav .export-btn { background: var(--c2); color: #fff; border: none; padding: 0.45rem 1rem; border-radius: 8px; font-family: 'Mulish', sans-serif; font-weight: 600; font-size: 0.8rem; cursor: pointer; display: flex; align-items: center; gap: 0.4rem; transition: opacity 0.2s; }
+nav .export-btn:hover { opacity: 0.85; }
+
+/* STATS BAR */
+.stats-bar { background: var(--bg2); border-bottom: 1px solid var(--border); padding: 1rem 1.5rem; display: flex; gap: 1rem; flex-wrap: wrap; }
+.stat-card { background: var(--bg3); border: 1px solid var(--border); border-radius: 10px; padding: 0.75rem 1.25rem; min-width: 120px; flex: 1; }
+.stat-card .val { font-family: 'Syne', sans-serif; font-size: 1.6rem; font-weight: 700; }
+.stat-card .lbl { color: var(--muted); font-size: 0.75rem; margin-top: 0.15rem; }
+.stat-card.total .val { color: var(--text); }
+.stat-card.contactes .val { color: var(--c1); }
+.stat-card.reponses .val { color: var(--orange); }
+.stat-card.rdv .val { color: var(--purple); }
+.stat-card.convertis .val { color: var(--green); }
+.stat-card.taux .val { color: var(--c2); }
+
+/* MAIN */
+.main { padding: 1.5rem; display: flex; flex-direction: column; gap: 1.5rem; }
+
+/* ADD FORM */
+.add-form { background: var(--bg2); border: 1px solid var(--border); border-radius: 14px; padding: 1.25rem 1.5rem; }
+.add-form h3 { font-family: 'Syne', sans-serif; font-size: 0.95rem; font-weight: 700; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem; }
+.form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.75rem; align-items: end; }
+.form-group { display: flex; flex-direction: column; gap: 0.35rem; }
+.form-group label { font-size: 0.75rem; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; }
+.form-group input, .form-group select, .form-group textarea { background: var(--bg3); border: 1px solid var(--border); border-radius: 8px; padding: 0.5rem 0.75rem; color: var(--text); font-family: 'Mulish', sans-serif; font-size: 0.85rem; outline: none; transition: border-color 0.2s; }
+.form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: var(--c1); }
+.form-group select option { background: var(--bg3); }
+.form-group textarea { resize: vertical; min-height: 60px; }
+.add-btn { background: var(--c1); color: #fff; border: none; padding: 0.55rem 1.25rem; border-radius: 8px; font-family: 'Mulish', sans-serif; font-weight: 600; font-size: 0.85rem; cursor: pointer; transition: opacity 0.2s; white-space: nowrap; height: fit-content; }
+.add-btn:hover { opacity: 0.85; }
+
+/* FILTERS */
+.filters { background: var(--bg2); border: 1px solid var(--border); border-radius: 14px; padding: 1rem 1.5rem; display: flex; gap: 0.75rem; flex-wrap: wrap; align-items: center; }
+.filters label { font-size: 0.75rem; color: var(--muted); font-weight: 600; text-transform: uppercase; }
+.filters select, .filters input { background: var(--bg3); border: 1px solid var(--border); border-radius: 8px; padding: 0.45rem 0.75rem; color: var(--text); font-family: 'Mulish', sans-serif; font-size: 0.85rem; outline: none; }
+.filter-spacer { flex: 1; }
+.count-label { color: var(--muted); font-size: 0.8rem; }
+
+/* TABLE */
+.table-wrap { background: var(--bg2); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; }
+table { width: 100%; border-collapse: collapse; }
+thead { background: var(--bg3); }
+thead th { padding: 0.75rem 1rem; text-align: left; font-size: 0.72rem; color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 1px solid var(--border); white-space: nowrap; }
+tbody tr { border-bottom: 1px solid var(--border); transition: background 0.15s; }
+tbody tr:last-child { border-bottom: none; }
+tbody tr:hover { background: var(--bg3); }
+tbody td { padding: 0.65rem 1rem; vertical-align: middle; }
+.td-num { color: var(--muted); font-size: 0.8rem; width: 40px; }
+.td-date { color: var(--muted); font-size: 0.8rem; white-space: nowrap; }
+.td-pseudo { font-weight: 600; max-width: 140px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.td-modele { max-width: 130px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 0.85rem; }
+.td-cat span { display: inline-block; padding: 0.2rem 0.55rem; border-radius: 20px; font-size: 0.72rem; font-weight: 700; }
+.cat-C0 { background: rgba(108,99,255,0.18); color: #A5A0FF; }
+.cat-C1 { background: rgba(59,130,246,0.18); color: #7DB4FF; }
+.cat-C2 { background: rgba(16,185,129,0.18); color: #5DDCAB; }
+.cat-FPV { background: rgba(245,158,11,0.18); color: #FCD34D; }
+.cat-Autre { background: rgba(122,127,149,0.18); color: #B0B5C8; }
+
+.td-lien a { color: var(--c1); text-decoration: none; font-size: 0.8rem; }
+.td-lien a:hover { text-decoration: underline; }
+
+.td-statut select { background: transparent; border: none; font-family: 'Mulish', sans-serif; font-size: 0.8rem; font-weight: 600; cursor: pointer; outline: none; padding: 0.2rem 0.4rem; border-radius: 6px; }
+.s-a-contacter { color: var(--muted); background: rgba(122,127,149,0.1); }
+.s-envoye { color: var(--c1); background: rgba(59,130,246,0.1); }
+.s-reponse { color: var(--orange); background: rgba(245,158,11,0.1); }
+.s-rdv { color: var(--purple); background: rgba(168,85,247,0.1); }
+.s-converti { color: var(--green); background: rgba(34,197,94,0.1); }
+.s-negatif { color: var(--red); background: rgba(239,68,68,0.1); }
+
+.td-msg { width: 36px; }
+.msg-btn { background: none; border: 1px solid var(--border); border-radius: 6px; color: var(--muted); cursor: pointer; padding: 0.3rem 0.5rem; font-size: 0.8rem; transition: all 0.2s; }
+.msg-btn:hover { border-color: var(--c1); color: var(--c1); background: rgba(59,130,246,0.08); }
+
+.td-notes input { background: transparent; border: none; color: var(--text); font-family: 'Mulish', sans-serif; font-size: 0.8rem; width: 100%; outline: none; }
+.td-notes input::placeholder { color: var(--border); }
+
+.td-del button { background: none; border: none; color: var(--muted); cursor: pointer; padding: 0.25rem; font-size: 1rem; transition: color 0.2s; }
+.td-del button:hover { color: var(--red); }
+
+.empty-state { text-align: center; padding: 3rem; color: var(--muted); }
+.empty-state .icon { font-size: 2.5rem; margin-bottom: 0.5rem; }
+.empty-state p { font-size: 0.9rem; }
+
+/* MESSAGE MODAL */
+.modal-overlay { display: none; position: fixed; inset: 0; z-index: 500; background: rgba(0,0,0,0.75); backdrop-filter: blur(6px); overflow-y: auto; }
+.modal-overlay.open { display: flex; align-items: flex-start; justify-content: center; padding: 2rem 1rem; }
+.modal { background: var(--bg2); border: 1px solid var(--border); border-radius: 16px; width: 100%; max-width: 680px; padding: 2rem; position: relative; }
+.modal h2 { font-family: 'Syne', sans-serif; font-size: 1.1rem; font-weight: 700; margin-bottom: 0.5rem; }
+.modal .modal-sub { color: var(--muted); font-size: 0.82rem; margin-bottom: 1.5rem; }
+.msg-tabs { display: flex; gap: 0.5rem; margin-bottom: 1.25rem; flex-wrap: wrap; }
+.msg-tab { background: var(--bg3); border: 1px solid var(--border); border-radius: 8px; padding: 0.4rem 0.85rem; font-family: 'Mulish', sans-serif; font-size: 0.8rem; font-weight: 600; cursor: pointer; color: var(--muted); transition: all 0.2s; }
+.msg-tab.active { background: var(--c1); border-color: var(--c1); color: #fff; }
+.msg-label { font-size: 0.72rem; color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 0.5rem; }
+.msg-box { background: var(--bg3); border: 1px solid var(--border); border-radius: 10px; padding: 1rem 1.25rem; font-size: 0.85rem; line-height: 1.65; white-space: pre-wrap; color: var(--text); max-height: 340px; overflow-y: auto; }
+.msg-box .highlight { color: var(--orange); font-weight: 700; }
+.modal-actions { display: flex; gap: 0.75rem; margin-top: 1.25rem; flex-wrap: wrap; }
+.copy-btn { background: var(--c1); color: #fff; border: none; padding: 0.55rem 1.25rem; border-radius: 8px; font-family: 'Mulish', sans-serif; font-weight: 600; font-size: 0.85rem; cursor: pointer; transition: opacity 0.2s; flex: 1; }
+.copy-btn:hover { opacity: 0.85; }
+.copy-btn.copied { background: var(--green); }
+.close-modal-btn { background: var(--bg3); color: var(--muted); border: 1px solid var(--border); padding: 0.55rem 1rem; border-radius: 8px; font-family: 'Mulish', sans-serif; font-weight: 600; font-size: 0.85rem; cursor: pointer; transition: all 0.2s; }
+.close-modal-btn:hover { color: var(--text); border-color: var(--text); }
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+@media (max-width: 768px) {
+  .stats-bar { gap: 0.5rem; }
+  .stat-card { min-width: 90px; }
+  thead th:nth-child(n+7) { display: none; }
+  tbody td:nth-child(n+7) { display: none; }
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <img src="logo.png" alt="Glocal Defense">
+  <div>
+    <div class="title">Campagne Le Bon Coin</div>
+    <div class="subtitle">Suivi des contacts vendeurs de drones</div>
+  </div>
+  <div class="spacer"></div>
+  <button class="export-btn" onclick="exportCSV()">⬇ Exporter CSV</button>
+</nav>
+
+<!-- STATS -->
+<div class="stats-bar">
+  <div class="stat-card total"><div class="val" id="stat-total">0</div><div class="lbl">Total contacts</div></div>
+  <div class="stat-card contactes"><div class="val" id="stat-contactes">0</div><div class="lbl">Messages envoyés</div></div>
+  <div class="stat-card reponses"><div class="val" id="stat-reponses">0</div><div class="lbl">Réponses reçues</div></div>
+  <div class="stat-card rdv"><div class="val" id="stat-rdv">0</div><div class="lbl">RDV pris</div></div>
+  <div class="stat-card convertis"><div class="val" id="stat-convertis">0</div><div class="lbl">Convertis</div></div>
+  <div class="stat-card taux"><div class="val" id="stat-taux">0%</div><div class="lbl">Taux conversion</div></div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+  <!-- FORMULAIRE AJOUT -->
+  <div class="add-form">
+    <h3>➕ Ajouter un contact</h3>
+    <div class="form-grid">
+      <div class="form-group">
+        <label>Pseudo / Prénom</label>
+        <input type="text" id="f-pseudo" placeholder="ex : Jean-Pierre" />
+      </div>
+      <div class="form-group">
+        <label>Modèle de drone</label>
+        <input type="text" id="f-modele" placeholder="ex : DJI Mini 4 Pro" />
+      </div>
+      <div class="form-group">
+        <label>Catégorie</label>
+        <select id="f-cat">
+          <option value="C1">C1 (250g – 900g)</option>
+          <option value="C0">C0 (< 250g)</option>
+          <option value="C2">C2 (900g – 4kg)</option>
+          <option value="FPV">FPV</option>
+          <option value="Autre">Autre</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Lien annonce LBC</label>
+        <input type="url" id="f-lien" placeholder="https://www.leboncoin.fr/..." />
+      </div>
+      <div class="form-group">
+        <label>Notes</label>
+        <input type="text" id="f-notes" placeholder="Informations utiles..." />
+      </div>
+      <div class="form-group">
+        <label>&nbsp;</label>
+        <button class="add-btn" onclick="addContact()">+ Ajouter</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- FILTRES -->
+  <div class="filters">
+    <label>Filtrer :</label>
+    <select id="filter-statut" onchange="renderTable()">
+      <option value="">Tous les statuts</option>
+      <option value="a-contacter">À contacter</option>
+      <option value="envoye">Message envoyé</option>
+      <option value="reponse">Réponse reçue</option>
+      <option value="rdv">RDV pris</option>
+      <option value="converti">Converti ✓</option>
+      <option value="negatif">Pas intéressé</option>
+    </select>
+    <select id="filter-cat" onchange="renderTable()">
+      <option value="">Toutes catégories</option>
+      <option value="C0">C0</option>
+      <option value="C1">C1</option>
+      <option value="C2">C2</option>
+      <option value="FPV">FPV</option>
+      <option value="Autre">Autre</option>
+    </select>
+    <input type="text" id="filter-search" placeholder="🔍 Rechercher..." oninput="renderTable()" style="min-width:180px;">
+    <div class="filter-spacer"></div>
+    <span class="count-label" id="count-label">0 contact(s)</span>
+  </div>
+
+  <!-- TABLE -->
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Date</th>
+          <th>Pseudo / Prénom</th>
+          <th>Modèle</th>
+          <th>Cat.</th>
+          <th>Annonce LBC</th>
+          <th>Statut</th>
+          <th>Message</th>
+          <th>Notes</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody id="table-body">
+        <tr><td colspan="10"><div class="empty-state"><div class="icon">📋</div><p>Aucun contact pour l'instant.<br>Ajoutez votre premier vendeur ci-dessus.</p></div></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+</div>
+
+<!-- MODAL MESSAGE -->
+<div class="modal-overlay" id="msg-modal">
+  <div class="modal">
+    <h2 id="modal-title">📩 Messages pour ce contact</h2>
+    <div class="modal-sub" id="modal-sub">Sélectionne le message à envoyer, copie-le, puis colle-le sur Le Bon Coin.</div>
+
+    <div class="msg-tabs">
+      <button class="msg-tab active" onclick="switchTab(0)">Message 1 — Accroche</button>
+      <button class="msg-tab" onclick="switchTab(1)">Message 2 — Réglementation</button>
+      <button class="msg-tab" onclick="switchTab(2)">Message 3 — Détail audit</button>
+      <button class="msg-tab" onclick="switchTab(3)">Message 4 — Objection</button>
+    </div>
+
+    <div class="msg-label" id="msg-context-label">QUAND L'ENVOYER :</div>
+    <div class="msg-box" id="msg-context-box" style="background:rgba(59,130,246,0.06);border-color:rgba(59,130,246,0.2);color:var(--muted);font-size:0.78rem;margin-bottom:0.75rem;"></div>
+
+    <div class="msg-label">TEXTE DU MESSAGE :</div>
+    <div class="msg-box" id="msg-text-box"></div>
+
+    <div class="modal-actions">
+      <button class="copy-btn" id="copy-btn" onclick="copyMessage()">📋 Copier le message</button>
+      <button class="close-modal-btn" onclick="closeModal()">Fermer</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ─── DATA ───────────────────────────────────────────────────────────────────
+
+let contacts = JSON.parse(localStorage.getItem('lbc-contacts') || '[]');
+let currentModalContact = null;
+let currentTab = 0;
+
+const STATUTS = {
+  'a-contacter': { label: 'À contacter', cls: 's-a-contacter' },
+  'envoye':      { label: 'Message envoyé', cls: 's-envoye' },
+  'reponse':     { label: 'Réponse reçue', cls: 's-reponse' },
+  'rdv':         { label: 'RDV pris', cls: 's-rdv' },
+  'converti':    { label: 'Converti ✓', cls: 's-converti' },
+  'negatif':     { label: 'Pas intéressé', cls: 's-negatif' },
+};
+
+// ─── MESSAGES ────────────────────────────────────────────────────────────────
+
+function getMessages(contact) {
+  const pseudo = contact.pseudo ? contact.pseudo.split(' ')[0] : '';
+  const modele = contact.modele || 'votre drone';
+  const greeting = pseudo ? `Bonjour ${pseudo},` : 'Bonjour,';
+
+  return [
+    {
+      quand: "Premier contact — À envoyer dès que tu identifies l'annonce. Message neutre, non intrusif.",
+      texte: `${greeting}\n\nJ'ai vu votre annonce pour la vente de ${modele} — est-il déjà vendu ou encore disponible ?\n\nSi vous cherchez à le remplacer par un modèle plus récent, j'aurais peut-être quelque chose d'utile à vous proposer : je suis consultant spécialisé en conformité réglementaire pour les drones.\n\nDepuis 2024, la réglementation européenne EASA impose de nouvelles obligations pour les télépilotes (enregistrement, formation, assurance, Remote ID…), et beaucoup de propriétaires ne le savent pas encore.\n\nSi c'est votre cas, je serais ravi de vous expliquer en quelques minutes ce qui change — et comment s'y préparer simplement.\n\nBonne journée,\nChristophe — Glocal Defense`
+    },
+    {
+      quand: "Après une réponse positive du vendeur (il rachète un drone). Éducation réglementaire + proposition d'audit.",
+      texte: `${greeting}\n\nMerci pour votre réponse ! Racheter un modèle plus récent, c'est souvent l'occasion idéale de repartir sur de bonnes bases réglementaires.\n\nDepuis le 1er janvier 2024, la réglementation européenne EASA est entrée en vigueur en France. Concrètement, si vous achetez un drone de classe C1 (250 g à 900 g — type DJI Mini 3, Mini 4 Pro…), voici ce qui est obligatoire avant le premier vol :\n\n• Enregistrement du drone ET du télépilote sur AlphaTango (portail officiel DGAC)\n• Réussir l'examen OPEN A1/A3 en ligne (40 questions, gratuit, sur AlphaTango)\n• Souscrire une assurance RC aéronautique\n• Activer et configurer le Remote ID (signalement électronique)\n\nNon-conformité = risque d'amende jusqu'à 75 000 € et saisie de l'appareil en cas de contrôle.\n\nJe propose un audit complet pour faire le point sur votre situation et vous accompagner dans toutes ces démarches — de A à Z, à distance ou en présentiel.\n\nCela vous intéresse ? Je peux vous donner plus de détails sur le déroulement et le tarif si vous le souhaitez.\n\nBonne journée,\nChristophe — Glocal Defense`
+    },
+    {
+      quand: "Après que le contact demande plus de détails sur l'audit. Décris le déroulement complet.",
+      texte: `${greeting}\n\nAvec plaisir, voici comment se déroule l'audit :\n\nL'audit de conformité drone se fait en une session d'environ 1h30, en visio ou en présentiel selon vos préférences.\n\nVoici ce qu'on fait ensemble :\n\n1️⃣ Bilan de votre situation actuelle\nOn fait le point sur ce que vous avez déjà fait (ou pas encore) : enregistrement AlphaTango, formation, assurance, Remote ID. Je vous dis exactement où vous en êtes.\n\n2️⃣ Régularisation pas à pas\nJe vous accompagne directement dans les démarches : création de votre compte AlphaTango, enregistrement de votre drone et de votre profil, préparation à l'examen OPEN A1/A3, configuration du Remote ID, choix de l'assurance adaptée.\n\n3️⃣ Guide des zones de vol\nJe vous explique où vous pouvez voler, comment vérifier les zones avant chaque sortie (Géoportail, apps…), et les règles essentielles à respecter.\n\n4️⃣ Remise d'un rapport écrit\nVous repartez avec un document récapitulatif de votre conformité, et je mets en place des rappels pour les échéances futures.\n\nFormat : visio (Zoom / Teams) ou présentiel\nDurée : environ 1h30\n\nUne question ? Je suis disponible pour en parler par téléphone si vous préférez.\n\nBonne journée,\nChristophe — Glocal Defense`
+    },
+    {
+      quand: "Quand le contact hésite, dit qu'il n'en a pas besoin, ou ne répond plus. Traitement de l'objection.",
+      texte: `${greeting}\n\nJe comprends tout à fait l'hésitation — on a tendance à penser que « les drones c'est libre », surtout pour un usage loisir.\n\nEn réalité, depuis 2024 ce n'est plus le cas pour les drones de classe C1 : la réglementation européenne EASA s'applique désormais à tous les télépilotes, professionnels comme amateurs, et les contrôles existent (DGAC, gendarmerie).\n\nPour vous donner un ordre d'idée : le coût d'un audit est très inférieur à celui d'une amende ou d'une saisie de matériel. Et surtout, vous repartez avec la tranquillité de voler en toute légalité, sans stress à chaque sortie.\n\nJe propose également un format allégé d'une heure pour les profils simples — si vous êtes déjà partiellement en règle, l'audit est plus court et moins coûteux.\n\nSi vous voulez, on peut faire un point rapide de 10 minutes par téléphone, sans engagement, pour évaluer exactement où vous en êtes ?\n\nBonne journée,\nChristophe — Glocal Defense`
+    }
+  ];
+}
+
+// ─── ADD CONTACT ──────────────────────────────────────────────────────────────
+
+function addContact() {
+  const pseudo = document.getElementById('f-pseudo').value.trim();
+  const modele = document.getElementById('f-modele').value.trim();
+  const cat    = document.getElementById('f-cat').value;
+  const lien   = document.getElementById('f-lien').value.trim();
+  const notes  = document.getElementById('f-notes').value.trim();
+
+  if (!pseudo && !modele && !lien) {
+    alert('Remplis au moins le pseudo ou le modèle de drone.');
+    return;
+  }
+
+  const contact = {
+    id: Date.now(),
+    date: new Date().toLocaleDateString('fr-FR'),
+    pseudo, modele, cat, lien, notes,
+    statut: 'a-contacter'
+  };
+
+  contacts.unshift(contact);
+  save();
+  renderTable();
+  updateStats();
+
+  // Reset form
+  ['f-pseudo','f-modele','f-lien','f-notes'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('f-cat').value = 'C1';
+}
+
+// ─── DELETE ──────────────────────────────────────────────────────────────────
+
+function deleteContact(id) {
+  if (!confirm('Supprimer ce contact ?')) return;
+  contacts = contacts.filter(c => c.id !== id);
+  save();
+  renderTable();
+  updateStats();
+}
+
+// ─── UPDATE ──────────────────────────────────────────────────────────────────
+
+function updateStatut(id, val) {
+  const c = contacts.find(c => c.id === id);
+  if (c) { c.statut = val; save(); updateStats(); }
+}
+
+function updateNotes(id, val) {
+  const c = contacts.find(c => c.id === id);
+  if (c) { c.notes = val; save(); }
+}
+
+// ─── RENDER ──────────────────────────────────────────────────────────────────
+
+function renderTable() {
+  const filterStatut = document.getElementById('filter-statut').value;
+  const filterCat    = document.getElementById('filter-cat').value;
+  const filterSearch = document.getElementById('filter-search').value.toLowerCase();
+
+  let filtered = contacts.filter(c => {
+    if (filterStatut && c.statut !== filterStatut) return false;
+    if (filterCat && c.cat !== filterCat) return false;
+    if (filterSearch) {
+      const hay = (c.pseudo + c.modele + c.notes + c.lien).toLowerCase();
+      if (!hay.includes(filterSearch)) return false;
+    }
+    return true;
+  });
+
+  document.getElementById('count-label').textContent = `${filtered.length} contact(s)`;
+
+  const tbody = document.getElementById('table-body');
+  if (filtered.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="10"><div class="empty-state"><div class="icon">📋</div><p>Aucun contact correspondant.</p></div></td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = filtered.map((c, i) => {
+    const s = STATUTS[c.statut] || STATUTS['a-contacter'];
+    const catCls = 'cat-' + c.cat;
+    return `
+    <tr>
+      <td class="td-num">${i+1}</td>
+      <td class="td-date">${c.date}</td>
+      <td class="td-pseudo" title="${c.pseudo}">${c.pseudo || '—'}</td>
+      <td class="td-modele" title="${c.modele}">${c.modele || '—'}</td>
+      <td class="td-cat"><span class="${catCls}">${c.cat}</span></td>
+      <td class="td-lien">${c.lien ? `<a href="${c.lien}" target="_blank">Voir l'annonce ↗</a>` : '<span style="color:var(--muted)">—</span>'}</td>
+      <td class="td-statut">
+        <select class="${s.cls}" onchange="updateStatut(${c.id}, this.value)" style="${getSelectStyle(c.statut)}">
+          ${Object.entries(STATUTS).map(([k,v]) => `<option value="${k}" ${c.statut===k?'selected':''}>${v.label}</option>`).join('')}
+        </select>
+      </td>
+      <td class="td-msg"><button class="msg-btn" title="Voir les messages" onclick="openModal(${c.id})">📩</button></td>
+      <td class="td-notes"><input type="text" value="${(c.notes||'').replace(/"/g,'&quot;')}" placeholder="Notes..." onchange="updateNotes(${c.id}, this.value)"></td>
+      <td class="td-del"><button onclick="deleteContact(${c.id})" title="Supprimer">✕</button></td>
+    </tr>`;
+  }).join('');
+}
+
+function getSelectStyle(statut) {
+  const colors = {
+    'a-contacter': 'color:var(--muted);background:rgba(122,127,149,0.1)',
+    'envoye':      'color:var(--c1);background:rgba(59,130,246,0.1)',
+    'reponse':     'color:var(--orange);background:rgba(245,158,11,0.1)',
+    'rdv':         'color:var(--purple);background:rgba(168,85,247,0.1)',
+    'converti':    'color:var(--green);background:rgba(34,197,94,0.1)',
+    'negatif':     'color:var(--red);background:rgba(239,68,68,0.1)',
+  };
+  return (colors[statut] || '') + ';border:none;font-weight:600;border-radius:6px;padding:0.2rem 0.4rem;font-size:0.8rem;cursor:pointer;font-family:Mulish,sans-serif;';
+}
+
+// ─── STATS ────────────────────────────────────────────────────────────────────
+
+function updateStats() {
+  const total     = contacts.length;
+  const contactes = contacts.filter(c => ['envoye','reponse','rdv','converti'].includes(c.statut)).length;
+  const reponses  = contacts.filter(c => ['reponse','rdv','converti'].includes(c.statut)).length;
+  const rdv       = contacts.filter(c => ['rdv','converti'].includes(c.statut)).length;
+  const convertis = contacts.filter(c => c.statut === 'converti').length;
+  const taux      = contactes > 0 ? Math.round((convertis / contactes) * 100) : 0;
+
+  document.getElementById('stat-total').textContent     = total;
+  document.getElementById('stat-contactes').textContent = contactes;
+  document.getElementById('stat-reponses').textContent  = reponses;
+  document.getElementById('stat-rdv').textContent       = rdv;
+  document.getElementById('stat-convertis').textContent = convertis;
+  document.getElementById('stat-taux').textContent      = taux + '%';
+}
+
+// ─── MODAL MESSAGE ────────────────────────────────────────────────────────────
+
+function openModal(id) {
+  currentModalContact = contacts.find(c => c.id === id);
+  if (!currentModalContact) return;
+  currentTab = 0;
+  const modal = document.getElementById('msg-modal');
+  document.getElementById('modal-title').textContent = `📩 Messages — ${currentModalContact.pseudo || currentModalContact.modele || 'Contact'}`;
+  document.getElementById('modal-sub').textContent = `${currentModalContact.modele || 'Drone'} · ${currentModalContact.cat} · ${currentModalContact.lien ? 'Annonce disponible' : 'Pas de lien'}`;
+  modal.classList.add('open');
+  renderModal();
+}
+
+function closeModal() {
+  document.getElementById('msg-modal').classList.remove('open');
+  currentModalContact = null;
+}
+
+function switchTab(n) {
+  currentTab = n;
+  document.querySelectorAll('.msg-tab').forEach((t, i) => t.classList.toggle('active', i === n));
+  renderModal();
+}
+
+function renderModal() {
+  if (!currentModalContact) return;
+  const msgs = getMessages(currentModalContact);
+  const m = msgs[currentTab];
+  document.getElementById('msg-context-box').textContent = m.quand;
+  document.getElementById('msg-text-box').textContent = m.texte;
+  const btn = document.getElementById('copy-btn');
+  btn.textContent = '📋 Copier le message';
+  btn.classList.remove('copied');
+  btn.style.background = '';
+}
+
+function copyMessage() {
+  if (!currentModalContact) return;
+  const msgs = getMessages(currentModalContact);
+  const text = msgs[currentTab].texte;
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = document.getElementById('copy-btn');
+    btn.textContent = '✓ Copié !';
+    btn.classList.add('copied');
+    btn.style.background = 'var(--green)';
+    setTimeout(() => {
+      btn.textContent = '📋 Copier le message';
+      btn.classList.remove('copied');
+      btn.style.background = '';
+    }, 2000);
+  });
+}
+
+// ─── EXPORT CSV ──────────────────────────────────────────────────────────────
+
+function exportCSV() {
+  if (contacts.length === 0) { alert('Aucun contact à exporter.'); return; }
+  const headers = ['#','Date','Pseudo','Modèle','Catégorie','Lien annonce','Statut','Notes'];
+  const rows = contacts.map((c, i) => [
+    i+1, c.date, c.pseudo, c.modele, c.cat, c.lien, STATUTS[c.statut]?.label || c.statut, c.notes
+  ]);
+  const csv = [headers, ...rows].map(r => r.map(v => `"${(v||'').toString().replace(/"/g,'""')}"`).join(',')).join('\n');
+  const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `suivi-campagne-lbc-${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+}
+
+// ─── SAVE ─────────────────────────────────────────────────────────────────────
+
+function save() {
+  localStorage.setItem('lbc-contacts', JSON.stringify(contacts));
+}
+
+// ─── INIT ─────────────────────────────────────────────────────────────────────
+
+document.getElementById('msg-modal').addEventListener('click', function(e) {
+  if (e.target === this) closeModal();
+});
+
+renderTable();
+updateStats();
+</script>
+</body>
+</html>
