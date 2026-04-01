@@ -1179,7 +1179,7 @@ function onPDroneSelect(sel) {
   else { libre.style.display = 'none'; libre.value = ''; }
 }
 
-function addProspect() {
+async function addProspect() {
   const nom    = document.getElementById('pf-nom').value.trim();
   const prenom = document.getElementById('pf-prenom').value.trim();
   const tel    = document.getElementById('pf-tel').value.trim();
@@ -1203,8 +1203,9 @@ function addProspect() {
     nom, prenom, tel, email, adresse, cp, ville,
     drone, cat, source, statut, notes
   };
+  const { error } = await sb.from('prospects').insert([p]);
+  if (error) { alert('Erreur sauvegarde : ' + error.message); return; }
   prospects.unshift(p);
-  saveProspects();
   renderProspects();
   updatePStats();
   resetPForm();
