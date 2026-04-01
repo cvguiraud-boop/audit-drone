@@ -1378,9 +1378,15 @@ function exportProspectsCSV() {
   a.click();
 }
 
-function saveProspects() {
-  localStorage.setItem('bo-prospects', JSON.stringify(prospects));
+async function initProspects() {
+  const { data, error } = await sb.from('prospects').select('*').order('id', { ascending: false });
+  if (error) { console.error('Erreur chargement Supabase:', error); return; }
+  prospects = data || [];
+  renderProspects();
+  updatePStats();
 }
+
+initProspects();
 
 document.getElementById('pdm').addEventListener('click', function(e) {
   if (e.target === this) closePDM();
