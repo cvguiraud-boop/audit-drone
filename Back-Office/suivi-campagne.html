@@ -823,6 +823,30 @@ function exportCSV() {
   a.click();
 }
 
+// ─── AUTH ─────────────────────────────────────────────────────────────────────
+
+async function login() {
+  const email    = document.getElementById('login-email').value.trim();
+  const password = document.getElementById('login-password').value;
+  const errEl    = document.getElementById('login-error');
+  errEl.style.display = 'none';
+  const { error } = await sb.auth.signInWithPassword({ email, password });
+  if (error) { errEl.style.display = 'block'; return; }
+  showApp();
+}
+
+function showApp() {
+  document.getElementById('login-overlay').classList.add('hidden');
+  document.getElementById('app-wrap').classList.add('visible');
+  init();
+}
+
+async function logout() {
+  await sb.auth.signOut();
+  document.getElementById('login-overlay').classList.remove('hidden');
+  document.getElementById('app-wrap').classList.remove('visible');
+}
+
 // ─── INIT ─────────────────────────────────────────────────────────────────────
 
 document.getElementById('msg-modal').addEventListener('click', function(e) {
@@ -837,7 +861,15 @@ async function init() {
   updateStats();
 }
 
-init();
+// Vérifier la session au chargement
+sb.auth.getSession().then(({ data: { session } }) => {
+  if (session) { showApp(); }
+});
+
+document.getElementById('login-password').addEventListener('keydown', e => {
+  if (e.key === 'Enter') login();
+});
 </script>
+</div><!-- /app-wrap -->
 </body>
 </html>
