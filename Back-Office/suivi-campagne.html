@@ -734,7 +734,7 @@ function closeCoordsModal() {
   coordsCurrentId = null;
 }
 
-function saveCoords() {
+async function saveCoords() {
   const c = contacts.find(c => c.id === coordsCurrentId);
   if (!c) return;
   const nom     = document.getElementById('c-nom').value.trim();
@@ -749,10 +749,12 @@ function saveCoords() {
   if (!nom && !prenom && !tel && !email) {
     alert('Remplis au moins un champ (nom, prénom ou téléphone).'); return;
   }
-  c.coords = { nom, prenom, tel, email, adresse, cp, ville, notes };
-  // Passer automatiquement en "Réponse reçue" si encore "À contacter" ou "Message envoyé"
-  if (['a-contacter','envoye'].includes(c.statut)) c.statut = 'reponse';
-  save();
+  const coords = { nom, prenom, tel, email, adresse, cp, ville, notes };
+  const newStatut = ['a-contacter','envoye'].includes(c.statut) ? 'reponse' : c.statut;
+  const { error } = await sb.from('contacts').update({ coords, statut: newStatut }).eq('id', c.id);
+  if (error) { alert('Erreur sauvegarde : ' + error.message); return; }
+  c.coords = coords;
+  c.statut = newStatut;
   renderTable();
   updateStats();
   closeCoordsModal();
