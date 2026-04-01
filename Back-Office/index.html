@@ -1222,15 +1222,19 @@ function resetPForm() {
   document.getElementById('pf-statut').value = 'nouveau';
 }
 
-function deleteProspect(id) {
+async function deleteProspect(id) {
   if (!confirm('Supprimer ce prospect ?')) return;
+  const { error } = await sb.from('prospects').delete().eq('id', id);
+  if (error) { alert('Erreur suppression : ' + error.message); return; }
   prospects = prospects.filter(p => p.id !== id);
-  saveProspects(); renderProspects(); updatePStats();
+  renderProspects(); updatePStats();
 }
 
-function updatePStatut(id, val) {
+async function updatePStatut(id, val) {
   const p = prospects.find(p => p.id === id);
-  if (p) { p.statut = val; saveProspects(); updatePStats(); }
+  if (!p) return;
+  const { error } = await sb.from('prospects').update({ statut: val }).eq('id', id);
+  if (!error) { p.statut = val; updatePStats(); }
 }
 
 function renderProspects() {
