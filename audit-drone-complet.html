@@ -1726,6 +1726,347 @@ document.querySelectorAll('.srv-card').forEach(card => {
     if (bar) bar.style.opacity = '0';
   });
 });
+
+// ══════════════════════════════════════════
+//  DRONE ANIMATION
+// ══════════════════════════════════════════
+(function(){
+  'use strict';
+  const canvas = document.getElementById('droneCanvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  let W, H;
+  const dpr = window.devicePixelRatio || 1;
+
+  // ── Helpers ──
+  function rrect(x,y,w,h,r){
+    ctx.beginPath();
+    ctx.moveTo(x+r,y); ctx.lineTo(x+w-r,y);
+    ctx.arcTo(x+w,y,x+w,y+r,r); ctx.lineTo(x+w,y+h-r);
+    ctx.arcTo(x+w,y+h,x+w-r,y+h,r); ctx.lineTo(x+r,y+h);
+    ctx.arcTo(x,y+h,x,y+h-r,r); ctx.lineTo(x,y+r);
+    ctx.arcTo(x,y,x+r,y,r); ctx.closePath();
+  }
+  function ease(t){ return t<.5?2*t*t:-1+(4-2*t)*t; }
+  function lerp(a,b,t){ return a+(b-a)*t; }
+  function clamp(v,lo,hi){ return Math.max(lo,Math.min(hi,v)); }
+  function prog(t,s,e){ return clamp((t-s)/(e-s),0,1); }
+
+  // ── Particles ──
+  let pts=[];
+  function initPts(){
+    pts=Array.from({length:55},()=>({
+      x:Math.random()*W, y:Math.random()*H,
+      r:Math.random()*1.2+.3,
+      a:Math.random()*.18+.04,
+      vx:-(Math.random()*.25+.08)
+    }));
+  }
+
+  // ── Canvas resize ──
+  function resize(){
+    const rect=canvas.getBoundingClientRect();
+    W=rect.width; H=rect.height;
+    canvas.width=Math.round(W*dpr);
+    canvas.height=Math.round(H*dpr);
+    ctx.setTransform(1,0,0,1,0,0);
+    ctx.scale(dpr,dpr);
+    initPts();
+  }
+
+  // ── Grid ──
+  function grid(alpha){
+    ctx.save(); ctx.globalAlpha=alpha*.07;
+    ctx.strokeStyle='#4F9FFF'; ctx.lineWidth=.5;
+    const s=40;
+    for(let x=0;x<W;x+=s){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke();}
+    for(let y=0;y<H;y+=s){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();}
+    ctx.restore();
+  }
+
+  // ── Drone drawing (top-down view) ──
+  let rot=0;
+  function drone(x,y,sz,col,alpha,bob){
+    if(alpha<=0) return;
+    ctx.save();
+    ctx.translate(x, y+(bob||0));
+    ctx.globalAlpha=alpha;
+    const arm=sz*1.55, rrad=sz*.78;
+    const ARMS=[45,135,225,315].map(d=>[
+      Math.cos(d*Math.PI/180)*arm,
+      Math.sin(d*Math.PI/180)*arm
+    ]);
+
+    // Rotor halos
+    ARMS.forEach(([ex,ey])=>{
+      const g=ctx.createRadialGradient(ex,ey,0,ex,ey,rrad*1.6);
+      g.addColorStop(0,'rgba(79,159,255,0.13)');
+      g.addColorStop(1,'rgba(0,0,0,0)');
+      ctx.fillStyle=g;
+      ctx.beginPath(); ctx.arc(ex,ey,rrad*1.6,0,Math.PI*2); ctx.fill();
+    });
+
+    // Arms
+    ctx.strokeStyle='#445068'; ctx.lineWidth=sz*.16; ctx.lineCap='round';
+    ARMS.forEach(([ex,ey])=>{
+      ctx.beginPath(); ctx.moveTo(0,0); ctx.lineTo(ex,ey); ctx.stroke();
+    });
+
+    // Body
+    const bs=sz*.48;
+    ctx.shadowColor=col; ctx.shadowBlur=18;
+    ctx.fillStyle='#181C28';
+    rrect(-bs,-bs,bs*2,bs*2,5); ctx.fill();
+    ctx.strokeStyle=col; ctx.lineWidth=1.5;
+    rrect(-bs,-bs,bs*2,bs*2,5); ctx.stroke();
+    ctx.shadowBlur=0;
+
+    // Camera lens
+    ctx.fillStyle='#0C0E14';
+    ctx.strokeStyle='rgba(180,200,240,.25)'; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.arc(0,0,sz*.2,0,Math.PI*2); ctx.fill(); ctx.stroke();
+
+    // Rotors
+    ARMS.forEach(([ex,ey],i)=>{
+      ctx.save(); ctx.translate(ex,ey);
+      ctx.globalAlpha=alpha*.4;
+      ctx.fillStyle='rgba(160,190,255,0.07)';
+      ctx.beginPath(); ctx.arc(0,0,rrad,0,Math.PI*2); ctx.fill();
+      ctx.globalAlpha=alpha;
+      const ba=rot*(i%2===0?1:-1);
+      ctx.strokeStyle='rgba(190,215,255,.55)';
+      ctx.lineWidth=2.5; ctx.lineCap='round';
+      [0,Math.PI/2].forEach(off=>{
+        const a=ba+off;
+        const bx2=Math.cos(a)*rrad*.82, by2=Math.sin(a)*rrad*.82;
+        ctx.beginPath(); ctx.moveTo(bx2,by2); ctx.lineTo(-bx2,-by2); ctx.stroke();
+      });
+      ctx.fillStyle='#2A3550';
+      ctx.beginPath(); ctx.arc(0,0,sz*.1,0,Math.PI*2); ctx.fill();
+      ctx.restore();
+    });
+
+    // Nav lights: front-right (45°) green, front-left (315°) red
+    [[ARMS[0],'#00EE66'],[ARMS[3],'#FF2244']].forEach(([[ex,ey],c])=>{
+      ctx.shadowColor=c; ctx.shadowBlur=10;
+      ctx.fillStyle=c;
+      ctx.beginPath(); ctx.arc(ex,ey,sz*.11,0,Math.PI*2); ctx.fill();
+      ctx.shadowBlur=0;
+    });
+
+    ctx.restore();
+  }
+
+  // ── Caption helper ──
+  function caption(txt, alpha){
+    if(alpha<=0) return;
+    ctx.save();
+    ctx.globalAlpha=alpha*.68;
+    ctx.fillStyle='#EEF0FF';
+    ctx.font="300 14px 'Mulish',sans-serif";
+    ctx.textAlign='center';
+    ctx.fillText(txt, W/2, H-36);
+    ctx.restore();
+  }
+
+  // ── Timeline ──
+  const TOTAL=22000;
+  // Phase endpoints in ms
+  const PH={ FE:5500, GE:7000, SE:15000, CE:22000 };
+
+  let startTs=null;
+
+  function frame(ts){
+    if(!startTs) startTs=ts;
+    const t=(ts-startTs)%TOTAL;
+    rot+=.14;
+
+    ctx.clearRect(0,0,W,H);
+    ctx.fillStyle='#0B0D13';
+    ctx.fillRect(0,0,W,H);
+
+    // ── Phase 1 : FLY ──
+    if(t < PH.FE){
+      const p=prog(t,0,PH.FE);
+      grid(1);
+      // Moving particles
+      pts.forEach(q=>{
+        q.x+=q.vx; if(q.x<0) q.x=W;
+        ctx.fillStyle=`rgba(79,159,255,${q.a})`;
+        ctx.beginPath(); ctx.arc(q.x,q.y,q.r,0,Math.PI*2); ctx.fill();
+      });
+      // Drone on S-curve
+      const ep=ease(p);
+      const dx=lerp(-90,W+90,ep);
+      const dy=H/2+Math.sin(ep*Math.PI*1.4)*(H*.18);
+      // Speed trail
+      for(let i=8;i>=1;i--){
+        const pt2=Math.max(0,ep-i*.012);
+        const tx2=lerp(-90,W+90,pt2);
+        const ty2=H/2+Math.sin(pt2*Math.PI*1.4)*(H*.18);
+        ctx.fillStyle=`rgba(79,159,255,${.04-i*.004})`;
+        ctx.beginPath(); ctx.arc(tx2,ty2,Math.max(.3,3-i*.3),0,Math.PI*2); ctx.fill();
+      }
+      const da=p<.1?p*10:p>.9?(1-p)*10:1;
+      drone(dx,dy,20,'#4F9FFF',da);
+      if(p>.25) caption("Un drone non conforme peut survoler n'importe quel espace.",
+        clamp((p-.25)/.15,0,1)*clamp((.95-p)/.08,0,1));
+    }
+
+    // ── Phase 2 : GLITCH ──
+    if(t>=PH.FE && t<PH.GE){
+      const p=prog(t,PH.FE,PH.GE);
+      grid(1);
+      if(p<.55){
+        // Chromatic glitch strips
+        for(let i=0;i<4;i++){
+          ctx.save(); ctx.globalAlpha=.1;
+          ctx.fillStyle=i%2===0?'#4F9FFF':'#FF5C5C';
+          ctx.fillRect(Math.random()*W*.2,Math.random()*H,W*.4+Math.random()*W*.3,1.5);
+          ctx.restore();
+        }
+        drone(W/2+(Math.random()-.5)*16*(1-p*1.8),H/2,22,'#4F9FFF',.65);
+      } else {
+        drone(W/2,H/2,22,'#00D4A0',prog(t,PH.FE+.55*(PH.GE-PH.FE),PH.GE));
+      }
+    }
+
+    // ── Phase 3 : SCAN ──
+    if(t>=PH.GE && t<PH.SE){
+      const p=prog(t,PH.GE,PH.SE);
+      grid(1);
+      const bob=Math.sin(p*Math.PI*7)*3.5;
+
+      // Expanding rings
+      for(let i=0;i<3;i++){
+        const rp=(p*2.2+i/3)%1;
+        const rr2=lerp(28,170,ease(rp));
+        ctx.save(); ctx.globalAlpha=(1-rp)*.28;
+        ctx.strokeStyle='#00D4A0'; ctx.lineWidth=1.5;
+        ctx.shadowColor='#00D4A0'; ctx.shadowBlur=6;
+        ctx.beginPath(); ctx.arc(W/2,H/2,rr2,0,Math.PI*2); ctx.stroke();
+        ctx.shadowBlur=0; ctx.restore();
+      }
+
+      // Rotating scan beam
+      if(p<.65){
+        const ba=p*Math.PI*5;
+        ctx.save(); ctx.translate(W/2,H/2); ctx.globalAlpha=.12;
+        ctx.strokeStyle='#00D4A0'; ctx.lineWidth=2;
+        ctx.beginPath(); ctx.moveTo(0,0);
+        ctx.lineTo(Math.cos(ba)*160,Math.sin(ba)*160); ctx.stroke();
+        ctx.restore();
+      }
+
+      // Data tags
+      const tags=[
+        {dx:118,dy:-38,txt:'EU 2019/947',col:'#4F9FFF',show:.18},
+        {dx:-128,dy:22,txt:'Remote ID requis',col:'#FFB830',show:.32},
+        {dx:108,dy:62,txt:'Alphatango \u2713',col:'#00D4A0',show:.46},
+        {dx:-112,dy:-52,txt:'Classe C1',col:'#C084FC',show:.60},
+      ];
+      tags.forEach(tag=>{
+        if(p<tag.show) return;
+        const ta=clamp((p-tag.show)/.12,0,1);
+        const tw=tag.txt.length*7+20, th=22;
+        const lx=W/2+tag.dx, ly=H/2+tag.dy;
+        const bx2=tag.dx>0?lx:lx-tw;
+        ctx.save();
+        // Connector
+        ctx.globalAlpha=ta*.35; ctx.strokeStyle=tag.col; ctx.lineWidth=1;
+        ctx.setLineDash([3,5]);
+        ctx.beginPath();
+        ctx.moveTo(W/2+tag.dx*.3,H/2+tag.dy*.3);
+        ctx.lineTo(bx2+tw/2,ly); ctx.stroke(); ctx.setLineDash([]);
+        // Pill
+        ctx.globalAlpha=ta*.85;
+        ctx.fillStyle='rgba(12,14,20,.85)'; rrect(bx2,ly-th/2,tw,th,4); ctx.fill();
+        ctx.globalAlpha=ta*.45; ctx.strokeStyle=tag.col; ctx.lineWidth=1;
+        rrect(bx2,ly-th/2,tw,th,4); ctx.stroke();
+        // Text
+        ctx.globalAlpha=ta; ctx.fillStyle=tag.col;
+        ctx.font="600 11px 'Mulish',sans-serif";
+        ctx.textAlign=tag.dx>0?'left':'right';
+        ctx.fillText(tag.txt, lx+(tag.dx>0?9:-9), ly+4);
+        ctx.restore();
+      });
+
+      drone(W/2,H/2,24,'#00D4A0',1,bob);
+      if(p>.5) caption('Auditez votre flotte. Maîtrisez votre conformité réglementaire.',
+        clamp((p-.5)/.18,0,1)*clamp((.96-p)/.08,0,1));
+    }
+
+    // ── Phase 4 : CONFORM ──
+    if(t>=PH.SE){
+      const p=prog(t,PH.SE,PH.CE);
+      grid(1);
+      const bob=Math.sin(p*Math.PI*5)*3;
+
+      // Pulsing green halos
+      for(let i=0;i<4;i++){
+        const rp=(p*1.6+i/4)%1;
+        const rr2=lerp(28,220,ease(rp));
+        ctx.save(); ctx.globalAlpha=(1-rp)*.22;
+        ctx.strokeStyle='#00D4A0'; ctx.lineWidth=2;
+        ctx.shadowColor='#00D4A0'; ctx.shadowBlur=12;
+        ctx.beginPath(); ctx.arc(W/2,H/2,rr2,0,Math.PI*2); ctx.stroke();
+        ctx.shadowBlur=0; ctx.restore();
+      }
+
+      drone(W/2,H/2,24,'#00D4A0',1,bob);
+
+      // CONFORME badge
+      if(p>.1){
+        const ba=clamp((p-.1)/.2,0,1);
+        const pulse=.88+Math.sin(p*Math.PI*8)*.12;
+        const bw=190, bh=30, bx2=W/2-bw/2, by2=H/2-96;
+        ctx.save(); ctx.globalAlpha=ba*pulse;
+        ctx.fillStyle='rgba(0,212,160,.1)';
+        ctx.strokeStyle='rgba(0,212,160,.55)'; ctx.lineWidth=1.5;
+        ctx.shadowColor='#00D4A0'; ctx.shadowBlur=18;
+        rrect(bx2,by2,bw,bh,6); ctx.fill(); ctx.stroke();
+        ctx.shadowBlur=0;
+        ctx.fillStyle='#00D4A0';
+        ctx.shadowColor='#00D4A0'; ctx.shadowBlur=8;
+        ctx.beginPath(); ctx.arc(bx2+14,by2+bh/2,4,0,Math.PI*2); ctx.fill();
+        ctx.shadowBlur=0;
+        ctx.font="700 11px 'Syne',sans-serif";
+        ctx.textAlign='left';
+        ctx.fillText('CONFORME \u2014 EU 2019/947', bx2+26, by2+bh/2+4);
+        ctx.restore();
+      }
+
+      // Subtitle
+      if(p>.28){
+        const ta=clamp((p-.28)/.2,0,1);
+        ctx.save(); ctx.globalAlpha=ta;
+        ctx.fillStyle='rgba(238,240,255,.88)';
+        ctx.font="600 17px 'Syne',sans-serif";
+        ctx.textAlign='center';
+        ctx.fillText('Ma\u00eetrisez votre conformit\u00e9 r\u00e9glementaire.', W/2, H/2+92);
+        ctx.restore();
+      }
+
+      // CTA button
+      const cta=document.getElementById('droneCta');
+      if(cta){
+        const ca=p>.48?clamp((p-.48)/.22,0,1):0;
+        cta.style.opacity=ca;
+        cta.style.transform=`translateX(-50%) translateY(${(1-ca)*12}px)`;
+        if(ca>0) cta.classList.add('vis'); else cta.classList.remove('vis');
+      }
+    } else {
+      const cta=document.getElementById('droneCta');
+      if(cta){ cta.style.opacity='0'; cta.classList.remove('vis'); }
+    }
+
+    requestAnimationFrame(frame);
+  }
+
+  window.addEventListener('resize',()=>{ resize(); });
+  resize();
+  requestAnimationFrame(frame);
+})();
 </script>
 </body>
 </html>
