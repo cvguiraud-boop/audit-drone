@@ -545,10 +545,11 @@ async function addContact() {
 
 // ─── DELETE ──────────────────────────────────────────────────────────────────
 
-function deleteContact(id) {
+async function deleteContact(id) {
   if (!confirm('Supprimer ce contact ?')) return;
+  const { error } = await sb.from('contacts').delete().eq('id', id);
+  if (error) { alert('Erreur suppression : ' + error.message); return; }
   contacts = contacts.filter(c => c.id !== id);
-  save();
   renderTable();
   updateStats();
 }
