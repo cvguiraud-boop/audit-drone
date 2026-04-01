@@ -508,7 +508,7 @@ function onDroneSelect(sel) {
 
 // ─── ADD CONTACT ──────────────────────────────────────────────────────────────
 
-function addContact() {
+async function addContact() {
   const pseudo = document.getElementById('f-pseudo').value.trim();
   const sel    = document.getElementById('f-modele');
   const libre  = document.getElementById('f-modele-libre').value.trim();
@@ -529,8 +529,10 @@ function addContact() {
     statut: 'a-contacter'
   };
 
+  const { error } = await sb.from('contacts').insert([contact]);
+  if (error) { alert('Erreur sauvegarde : ' + error.message); return; }
+
   contacts.unshift(contact);
-  save();
   renderTable();
   updateStats();
 
