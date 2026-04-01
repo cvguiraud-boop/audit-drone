@@ -556,14 +556,18 @@ async function deleteContact(id) {
 
 // ─── UPDATE ──────────────────────────────────────────────────────────────────
 
-function updateStatut(id, val) {
+async function updateStatut(id, val) {
   const c = contacts.find(c => c.id === id);
-  if (c) { c.statut = val; save(); updateStats(); }
+  if (!c) return;
+  const { error } = await sb.from('contacts').update({ statut: val }).eq('id', id);
+  if (!error) { c.statut = val; updateStats(); }
 }
 
-function updateNotes(id, val) {
+async function updateNotes(id, val) {
   const c = contacts.find(c => c.id === id);
-  if (c) { c.notes = val; save(); }
+  if (!c) return;
+  await sb.from('contacts').update({ notes: val }).eq('id', id);
+  c.notes = val;
 }
 
 // ─── RENDER ──────────────────────────────────────────────────────────────────
