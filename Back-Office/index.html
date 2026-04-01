@@ -729,60 +729,103 @@ textarea::placeholder{color:var(--hint);}
   <div class="fiche-hero">
     <div class="fiche-icon" style="background:var(--a3-soft)">🥽</div>
     <div>
-      <div class="fiche-eyebrow" style="color:var(--a3)">FPV / DIY — Vol en immersion — Sans classe CE</div>
+      <div class="fiche-eyebrow" style="color:var(--a3)">Sous-catégorie A3 — Classes C3 · C4 · Drones Legacy · FPV artisanal</div>
       <h2>Fiche de prise de contact <span style="color:var(--a3)">FPV / DIY</span></h2>
-      <p class="fiche-sub">Profil le plus à risque : observateur TOUJOURS obligatoire. Obligations variables selon la classe du drone (C0, C1, C2 ou DIY sans classe).</p>
+      <p class="fiche-sub">4 profils distincts, une même contrainte A3 : vol uniquement à plus de 150 m des zones résidentielles. Observateur TOUJOURS obligatoire en FPV.</p>
       <div class="fiche-price" style="color:var(--a3)">156 € TTC · 1h30 <span style="font-size:.9rem;font-weight:400;color:var(--muted)"> | DIY : 108 € TTC · 1h</span></div>
     </div>
   </div>
-  <div class="alert-band" style="background:var(--red-soft);border-color:rgba(255,92,92,.3);color:var(--text)">
+
+  <!-- Profils -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem">
+    <div style="background:var(--bg3);border:1px solid var(--a3-border);border-radius:12px;padding:1rem 1.25rem">
+      <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--a3);margin-bottom:.75rem">Avec marquage CE</div>
+      <div style="margin-bottom:.6rem"><strong style="font-size:13px">Classe C3</strong> <span style="font-size:12px;color:var(--muted)">— moins de 25 kg, envergure &lt; 3 m</span><br><span style="font-size:12px;color:var(--muted)">Remote ID + géovigilance obligatoires. Enregistrement aéronef requis.</span></div>
+      <div><strong style="font-size:13px">Classe C4</strong> <span style="font-size:12px;color:var(--muted)">— moins de 25 kg, sans vol automatique</span><br><span style="font-size:12px;color:var(--muted)">Aéromodèles industriels. Pas de Remote ID obligatoire.</span></div>
+    </div>
+    <div style="background:var(--bg3);border:1px solid var(--border);border-radius:12px;padding:1rem 1.25rem">
+      <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-bottom:.75rem">Sans marquage CE</div>
+      <div style="margin-bottom:.6rem"><strong style="font-size:13px">Drones Legacy</strong><br><span style="font-size:12px;color:var(--muted)">Anciens modèles mis sur le marché avant le 1er jan. 2024 (DJI Phantom 3, Parrot Bebop…). Pas d'enregistrement aéronef.</span></div>
+      <div><strong style="font-size:13px">FPV artisanal / Racing</strong><br><span style="font-size:12px;color:var(--muted)">Frames customs, Betaflight, iFlight, Geprc… Construits à titre privé. Observateur obligatoire si lunettes.</span></div>
+    </div>
+  </div>
+
+  <div class="alert-band" style="background:rgba(192,132,252,.08);border-color:var(--a3-border);color:var(--text)">
+    <span class="alert-icon">🚨</span>
+    <div><strong>Point commun à tous ces profils :</strong> ils ne peuvent voler qu'en sous-catégorie A3 — uniquement à plus de <strong>150 m des zones résidentielles, commerciales, industrielles et récréatives</strong>. C'est une contrainte majeure que quasi aucun propriétaire ne connaît. Examen OPEN A1/A3 obligatoire pour tous.</div>
+  </div>
+  <div class="alert-band" style="background:var(--red-soft);border-color:rgba(255,92,92,.3);color:var(--text);margin-top:.75rem">
     <span class="alert-icon">🔴</span>
     <div><strong>Infraction quasi-systématique :</strong> voler en FPV sans observateur est illégal quelle que soit la classe. C'est le point N°1 à vérifier en premier.</div>
   </div>
 
   <div class="scard">
-    <div class="scard-head"><div class="scard-num" style="background:var(--a3-soft);color:var(--a3)">01</div><span class="scard-label">Identification & contexte</span></div>
+    <div class="scard-head"><div class="scard-num" style="background:var(--a3-soft);color:var(--a3)">01</div><span class="scard-label">Identification & qualification du profil</span></div>
     <ul class="cl">
-      <li class="cl-item" onclick="toggleCheck(this)"><div class="cl-box" style="color:var(--a3)"></div><span class="cl-text">Nom, prénom et coordonnées</span></li>
-      <li class="cl-item" onclick="toggleCheck(this)"><div class="cl-box" style="color:var(--a3)"></div><span class="cl-text">Type de drone : FPV racing, freestyle, cinematic, DIY assemblé ?</span></li>
-      <li class="cl-item" onclick="toggleCheck(this)"><div class="cl-box" style="color:var(--a3)"></div><span class="cl-text">Le drone a-t-il un marquage CE (classe C0/C1/C2) ? <span class="tag t-imp">déterminant</span></span></li>
-      <li class="cl-item" onclick="toggleCheck(this)"><div class="cl-box" style="color:var(--a3)"></div><span class="cl-text">Poids réel du drone (avec batterie)</span></li>
-      <li class="cl-item" onclick="toggleCheck(this)"><div class="cl-box" style="color:var(--a3)"></div><span class="cl-text">Caméra embarquée ? (FPV cam + GoPro éventuelle)</span></li>
-      <li class="cl-item" onclick="toggleCheck(this)"><div class="cl-box" style="color:var(--a3)"></div><span class="cl-text">A-t-il un observateur lors de ses vols ? <span class="tag t-obl">obligatoire</span></span></li>
+      <li class="cl-item" onclick="toggleCheck(this)"><div class="cl-box" style="color:var(--a3)"></div><span class="cl-text">Nom, prénom et coordonnées <span class="tag t-obl">obligatoire</span></span></li>
+      <li class="cl-item" onclick="toggleCheck(this)"><div class="cl-box" style="color:var(--a3)"></div><span class="cl-text">Le drone a-t-il un marquage de classe CE (C3 ou C4) ? <span class="tag t-imp">détermine les obligations</span></span></li>
+      <li class="cl-item" onclick="toggleCheck(this)"><div class="cl-box" style="color:var(--a3)"></div><span class="cl-text">Si C3/C4 : marque, modèle, masse maximale au décollage, numéro de série</span></li>
+      <li class="cl-item" onclick="toggleCheck(this)"><div class="cl-box" style="color:var(--a3)"></div><span class="cl-text">Si Legacy : ancien modèle acheté avant 2024 ? Date d'achat approximative (DJI Phantom 3/4, Parrot Bebop, Yuneec…)</span></li>
+      <li class="cl-item" onclick="toggleCheck(this)"><div class="cl-box" style="color:var(--a3)"></div><span class="cl-text">Si FPV artisanal : frame custom, kit, ou drone FPV prêt-à-voler (BNF) ? Marque de la frame (iFlight, Geprc, Emax…) ?</span></li>
+      <li class="cl-item" onclick="toggleCheck(this)"><div class="cl-box" style="color:var(--a3)"></div><span class="cl-text">Poids approximatif du drone</span></li>
+      <li class="cl-item" onclick="toggleCheck(this)"><div class="cl-box" style="color:var(--a3)"></div><span class="cl-text">Le drone est-il équipé d'une caméra ? <span class="tag t-imp">déclencheur d'enregistrement</span></span></li>
+      <li class="cl-item" onclick="toggleCheck(this)"><div class="cl-box" style="color:var(--a3)"></div><span class="cl-text">Usage : loisir, aéromodélisme, FPV racing compétition, freestyle, photographie, agriculture ?</span></li>
+      <li class="cl-item" onclick="toggleCheck(this)"><div class="cl-box" style="color:var(--a3)"></div><span class="cl-text">Lieu(x) de vol habituel(s) — zones urbaines, campagne, terrains privés, club homologué ?</span></li>
+      <li class="cl-item" onclick="toggleCheck(this)"><div class="cl-box" style="color:var(--a3)"></div><span class="cl-text">Utilise-t-il des lunettes FPV pour piloter ? <span class="tag t-imp">implique obligation d'observateur</span></span></li>
     </ul>
+    <div class="note-line" style="border-color:var(--a3);background:var(--a3-soft)">💬 "Regardez sur votre drone ou sa boîte : y a-t-il une étiquette avec C3 ou C4 ? Si non, votre drone est soit legacy (acheté avant 2024), soit artisanal — dans tous les cas, il est limité à la sous-catégorie A3."</div>
   </div>
 
   <div class="scard">
-    <div class="scard-head"><div class="scard-num" style="background:var(--a3-soft);color:var(--a3)">02</div><span class="scard-label">État de conformité — obligations FPV</span></div>
-    <ul class="cl">
-      <li class="cl-item" onclick="toggleCheck(this)"><div class="cl-box" style="color:var(--a3)"></div><span class="cl-text"><strong>Observateur</strong> présent et informé à chaque vol <span class="tag t-obl">toujours obligatoire</span></span></li>
-      <li class="cl-item" onclick="toggleCheck(this)"><div class="cl-box" style="color:var(--a3)"></div><span class="cl-text">Enregistrement exploitant AlphaTango (si caméra) <span class="tag t-obl">obligatoire</span></span></li>
-      <li class="cl-item" onclick="toggleCheck(this)"><div class="cl-box" style="color:var(--a3)"></div><span class="cl-text">Formation A1/A3 si drone C1 ou C2 <span class="tag t-obl">obligatoire</span></span></li>
-      <li class="cl-item" onclick="toggleCheck(this)"><div class="cl-box" style="color:var(--a3)"></div><span class="cl-text">Balise de signalement si drone &gt;800g <span class="tag t-obl">obligatoire</span></span></li>
-      <li class="cl-item" onclick="toggleCheck(this)"><div class="cl-box" style="color:var(--a3)"></div><span class="cl-text">Failsafe (retour auto) configuré et testé ?</span></li>
-      <li class="cl-item" onclick="toggleCheck(this)"><div class="cl-box" style="color:var(--a3)"></div><span class="cl-text">Assurance RC aérienne souscrite ? <span class="tag t-obl">obligatoire</span></span></li>
+    <div class="scard-head"><div class="scard-num" style="background:var(--a3-soft);color:var(--a3)">02</div><span class="scard-label">État de conformité — obligations selon le profil</span></div>
+    <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:.6rem;padding-bottom:.5rem;border-bottom:1px solid var(--border)">▶ Commun à tous les profils A3</div>
+    <ul class="cl" style="margin-bottom:1rem">
+      <li class="cl-item" onclick="toggleCheck(this)"><div class="cl-box" style="color:var(--a3)"></div><span class="cl-text">Attestation OPEN A1/A3 obtenue (40 QCM gratuits sur AlphaTango) ? <span class="tag t-obl">obligatoire — tous profils</span></span></li>
+      <li class="cl-item" onclick="toggleCheck(this)"><div class="cl-box" style="color:var(--a3)"></div><span class="cl-text">Assurance RC aérienne souscrite ? <span class="tag t-obl">obligatoire — tous profils</span></span></li>
+      <li class="cl-item" onclick="toggleCheck(this)"><div class="cl-box" style="color:var(--a3)"></div><span class="cl-text">Connaissance de la restriction A3 (150 m des zones habitées) ? <span class="tag t-imp">souvent totalement méconnue</span></span></li>
+      <li class="cl-item" onclick="toggleCheck(this)"><div class="cl-box" style="color:var(--a3)"></div><span class="cl-text">Si lunettes FPV : présence d'un <strong>observateur</strong> lors des vols ? <span class="tag t-obl">obligatoire</span></span></li>
     </ul>
-    <div class="note-line" style="border-color:var(--a3);background:var(--a3-soft)">💬 "Voler en FPV sans observateur à côté de vous, c'est une infraction à chaque vol — même si votre drone est petit. C'est le premier point que l'on va régler ensemble."</div>
+    <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--a3);margin-bottom:.6rem;padding-bottom:.5rem;border-bottom:1px solid var(--border)">▶ Spécifique C3 / C4 (avec marquage CE)</div>
+    <ul class="cl" style="margin-bottom:1rem">
+      <li class="cl-item" onclick="toggleCheck(this)"><div class="cl-box" style="color:var(--a3)"></div><span class="cl-text">Enregistrement de l'aéronef sur AlphaTango (obligatoire si &gt;800 g ou Remote ID) ? <span class="tag t-obl">obligatoire C3/C4</span></span></li>
+      <li class="cl-item" onclick="toggleCheck(this)"><div class="cl-box" style="color:var(--a3)"></div><span class="cl-text">Enregistrement de l'exploitant sur AlphaTango ? <span class="tag t-obl">obligatoire C3/C4</span></span></li>
+      <li class="cl-item" onclick="toggleCheck(this)"><div class="cl-box" style="color:var(--a3)"></div><span class="cl-text">C3 : Remote ID (identification directe à distance) opérationnel et configuré ? <span class="tag t-obl">obligatoire C3</span></span></li>
+      <li class="cl-item" onclick="toggleCheck(this)"><div class="cl-box" style="color:var(--a3)"></div><span class="cl-text">C3 : Géovigilance (geofencing) activée sur le drone ? <span class="tag t-obl">obligatoire C3</span></span></li>
+      <li class="cl-item" onclick="toggleCheck(this)"><div class="cl-box" style="color:var(--a3)"></div><span class="cl-text">Marquage physique (numéro d'exploitant + numéro aéronef apposés) ?</span></li>
+    </ul>
+    <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:.6rem;padding-bottom:.5rem;border-bottom:1px solid var(--border)">▶ Spécifique Legacy / FPV artisanal (sans marquage CE)</div>
+    <ul class="cl">
+      <li class="cl-item" onclick="toggleCheck(this)"><div class="cl-box" style="color:var(--a3)"></div><span class="cl-text">Enregistrement de l'exploitant sur AlphaTango (si caméra ou drone &gt;250 g) ? <span class="tag t-obl">obligatoire si applicable</span></span></li>
+      <li class="cl-item" onclick="toggleCheck(this)"><div class="cl-box" style="color:var(--a3)"></div><span class="cl-text">Numéro d'exploitant apposé sur le ou les drones (si enregistré) ?</span></li>
+      <li class="cl-item" onclick="toggleCheck(this)"><div class="cl-box" style="color:var(--a3)"></div><span class="cl-text">Firmware à jour et failsafe configuré correctement ?</span></li>
+    </ul>
+    <div class="note-line" style="border-color:var(--a3);background:var(--a3-soft)"">💬 "Avez-vous déjà entendu parler de la sous-catégorie A3 ?" — La quasi-totalité des pilotes n'a aucune idée de cette restriction. C'est le point de départ de la conversation, quel que soit le profil.</div>
   </div>
 
   <div class="scard">
-    <div class="scard-head"><div class="scard-num" style="background:var(--a3-soft);color:var(--a3)">03</div><span class="scard-label">Pratiques de vol</span></div>
+    <div class="scard-head"><div class="scard-num" style="background:var(--a3-soft);color:var(--a3)">03</div><span class="scard-label">Pratiques de vol — spécificités A3 / FPV</span></div>
     <ul class="cl">
-      <li class="cl-item" onclick="toggleCheck(this)"><div class="cl-box" style="color:var(--a3)"></div><span class="cl-text">Vols en zone dégagée ou proche de personnes / bâtiments ?</span></li>
+      <li class="cl-item" onclick="toggleCheck(this)"><div class="cl-box" style="color:var(--a3)"></div><span class="cl-text">Vol à moins de 150 m des zones résidentielles, commerciales, industrielles ou récréatives ? <span class="tag t-obl">interdit en A3</span></span></li>
+      <li class="cl-item" onclick="toggleCheck(this)"><div class="cl-box" style="color:var(--a3)"></div><span class="cl-text">Vol en zones urbaines, parcs, bâtiments abandonnés ? <span class="tag t-obl">interdit en A3</span></span></li>
+      <li class="cl-item" onclick="toggleCheck(this)"><div class="cl-box" style="color:var(--a3)"></div><span class="cl-text">Altitude maximale de 120 m respectée ?</span></li>
+      <li class="cl-item" onclick="toggleCheck(this)"><div class="cl-box" style="color:var(--a3)"></div><span class="cl-text">Vol en vue directe (VLOS) — ou FPV avec lunettes seules ? <span class="tag t-imp">observateur requis si lunettes</span></span></li>
       <li class="cl-item" onclick="toggleCheck(this)"><div class="cl-box" style="color:var(--a3)"></div><span class="cl-text">Communication pilote / observateur établie ?</span></li>
-      <li class="cl-item" onclick="toggleCheck(this)"><div class="cl-box" style="color:var(--a3)"></div><span class="cl-text">Checklist pré-vol réalisée (batteries, hélices, failsafe) ?</span></li>
-      <li class="cl-item" onclick="toggleCheck(this)"><div class="cl-box" style="color:var(--a3)"></div><span class="cl-text">Zones interdites vérifiées sur Géoportail ?</span></li>
+      <li class="cl-item" onclick="toggleCheck(this)"><div class="cl-box" style="color:var(--a3)"></div><span class="cl-text">Vols de nuit ? <span class="tag t-obl">interdits sans autorisation spécifique</span></span></li>
+      <li class="cl-item" onclick="toggleCheck(this)"><div class="cl-box" style="color:var(--a3)"></div><span class="cl-text">Participation à des compétitions de racing ? <span class="tag t-imp">clubs et dérogations possibles</span></span></li>
+      <li class="cl-item" onclick="toggleCheck(this)"><div class="cl-box" style="color:var(--a3)"></div><span class="cl-text">Connaissance des zones interdites via Géoportail avant chaque vol ?</span></li>
     </ul>
   </div>
 
   <div class="scard">
     <div class="scard-head"><div class="scard-num" style="background:var(--a3-soft);color:var(--a3)">04</div><span class="scard-label">Ce que je propose — audit FPV / DIY</span></div>
-    <div class="note-line" style="border-color:var(--a3);background:var(--a3-soft);margin-top:0;margin-bottom:1rem">💬 "Je propose un audit FPV spécialisé en 1h30 à 156 € TTC. On forme votre observateur, on règle les enregistrements selon votre drone, et on configure les sécurités."</div>
+    <div class="note-line" style="border-color:var(--a3);background:var(--a3-soft);margin-top:0;margin-bottom:1rem">💬 "Votre situation est spécifique — quel que soit votre profil (C3, C4, legacy ou FPV), votre drone est limité à la sous-catégorie A3. Je vous aide à identifier précisément vos obligations, à régulariser votre situation, et à trouver des zones de vol conformes."</div>
     <div class="srv-grid">
-      <div class="srv-card" onclick="showDetail('diagnostic-fpv','a3')"><div class="srv-ico" style="background:var(--a3-soft)">🔍</div><div class="srv-name">Diagnostic classe FPV</div><div class="srv-desc">Identification obligations selon classe du drone</div><div class="srv-price" style="color:var(--a3)">inclus</div></div>
-      <div class="srv-card" onclick="showDetail('enregistrements-fpv','a3')"><div class="srv-ico" style="background:var(--a3-soft)">📋</div><div class="srv-name">Enregistrements adaptés</div><div class="srv-desc">AlphaTango selon obligations réelles</div><div class="srv-price" style="color:var(--a3)">inclus</div></div>
+      <div class="srv-card" onclick="showDetail('diagnostic-fpv','a3')"><div class="srv-ico" style="background:var(--a3-soft)">🔍</div><div class="srv-name">Diagnostic classe FPV</div><div class="srv-desc">Identification obligations selon profil C3/C4/Legacy/FPV</div><div class="srv-price" style="color:var(--a3)">inclus</div></div>
+      <div class="srv-card" onclick="showDetail('enregistrements-fpv','a3')"><div class="srv-ico" style="background:var(--a3-soft)">📋</div><div class="srv-name">Enregistrements adaptés</div><div class="srv-desc">C3/C4 : aéronef + exploitant — Legacy/FPV : exploitant si caméra</div><div class="srv-price" style="color:var(--a3)">inclus</div></div>
       <div class="srv-card" onclick="showDetail('formation-observateur','a3')"><div class="srv-ico" style="background:var(--a3-soft)">👁️</div><div class="srv-name">Formation observateur</div><div class="srv-desc">Briefing, communication, rôle légal</div><div class="srv-price" style="color:var(--a3)">inclus</div></div>
       <div class="srv-card" onclick="showDetail('failsafe','a3')"><div class="srv-ico" style="background:var(--a3-soft)">⚙️</div><div class="srv-name">Failsafe & sécurités</div><div class="srv-desc">Configuration retour auto, procédures urgence</div><div class="srv-price" style="color:var(--a3)">inclus</div></div>
+      <div class="srv-card" onclick="showDetail('zones-a3','a3')"><div class="srv-ico" style="background:var(--a3-soft)">🗺</div><div class="srv-name">Zones A3 conformes</div><div class="srv-desc">Trouver des spots légaux — clubs FFAM — terrains homologués</div><div class="srv-price" style="color:var(--a3)">inclus</div></div>
+      <div class="srv-card" onclick="showDetail('remote-id-c3','a3')"><div class="srv-ico" style="background:var(--a3-soft)">📡</div><div class="srv-name">Remote ID & géovigilance C3</div><div class="srv-desc">Spécifique C3 — config, test, conformité technique</div><div class="srv-price" style="color:var(--a3)">inclus</div></div>
       <div class="srv-card" onclick="showDetail('balise','a3')"><div class="srv-ico" style="background:var(--a3-soft)">📡</div><div class="srv-name">Balise si &gt;800g</div><div class="srv-desc">Installation + déclaration AlphaTango</div><div class="srv-price" style="color:var(--a3)">+60 € TTC</div></div>
       <div class="srv-card" onclick="showDetail('diy-sans-classe','a3')"><div class="srv-ico" style="background:var(--a3-soft)">🔧</div><div class="srv-name">DIY sans classe CE</div><div class="srv-desc">Orientation catégorie spécifique / CATS</div><div class="srv-price" style="color:var(--a3)">108 € TTC</div></div>
     </div>
@@ -790,18 +833,21 @@ textarea::placeholder{color:var(--hint);}
 
   <div class="scard">
     <div class="scard-head"><div class="scard-num" style="background:var(--red-soft);color:var(--red)">05</div><span class="scard-label">Risques à communiquer</span></div>
-    <div class="risk-item"><div class="risk-ico">🥽</div><div class="risk-txt">Vol FPV sans observateur : <strong style="color:var(--red)">infraction à chaque vol</strong>, amende 135 € → 750 €</div></div>
-    <div class="risk-item"><div class="risk-ico">🔧</div><div class="risk-txt">DIY sans classe CE : peut relever de la <strong style="color:var(--red)">catégorie spécifique</strong>, obligations beaucoup plus lourdes</div></div>
-    <div class="risk-item"><div class="risk-ico">💸</div><div class="risk-txt">Accident sans observateur → assurance peut refuser la couverture</div></div>
+    <div class="risk-item"><div class="risk-ico">⚖</div><div class="risk-txt">Vol en zone habitée avec un legacy : <strong style="color:var(--red)">infraction directe au règlement EU 2019/947</strong> — amende jusqu'à 75 000 € et 1 an d'emprisonnement</div></div>
+    <div class="risk-item"><div class="risk-ico">🥽</div><div class="risk-txt">Vol FPV avec lunettes sans observateur : <strong style="color:var(--red)">vol hors vue directe non autorisé</strong> en catégorie ouverte — infraction immédiate</div></div>
+    <div class="risk-item"><div class="risk-ico">💸</div><div class="risk-txt">Sans assurance RC : responsabilité civile personnelle illimitée — un drone FPV artisanal peut causer des dommages graves à des tiers</div></div>
+    <div class="risk-item"><div class="risk-ico">🚁</div><div class="risk-txt"><strong style="color:var(--red)">Saisie de l'appareil lors d'un contrôle</strong> — très fréquent sur les spots FPV urbains en raison des nuisances signalées</div></div>
+    <div class="risk-item"><div class="risk-ico">🏁</div><div class="risk-txt">Compétition de racing sans cadre fédéral : <strong style="color:var(--red)">événement illégal</strong> sans déclaration préfectorale et sans dérogation au survol de personnes</div></div>
+    <div class="note-line" style="border-color:var(--a3);background:var(--a3-soft)">💬 La communauté FPV est très soudée mais quasi totalement non-informée. L'approche doit être non-culpabilisante — beaucoup de ces pilotes sont très techniques mais n'ont simplement jamais eu accès à l'information réglementaire.</div>
   </div>
 
   <div class="scard">
     <div class="scard-head"><div class="scard-num" style="background:var(--a3-soft);color:var(--a3)">06</div><span class="scard-label">Conclusion de l'appel</span></div>
     <div class="close-grid">
-      <div class="close-item"><div class="close-num" style="background:var(--a3-soft);color:var(--a3)">1</div><div class="close-txt">Proposer audit FPV 1h30 à 156 € ou DIY 1h à 108 €</div></div>
-      <div class="close-item"><div class="close-num" style="background:var(--a3-soft);color:var(--a3)">2</div><div class="close-txt">Préciser qu'on forme aussi l'observateur (différenciateur)</div></div>
-      <div class="close-item"><div class="close-num" style="background:var(--a3-soft);color:var(--a3)">3</div><div class="close-txt">Mentionner : -20% de lancement / parrainage -10%</div></div>
-      <div class="close-item"><div class="close-num" style="background:var(--a3-soft);color:var(--a3)">4</div><div class="close-txt">Laisser coordonnées et disponibilités</div></div>
+      <div class="close-item"><div class="close-num" style="background:var(--a3-soft);color:var(--a3)">1</div><div class="close-txt">Proposer un audit adapté au profil FPV / legacy (format différent du C1/C2)</div></div>
+      <div class="close-item"><div class="close-num" style="background:var(--a3-soft);color:var(--a3)">2</div><div class="close-txt">Envoyer email récap + carte des zones A3 conformes à proximité</div></div>
+      <div class="close-item"><div class="close-num" style="background:var(--a3-soft);color:var(--a3)">3</div><div class="close-txt">Mentionner la possibilité d'adhérer à un club homologué (dérogations possibles)</div></div>
+      <div class="close-item"><div class="close-num" style="background:var(--a3-soft);color:var(--a3)">4</div><div class="close-txt">Préciser le tarif et disponibilités — laisser coordonnées</div></div>
     </div>
   </div>
 </div></div>
