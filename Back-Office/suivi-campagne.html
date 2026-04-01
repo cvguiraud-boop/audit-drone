@@ -786,20 +786,21 @@ function exportCSV() {
   a.click();
 }
 
-// ─── SAVE ─────────────────────────────────────────────────────────────────────
-
-function save() {
-  localStorage.setItem('lbc-contacts', JSON.stringify(contacts));
-}
-
 // ─── INIT ─────────────────────────────────────────────────────────────────────
 
 document.getElementById('msg-modal').addEventListener('click', function(e) {
   if (e.target === this) closeModal();
 });
 
-renderTable();
-updateStats();
+async function init() {
+  const { data, error } = await sb.from('contacts').select('*').order('id', { ascending: false });
+  if (error) { console.error('Erreur chargement Supabase:', error); return; }
+  contacts = data || [];
+  renderTable();
+  updateStats();
+}
+
+init();
 </script>
 </body>
 </html>
