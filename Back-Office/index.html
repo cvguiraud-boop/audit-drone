@@ -1151,9 +1151,16 @@ function showPage(id){
 }
 function goHome(){showPage('home');}
 
+// ══ SUPABASE ══════════════════════════════════════════════════════════════
+
+const sb = supabase.createClient(
+  'https://ycbftroaxfkqnxxxnzzo.supabase.co',
+  'sb_publishable_Av6ydkz6THGGL0dSxc9o0A_Wd5sB8XC'
+);
+
 // ══ PROSPECTS ══════════════════════════════════════════════════════════════
 
-let prospects = JSON.parse(localStorage.getItem('bo-prospects') || '[]');
+let prospects = [];
 let pdmCurrentId = null;
 
 const PSTATUTS = {
