@@ -1349,9 +1349,12 @@ function openPDM(id) {
   document.getElementById('pdm').classList.add('open');
 }
 
-function updatePNotes() {
+async function updatePNotes() {
   const p = prospects.find(p => p.id === pdmCurrentId);
-  if (p) { p.notes = document.getElementById('pdm-notes').value; saveProspects(); renderProspects(); }
+  if (!p) return;
+  p.notes = document.getElementById('pdm-notes').value;
+  await sb.from('prospects').update({ notes: p.notes }).eq('id', p.id);
+  renderProspects();
 }
 
 function closePDM() {
